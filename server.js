@@ -52,6 +52,14 @@ app.get('/api/health', (req, res) => {
   });
 });
 
+/* ─── Root Route ─── */
+app.get('/', (req, res) => {
+  res.json({
+    success: true,
+    message: 'Welcome to the RIWAYAT API. The server is running successfully!'
+  });
+});
+
 /* ─── 404 handler ─── */
 app.use((req, res) => {
   res.status(404).json({ success: false, message: `Route ${req.originalUrl} not found` });
@@ -68,3 +76,5 @@ app.listen(PORT, () => {
 });
 
 module.exports = app;
+
+
