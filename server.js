@@ -13,7 +13,7 @@ const app = express();
 
 /* ─── Global Middleware ─── */
 app.use(cors({
-  origin: [process.env.FRONTEND_URL || 'https://riwayt-backend.onrender.com/', 'null'], // 'null' allows file:// for dev
+  origin: [process.env.FRONTEND_URL || 'http://localhost:3000', 'null'], // 'null' allows file:// for dev
   credentials: true,
 }));
 
