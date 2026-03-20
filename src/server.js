@@ -45,7 +45,8 @@ app.use('/api/customers',   customerRoutes);
 app.use('/api/settings',    settingsRoutes);
 app.use('/api/video',       videoRoutes);
 app.use('/api/categories',  categoryRoutes);
-
+const sitemapRoute = require('./routes/sitemap');
+app.use('/sitemap.xml', sitemapRoute);
 app.get('/admin', (req, res) => res.sendFile(path.join(__dirname, '../public/admin/index.html')));
 app.get('/', (req, res) => res.sendFile(path.join(__dirname, '../public/index.html')));
 app.get('/health', (req, res) => res.json({ status: 'ok' }));
