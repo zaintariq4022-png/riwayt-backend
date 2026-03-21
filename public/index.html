@@ -54,6 +54,89 @@
     button { cursor: pointer; border: none; background: none; font-family: var(--font-body); }
     ul { list-style: none; }
 
+
+    /* =============================================
+       FULLY RESPONSIVE HEADER & FOOTER
+    ============================================= */
+
+    /* Announcement bar - scroll on small screens */
+    .announcement-bar {
+      white-space: nowrap;
+      overflow-x: auto;
+      -webkit-overflow-scrolling: touch;
+      scrollbar-width: none;
+      text-overflow: ellipsis;
+    }
+    .announcement-bar::-webkit-scrollbar { display: none; }
+
+    /* Header auto-adjust */
+    .header-top {
+      padding: 0 clamp(12px, 3vw, 40px);
+      height: clamp(56px, 8vw, 72px);
+      gap: clamp(8px, 1.5vw, 20px);
+    }
+    .logo {
+      font-size: clamp(1.1rem, 2.5vw, 2rem);
+      letter-spacing: clamp(0.1em, 0.8vw, 0.3em);
+    }
+    .search-wrap {
+      max-width: clamp(140px, 30vw, 500px);
+    }
+    .icon-btn {
+      padding: clamp(6px, 1vw, 8px) clamp(8px, 1.2vw, 14px);
+      font-size: clamp(0.65rem, 1vw, 0.78rem);
+      gap: clamp(3px, 0.5vw, 6px);
+    }
+    .icon-btn svg {
+      width: clamp(16px, 2vw, 20px);
+      height: clamp(16px, 2vw, 20px);
+    }
+
+    /* Footer auto-adjust */
+    footer {
+      padding: clamp(30px, 5vw, 80px) clamp(14px, 4vw, 60px) clamp(16px, 3vw, 40px);
+    }
+    .footer-grid {
+      gap: clamp(20px, 3vw, 60px);
+    }
+    .footer-brand p {
+      font-size: clamp(0.75rem, 1.2vw, 0.88rem);
+    }
+
+    @media (max-width: 1100px) {
+      .icon-btn span { font-size: 0.72rem; }
+      .search-wrap { max-width: 220px; }
+    }
+
+    @media (max-width: 900px) {
+      .icon-btn span { display: none; }
+      .icon-btn { padding: 8px 10px; }
+      .search-wrap { max-width: 180px; }
+      .footer-grid { grid-template-columns: 1fr 1fr; gap: 28px; }
+      .footer-brand { grid-column: span 2; }
+    }
+
+    @media (max-width: 600px) {
+      .announcement-bar { font-size: 0.65rem; padding: 8px 12px; letter-spacing: 0.06em; }
+      .header-top { padding: 0 12px; height: 54px; }
+      .logo { font-size: 1.3rem; letter-spacing: 0.15em; }
+      .search-wrap { display: none; }
+      .icon-btn { padding: 7px 8px; }
+      .icon-btn svg { width: 18px; height: 18px; }
+      .footer-grid { grid-template-columns: 1fr; gap: 20px; }
+      .footer-brand { grid-column: span 1; }
+      .footer-col h4 { font-size: 0.85rem; }
+      .footer-bottom { flex-direction: column; text-align: center; gap: 8px; }
+      .footer-payment { justify-content: center; flex-wrap: wrap; }
+    }
+
+    @media (max-width: 380px) {
+      .header-top { padding: 0 8px; height: 50px; }
+      .logo { font-size: 1.1rem; letter-spacing: 0.1em; }
+      .icon-btn { padding: 6px 7px; }
+      .icon-btn svg { width: 16px; height: 16px; }
+    }
+
     /* =============================================
        PAGE SYSTEM — Show/Hide Pages
     ============================================= */
@@ -3168,7 +3251,7 @@
 /* ==============================================
    BACKEND API URL
 ============================================== */
-const API_URL = 'https://www.riwayat-pakistan.online/api';
+const API_URL = 'http://localhost:5000/api';
 
 /* ==============================================
    DATA — Products (Backend se load honge)
