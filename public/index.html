@@ -54,6 +54,89 @@
     button { cursor: pointer; border: none; background: none; font-family: var(--font-body); }
     ul { list-style: none; }
 
+
+    /* =============================================
+       FULLY RESPONSIVE HEADER & FOOTER
+    ============================================= */
+
+    /* Announcement bar - scroll on small screens */
+    .announcement-bar {
+      white-space: nowrap;
+      overflow-x: auto;
+      -webkit-overflow-scrolling: touch;
+      scrollbar-width: none;
+      text-overflow: ellipsis;
+    }
+    .announcement-bar::-webkit-scrollbar { display: none; }
+
+    /* Header auto-adjust */
+    .header-top {
+      padding: 0 clamp(12px, 3vw, 40px);
+      height: clamp(56px, 8vw, 72px);
+      gap: clamp(8px, 1.5vw, 20px);
+    }
+    .logo {
+      font-size: clamp(1.1rem, 2.5vw, 2rem);
+      letter-spacing: clamp(0.1em, 0.8vw, 0.3em);
+    }
+    .search-wrap {
+      max-width: clamp(140px, 30vw, 500px);
+    }
+    .icon-btn {
+      padding: clamp(6px, 1vw, 8px) clamp(8px, 1.2vw, 14px);
+      font-size: clamp(0.65rem, 1vw, 0.78rem);
+      gap: clamp(3px, 0.5vw, 6px);
+    }
+    .icon-btn svg {
+      width: clamp(16px, 2vw, 20px);
+      height: clamp(16px, 2vw, 20px);
+    }
+
+    /* Footer auto-adjust */
+    footer {
+      padding: clamp(30px, 5vw, 80px) clamp(14px, 4vw, 60px) clamp(16px, 3vw, 40px);
+    }
+    .footer-grid {
+      gap: clamp(20px, 3vw, 60px);
+    }
+    .footer-brand p {
+      font-size: clamp(0.75rem, 1.2vw, 0.88rem);
+    }
+
+    @media (max-width: 1100px) {
+      .icon-btn span { font-size: 0.72rem; }
+      .search-wrap { max-width: 220px; }
+    }
+
+    @media (max-width: 900px) {
+      .icon-btn span { display: none; }
+      .icon-btn { padding: 8px 10px; }
+      .search-wrap { max-width: 180px; }
+      .footer-grid { grid-template-columns: 1fr 1fr; gap: 28px; }
+      .footer-brand { grid-column: span 2; }
+    }
+
+    @media (max-width: 600px) {
+      .announcement-bar { font-size: 0.65rem; padding: 8px 12px; letter-spacing: 0.06em; }
+      .header-top { padding: 0 12px; height: 54px; }
+      .logo { font-size: 1.3rem; letter-spacing: 0.15em; }
+      .search-wrap { display: none; }
+      .icon-btn { padding: 7px 8px; }
+      .icon-btn svg { width: 18px; height: 18px; }
+      .footer-grid { grid-template-columns: 1fr; gap: 20px; }
+      .footer-brand { grid-column: span 1; }
+      .footer-col h4 { font-size: 0.85rem; }
+      .footer-bottom { flex-direction: column; text-align: center; gap: 8px; }
+      .footer-payment { justify-content: center; flex-wrap: wrap; }
+    }
+
+    @media (max-width: 380px) {
+      .header-top { padding: 0 8px; height: 50px; }
+      .logo { font-size: 1.1rem; letter-spacing: 0.1em; }
+      .icon-btn { padding: 6px 7px; }
+      .icon-btn svg { width: 16px; height: 16px; }
+    }
+
     /* =============================================
        PAGE SYSTEM — Show/Hide Pages
     ============================================= */
@@ -2008,7 +2091,6 @@
       .menu-toggle { display: flex; }
       .logo { font-size: clamp(1.2rem, 4.5vw, 1.5rem); letter-spacing: 0.18em; }
       .search-wrap { display: none; }
-      .mobile-search-btn { display: flex !important; }
       .icon-btn span { display: none; }
       .icon-btn { padding: 8px 9px; }
       .icon-btn svg { width: 18px; height: 18px; }
@@ -2156,11 +2238,6 @@
 
     <!-- Icons -->
     <div class="header-icons">
-      <button class="icon-btn mobile-search-btn" onclick="toggleMobileSearch()" aria-label="Search">
-        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" width="20" height="20">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M21 21l-5.197-5.197m0 0A7.5 7.5 0 105.196 5.196a7.5 7.5 0 0010.607 10.607z"/>
-        </svg>
-      </button>
       <button class="icon-btn" onclick="showAccountPage()">
         <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M15.75 6a3.75 3.75 0 11-7.5 0 3.75 3.75 0 017.5 0zM4.501 20.118a7.5 7.5 0 0114.998 0A17.933 17.933 0 0112 21.75c-2.676 0-5.216-.584-7.499-1.632z"/></svg>
         <span>Account</span>
@@ -2184,18 +2261,6 @@
   <!-- Main Nav REMOVED -->
 </header>
 
-<!-- Mobile Search Overlay -->
-<div class="mobile-search-overlay" id="mobileSearchOverlay">
-  <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" width="18" height="18" style="color:var(--mid-gray);flex-shrink:0">
-    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M21 21l-5.197-5.197m0 0A7.5 7.5 0 105.196 5.196a7.5 7.5 0 0010.607 10.607z"/>
-  </svg>
-  <input type="text" id="mobileSearchInput" placeholder="Search kurtas, lawn, linen..."
-    autocomplete="new-password"
-    oninput="handleSearch(this.value); document.getElementById('searchInput').value=this.value;"
-    onkeydown="if(event.key==='Escape') closeMobileSearch();" />
-  <button class="mobile-search-close" onclick="closeMobileSearch()">&#10005;</button>
-</div>
-
 <!-- =============================================
      CATEGORY BAR (below header)
 ============================================= -->
@@ -2212,17 +2277,17 @@
 <!-- =============================================
      MOBILE NAV OVERLAY
 ============================================= -->
-<div class="mobile-nav-overlay" id="mobileNavOverlay" onclick="closeMobileNav()"></div>
+<div class="mobile-nav-overlay" id="mobileNavOverlay" onclick="toggleMobileNav()"></div>
 <div class="mobile-nav" id="mobileNav">
-  <div class="mobile-nav-close" onclick="closeMobileNav()">✕</div>
+  <div class="mobile-nav-close" onclick="toggleMobileNav()">✕</div>
   <div class="logo" style="font-size:1.6rem">RIWAYAT</div>
   <ul class="mobile-nav-list">
-    <li><a href="#" onclick="filterCategory('all');closeMobileNav();return false;">All Products</a></li>
-    <li><a href="#" onclick="filterCategory('women');closeMobileNav();return false;">Women</a></li>
-    <li><a href="#" onclick="filterCategory('kids');closeMobileNav();return false;">Kids</a></li>
-    <li><a href="#" onclick="filterCategory('sale');closeMobileNav();return false;" style="color:var(--terracotta)">Sale</a></li>
-    <li><a href="#" onclick="filterCategory('new');closeMobileNav();return false;" style="color:var(--sage)">New Arrivals</a></li>
-    <li><a href="#" onclick="filterCategory('stitching');closeMobileNav();return false;">Stitching Details</a></li>
+    <li><a href="#" onclick="filterCategory('all');toggleMobileNav();return false;">All Products</a></li>
+    <li><a href="#" onclick="filterCategory('women');toggleMobileNav();return false;">Women</a></li>
+    <li><a href="#" onclick="filterCategory('kids');toggleMobileNav();return false;">Kids</a></li>
+    <li><a href="#" onclick="filterCategory('sale');toggleMobileNav();return false;" style="color:var(--terracotta)">Sale</a></li>
+    <li><a href="#" onclick="filterCategory('new');toggleMobileNav();return false;" style="color:var(--sage)">New Arrivals</a></li>
+    <li><a href="#" onclick="filterCategory('stitching');toggleMobileNav();return false;">Stitching Details</a></li>
   </ul>
 </div>
 
@@ -3186,7 +3251,7 @@
 /* ==============================================
    BACKEND API URL
 ============================================== */
-const API_URL = 'http://localhost:5000/api';
+const API_URL = window.location.hostname === 'localhost' ? 'http://localhost:5000/api' : 'https://www.riwayat-pakistan.online/api';
 
 /* ==============================================
    DATA — Products (Backend se load honge)
@@ -3422,7 +3487,7 @@ function renderProducts(filter) {
     <div class="product-card" onclick="openProduct('${p.id}')">
       <div class="product-img-wrap">
         ${p.images && p.images.length > 0 
-          ? `<img src="http://localhost:5000${p.images[0]}" style="width:100%;height:100%;object-fit:cover;" alt="${p.name}"/>`
+          ? `<img src="${API_URL.replace('/api','')}${p.images[0]}" style="width:100%;height:100%;object-fit:cover;" alt="${p.name}"/>`
           : `<div class="prod-img-placeholder" style="background:${p.bg}"><span style="font-size:4rem">${p.emoji}</span></div>`
         }
         ${p.tags.includes('sale') ? '<span class="badge badge-sale">Sale</span>' : ''}
@@ -3494,7 +3559,7 @@ function renderProductCard(p) {
     <div class="product-card" onclick="openProduct('${p.id}')">
       <div class="product-img-wrap">
         ${p.images && p.images.length > 0 
-          ? `<img src="http://localhost:5000${p.images[0]}" style="width:100%;height:100%;object-fit:cover;" alt="${p.name}"/>`
+          ? `<img src="${API_URL.replace('/api','')}${p.images[0]}" style="width:100%;height:100%;object-fit:cover;" alt="${p.name}"/>`
           : `<div class="prod-img-placeholder" style="background:${p.bg}"><span style="font-size:4rem">${p.emoji}</span></div>`
         }
         ${p.tags.includes('sale') ? '<span class="badge badge-sale">Sale</span>' : ''}
@@ -3525,81 +3590,21 @@ function loadMore() {
   renderProducts(currentFilter);
 }
 
-let _searchTimer = null;
 function handleSearch(val) {
-  clearTimeout(_searchTimer);
-  const grid = document.getElementById('productGrid');
   if (!val.trim()) { renderProducts(currentFilter); return; }
-  grid.innerHTML = '<div style="grid-column:1/-1;text-align:center;padding:60px 20px;color:var(--mid-gray);"><div style="font-size:2rem;margin-bottom:10px;">🔍</div><div style="font-family:var(--font-display);font-size:1.2rem;">Searching...</div></div>';
-  const sec = document.getElementById('productsSection');
-  if (sec) sec.scrollIntoView({ behavior: 'smooth' });
-  _searchTimer = setTimeout(async () => {
-    const q = val.trim().toLowerCase();
-    const local = PRODUCTS.filter(p =>
-      p.name.toLowerCase().includes(q) ||
-      (p.fabric && p.fabric.toLowerCase().includes(q)) ||
-      (p.fabric_detail && p.fabric_detail.toLowerCase().includes(q)) ||
-      p.category.toLowerCase().includes(q) ||
-      (p.tags && p.tags.some(t => t.toLowerCase().includes(q)))
-    );
-    if (local.length > 0) { renderSearchResults(local, val); return; }
-    try {
-      const res = await fetch(API_URL + '/products?search=' + encodeURIComponent(val) + '&limit=50');
-      const data = await res.json();
-      if (data.success && data.products.length > 0) {
-        const apiResults = data.products.map(p => ({
-          id: p._id, name: p.name,
-          fabric: p.fabric ? p.fabric + ' · ' + p.category : p.category,
-          fabric_detail: p.description || p.fabric || '',
-          category: p.category, price: p.price,
-          original: p.originalPrice || null,
-          discount: p.originalPrice ? Math.round(((p.originalPrice - p.price) / p.originalPrice) * 100) : 0,
-          colors: p.colors && p.colors.length ? p.colors : ['#C9A84C','#D4847A','#7A8C6E'],
-          emoji: p.emoji || '👗', bg: p.bgColor || 'linear-gradient(160deg,#E8D4B0,#A08040)',
-          tags: [].concat(p.isNew?['new']:[]).concat(p.isSale?['sale']:[]).concat(p.isFeatured?['hot']:[]),
-          images: p.images || [], stock: p.stock || 0,
-        }));
-        renderSearchResults(apiResults, val);
-      } else { renderSearchResults([], val); }
-    } catch(e) { renderSearchResults([], val); }
-  }, 350);
-}
-
-function renderSearchResults(results, query) {
+  const q = val.toLowerCase();
+  const results = PRODUCTS.filter(p =>
+    p.name.toLowerCase().includes(q) ||
+    (p.fabric && p.fabric.toLowerCase().includes(q)) ||
+    p.category.toLowerCase().includes(q)
+  );
   const grid = document.getElementById('productGrid');
   if (!results.length) {
-    grid.innerHTML = '<div style="grid-column:1/-1;text-align:center;padding:80px 20px;">'
-      + '<div style="font-size:3rem;margin-bottom:16px;">🔍</div>'
-      + '<div style="font-family:var(--font-display);font-size:1.6rem;color:var(--charcoal);margin-bottom:8px;">No results for &quot;' + query + '&quot;</div>'
-      + '<p style="color:var(--mid-gray);font-size:0.88rem;margin-bottom:24px;">Try fabric name, category, or product name</p>'
-      + '<button onclick="document.getElementById('searchInput').value='';var mi=document.getElementById('mobileSearchInput');if(mi)mi.value='';handleSearch('');" '
-      + 'style="background:var(--charcoal);color:white;padding:10px 28px;border:none;cursor:pointer;font-family:var(--font-body);letter-spacing:1px;font-size:0.85rem;">CLEAR SEARCH</button></div>';
+    grid.innerHTML = `<div style="grid-column:span 4;text-align:center;padding:60px 20px;color:var(--mid-gray);font-family:var(--font-display);font-size:1.4rem">No results found for "<em>${val}</em>"</div>`;
   } else {
-    const banner = '<div style="grid-column:1/-1;padding:0 0 14px;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid var(--border);margin-bottom:4px;">'
-      + '<span style="font-size:0.85rem;color:var(--mid-gray);"><strong style="color:var(--charcoal)">' + results.length + '</strong> result' + (results.length!==1?'s':'') + ' for <strong style="color:var(--charcoal)">' + query + '</strong></span>'
-      + '<button onclick="document.getElementById('searchInput').value='';var mi=document.getElementById('mobileSearchInput');if(mi)mi.value='';handleSearch('');" '
-      + 'style="background:none;border:1px solid var(--border);padding:5px 12px;cursor:pointer;font-size:0.78rem;color:var(--mid-gray);font-family:var(--font-body);">✕ CLEAR</button></div>';
-    grid.innerHTML = banner + results.map(p => renderProductCard(p)).join('');
+    grid.innerHTML = results.map(p => renderProductCard(p)).join('');
   }
-}
-
-function toggleMobileSearch() {
-  const overlay = document.getElementById('mobileSearchOverlay');
-  if (!overlay) return;
-  overlay.classList.add('active');
-  showPage('home');
-  setTimeout(() => { const inp = document.getElementById('mobileSearchInput'); if(inp) inp.focus(); }, 120);
-}
-
-function closeMobileSearch() {
-  const overlay = document.getElementById('mobileSearchOverlay');
-  if (!overlay) return;
-  overlay.classList.remove('active');
-  const inp = document.getElementById('mobileSearchInput');
-  if (inp) inp.value = '';
-  const si = document.getElementById('searchInput');
-  if (si) si.value = '';
-  handleSearch('');
+  document.getElementById('productsSection').scrollIntoView({ behavior:'smooth' });
 }
 
 /* ==============================================
@@ -3905,18 +3910,8 @@ function toggleWishlistItem(btn) {
    MOBILE NAV
 ============================================== */
 function toggleMobileNav() {
-  const nav = document.getElementById('mobileNav');
-  const overlay = document.getElementById('mobileNavOverlay');
-  const isOpen = nav.classList.contains('open');
-  nav.classList.toggle('open');
-  overlay.classList.toggle('open');
-  document.body.style.overflow = isOpen ? '' : 'hidden';
-}
-
-function closeMobileNav() {
-  document.getElementById('mobileNav').classList.remove('open');
-  document.getElementById('mobileNavOverlay').classList.remove('open');
-  document.body.style.overflow = '';
+  document.getElementById('mobileNav').classList.toggle('open');
+  document.getElementById('mobileNavOverlay').classList.toggle('open');
 }
 
 /* ==============================================
@@ -4762,47 +4757,6 @@ updateCartBadge();
   @media(max-width:600px) {
     #orderModal > div { padding: 24px 20px; }
   }
-
-    /* =============================================
-       MOBILE SEARCH
-    ============================================= */
-    .mobile-search-btn { display: none; }
-
-    .mobile-search-overlay {
-      display: none;
-      position: fixed;
-      top: 0; left: 0; right: 0;
-      background: var(--cream);
-      z-index: 1200;
-      padding: 12px 16px;
-      border-bottom: 2px solid var(--gold);
-      box-shadow: 0 4px 20px rgba(28,28,28,0.15);
-      animation: slideDown 0.25s ease;
-      align-items: center;
-      gap: 10px;
-    }
-    .mobile-search-overlay.active { display: flex; }
-
-    @keyframes slideDown {
-      from { transform: translateY(-100%); opacity: 0; }
-      to   { transform: translateY(0);    opacity: 1; }
-    }
-    .mobile-search-overlay input {
-      flex: 1;
-      border: 1px solid var(--border);
-      background: var(--warm-white);
-      padding: 10px 16px;
-      font-family: var(--font-body);
-      font-size: 0.95rem;
-      outline: none;
-      border-radius: 2px;
-    }
-    .mobile-search-overlay input:focus { border-color: var(--gold); }
-    .mobile-search-close {
-      background: none; border: none; cursor: pointer;
-      padding: 6px 10px; color: var(--charcoal);
-      font-size: 1.3rem; line-height: 1;
-    }
 </style>
 
 </body>
