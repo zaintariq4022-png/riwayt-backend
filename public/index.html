@@ -4009,18 +4009,23 @@ async function submitDirectOrder() {
     return;
   }
 
+  if (!orderProduct) {
+    showToast('Product select karein');
+    return;
+  }
+
   const btn = document.getElementById('orderSubmitBtn');
   btn.textContent = 'Placing Order...';
   btn.disabled = true;
 
-  const orderData = {
-    customer: { fullName: name, email, phone, address, city },
-    items: [{ productId: orderProduct.id, qty: qty || 1, size: selectedSize || '' }],
-    paymentMethod: payment || 'cod',
-    notes: notes || '',
-  };
-
   try {
+    const orderData = {
+      customer: { fullName: name, email, phone, address, city },
+      items: [{ productId: orderProduct.id, qty: qty || 1, size: selectedSize || '' }],
+      paymentMethod: payment || 'cod',
+      notes: notes || '',
+    };
+
     const res = await fetch(`${API_URL}/orders`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
