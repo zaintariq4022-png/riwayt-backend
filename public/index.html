@@ -61,13 +61,31 @@
 
     /* Announcement bar - scroll on small screens */
     .announcement-bar {
-      white-space: nowrap;
-      overflow-x: auto;
-      -webkit-overflow-scrolling: touch;
-      scrollbar-width: none;
-      text-overflow: ellipsis;
+      overflow: hidden;
+      position: relative;
     }
     .announcement-bar::-webkit-scrollbar { display: none; }
+    .marquee-track {
+      display: flex;
+      width: max-content;
+      animation: marqueeScroll 28s linear infinite;
+    }
+    .marquee-track:hover { animation-play-state: paused; }
+    .marquee-content {
+      display: flex;
+      align-items: center;
+      gap: 0;
+      white-space: nowrap;
+      padding-right: 60px;
+    }
+    .marquee-sep {
+      margin: 0 20px;
+      color: rgba(250,247,242,0.3);
+    }
+    @keyframes marqueeScroll {
+      0%   { transform: translateX(0); }
+      100% { transform: translateX(-50%); }
+    }
 
     /* Header auto-adjust */
     .header-top {
@@ -149,15 +167,14 @@
     .announcement-bar {
       background: var(--charcoal);
       color: var(--cream);
-      text-align: center;
-      padding: 10px 20px;
+      padding: 10px 0;
       font-size: 0.75rem;
       letter-spacing: 0.12em;
       text-transform: uppercase;
       font-weight: 500;
     }
 
-    .announcement-bar span { color: var(--gold); margin: 0 4px; }
+    .announcement-bar span { color: var(--gold); margin: 0 2px; }
 
     /* =============================================
        HEADER & NAVIGATION
@@ -2219,7 +2236,26 @@
      ANNOUNCEMENT BAR
 ============================================= -->
 <div class="announcement-bar" id="announcementBar">
-  <span id="announce_text1">FREE DELIVERY ON ORDERS ABOVE PKR <span>10,000</span></span> &nbsp;|&nbsp; <span id="announceSale"><span id="announce_text2">SUMMER SALE — FLAT <span>10% OFF</span></span></span> &nbsp;|&nbsp; <span style="color:var(--gold);letter-spacing:2px">★★★★★</span> <span id="announce_text3">Rated 4.8 by <span>1,240+</span> Happy Customers</span>
+  <div class="marquee-track" id="marqueeTrack">
+    <!-- First copy -->
+    <div class="marquee-content">
+      <span id="announce_text1">FREE DELIVERY ON ORDERS ABOVE PKR <span>10,000</span></span>
+      <span class="marquee-sep">✦</span>
+      <span id="announceSale"><span id="announce_text2">SUMMER SALE — FLAT <span>10% OFF</span></span></span>
+      <span class="marquee-sep">✦</span>
+      <span style="color:var(--gold);letter-spacing:2px">★★★★★</span>&nbsp;
+      <span id="announce_text3">Rated 4.8 by <span>1,240+</span> Happy Customers</span>
+    </div>
+    <!-- Second copy for seamless loop -->
+    <div class="marquee-content" aria-hidden="true">
+      <span>FREE DELIVERY ON ORDERS ABOVE PKR <span>10,000</span></span>
+      <span class="marquee-sep">✦</span>
+      <span id="announceSale2"><span id="announce_text2b">SUMMER SALE — FLAT <span>10% OFF</span></span></span>
+      <span class="marquee-sep">✦</span>
+      <span style="color:var(--gold);letter-spacing:2px">★★★★★</span>&nbsp;
+      <span>Rated 4.8 by <span>1,240+</span> Happy Customers</span>
+    </div>
+  </div>
 </div>
 
 <!-- =============================================
@@ -4574,7 +4610,10 @@ async function loadHeroText() {
     // Announcement Bar
     if (slides[4]) {
       if (slides[4].text1) { const el = document.getElementById('announce_text1'); if(el) el.innerHTML = slides[4].text1; }
-      if (slides[4].text2) { const el = document.getElementById('announce_text2'); if(el) el.innerHTML = slides[4].text2; }
+      if (slides[4].text2) {
+        const el = document.getElementById('announce_text2'); if(el) el.innerHTML = slides[4].text2;
+        const el2 = document.getElementById('announce_text2b'); if(el2) el2.innerHTML = slides[4].text2;
+      }
       if (slides[4].text3) { const el = document.getElementById('announce_text3'); if(el) el.innerHTML = slides[4].text3; }
     }
     // Sale Banner
