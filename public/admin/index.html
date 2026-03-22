@@ -944,7 +944,7 @@ function showPanel(name){
   document.getElementById('pageTitle').textContent=titles[name]||name;
   if(name==='products') loadProducts();
   if(name==='orders') loadOrders();
-  if(name==='settings') loadDiscountSettings();
+  if(name==='settings') { loadDiscountSettings(); loadFeaturedProductsPanel(); }
   if(name==='video') loadVideoSettings();
   if(name==='herotext') loadHeroTextEditor();
   if(name==='categories') loadCategories();
