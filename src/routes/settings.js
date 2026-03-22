@@ -47,6 +47,29 @@ router.put('/hero_text', protect, async (req, res) => {
   res.json({ success: true, message: 'Hero text updated!' });
 });
 
+
+// GET /api/settings/featured-products — public
+router.get('/featured-products', async (req, res) => {
+  try {
+    const setting = await Settings.findOne({ key: 'featured_products' });
+    res.json({ success: true, value: setting ? setting.value : [] });
+  } catch (err) {
+    res.json({ success: true, value: [] });
+  }
+});
+
+// PUT /api/settings/featured-products — admin only
+router.put('/featured-products', protect, async (req, res) => {
+  const { productIds } = req.body;
+  if (!Array.isArray(productIds)) return res.status(400).json({ success: false, message: 'productIds array required' });
+  await Settings.findOneAndUpdate(
+    { key: 'featured_products' },
+    { key: 'featured_products', value: productIds },
+    { upsert: true, new: true }
+  );
+  res.json({ success: true, message: 'Featured products updated!' });
+});
+
 module.exports = router;
 
 // GET /api/settings/social — public

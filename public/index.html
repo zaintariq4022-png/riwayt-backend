@@ -2427,6 +2427,28 @@
 
 
 
+
+
+  <!-- FEATURED SLIDER -->
+  <section class="featured-slider-section" id="featuredSliderSection" style="display:none;">
+    <div class="section-header">
+      <span class="section-label" id="featuredSliderLabel">Handpicked For You</span>
+      <h2 class="section-title">Featured <em>Picks</em></h2>
+    </div>
+    <div class="featured-slider-wrap">
+      <button class="featured-slider-arrow prev" onclick="featuredSlide(-1)">
+        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.75 19.5L8.25 12l7.5-7.5"/></svg>
+      </button>
+      <div class="featured-slider-track-outer">
+        <div class="featured-slider-track" id="featuredSliderTrack"></div>
+      </div>
+      <button class="featured-slider-arrow next" onclick="featuredSlide(1)">
+        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8.25 4.5l7.5 7.5-7.5 7.5"/></svg>
+      </button>
+    </div>
+    <div class="featured-dots" id="featuredDots"></div>
+  </section>
+
   <!-- PRODUCTS SECTION -->
   <section class="products-section" id="productsSection">
     <div class="section-header">
@@ -4460,6 +4482,104 @@ function openOrderModal() {
 
   document.getElementById('orderModal').style.display = 'flex';
   document.body.style.overflow = 'hidden';
+}
+
+
+/* ==============================================
+   FEATURED SLIDER
+============================================== */
+let featuredProducts = [];
+let featuredIndex = 0;
+let featuredAutoTimer = null;
+const FEATURED_VISIBLE = 2;
+
+async function loadFeaturedSlider() {
+  try {
+    const res = await fetch(`${API_URL}/settings/featured-products`);
+    if (!res.ok) return;
+    const data = await res.json();
+    if (!data.success || !data.value || !data.value.length) return;
+
+    // Match IDs with loaded PRODUCTS
+    const ids = data.value;
+    featuredProducts = ids.map(id => PRODUCTS.find(p => p.id === id)).filter(Boolean);
+    if (featuredProducts.length < 2) return;
+
+    renderFeaturedSlider();
+    document.getElementById('featuredSliderSection').style.display = '';
+    startFeaturedAuto();
+  } catch(e) {}
+}
+
+function renderFeaturedSlider() {
+  const track = document.getElementById('featuredSliderTrack');
+  const dots = document.getElementById('featuredDots');
+
+  track.innerHTML = featuredProducts.map((p, i) => {
+    const img = p.images && p.images.length > 0
+      ? `<img class="prod-img" src="${API_URL.replace('/api','')}${p.images[0]}" alt="${p.name}" style="width:100%;height:100%;object-fit:cover;"/>`
+      : `<div class="prod-img-placeholder" style="background:${p.bg||'#f0e8d8'};width:100%;height:100%;display:flex;align-items:center;justify-content:center;font-size:3rem;">${p.emoji||'👗'}</div>`;
+
+    const badge = p.discount > 0 ? `<span class="badge badge-sale">${p.discount}% OFF</span>` : (p.isNew ? `<span class="badge badge-new">New</span>` : '');
+    const origPrice = p.original ? `<span style="text-decoration:line-through;color:var(--mid-gray);font-size:0.8rem;margin-right:6px;">PKR ${p.original.toLocaleString()}</span>` : '';
+
+    return `
+    <div class="featured-slide-item product-card" onclick="openProduct('${p.id}')">
+      <div class="product-img-wrap">
+        ${badge}
+        ${img}
+        <div class="quick-add" onclick="event.stopPropagation();quickAdd('${p.id}')">Quick Add to Bag</div>
+      </div>
+      <div class="product-price">
+        ${origPrice}
+        <span style="font-weight:600;color:var(--charcoal);">PKR ${p.price.toLocaleString()}</span>
+      </div>
+      <div style="font-size:0.8rem;color:var(--mid-gray);margin-top:4px;">${p.name}</div>
+    </div>`;
+  }).join('');
+
+  // Dots
+  const total = featuredProducts.length - FEATURED_VISIBLE + 1;
+  dots.innerHTML = Array.from({length: Math.max(total, 1)}, (_, i) =>
+    `<div class="featured-dot${i===0?' active':''}" onclick="featuredGoTo(${i})"></div>`
+  ).join('');
+}
+
+function featuredSlide(dir) {
+  const max = Math.max(featuredProducts.length - FEATURED_VISIBLE, 0);
+  featuredIndex = Math.min(Math.max(featuredIndex + dir, 0), max);
+  updateFeaturedSlider();
+  resetFeaturedAuto();
+}
+
+function featuredGoTo(i) {
+  featuredIndex = i;
+  updateFeaturedSlider();
+  resetFeaturedAuto();
+}
+
+function updateFeaturedSlider() {
+  const track = document.getElementById('featuredSliderTrack');
+  const itemWidth = track.children[0] ? track.children[0].offsetWidth + 20 : 0;
+  track.style.transform = `translateX(-${featuredIndex * itemWidth}px)`;
+
+  // Update dots
+  document.querySelectorAll('.featured-dot').forEach((d, i) => {
+    d.classList.toggle('active', i === featuredIndex);
+  });
+}
+
+function startFeaturedAuto() {
+  featuredAutoTimer = setInterval(() => {
+    const max = Math.max(featuredProducts.length - FEATURED_VISIBLE, 0);
+    featuredIndex = featuredIndex >= max ? 0 : featuredIndex + 1;
+    updateFeaturedSlider();
+  }, 3000);
+}
+
+function resetFeaturedAuto() {
+  clearInterval(featuredAutoTimer);
+  startFeaturedAuto();
 }
 
 // Products backend se load karo

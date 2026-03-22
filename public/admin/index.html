@@ -736,6 +736,22 @@ tr:hover td{background:#FAFAFA;}
           <div id="discountInfo" style="margin-top:14px;padding:10px 14px;background:rgba(201,168,76,0.08);border-radius:6px;font-size:13px;display:none;"></div>
         </div>
 
+
+        <!-- FEATURED PRODUCTS SLIDER CARD -->
+        <div class="chart-card" style="max-width:800px;margin-bottom:20px;">
+          <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px;">
+            <div>
+              <div class="chart-title" style="font-size:16px;">⭐ Featured Products Slider</div>
+              <div style="color:var(--text-muted);font-size:12px;margin-top:4px;">Homepage pe hero ke neeche slider mein dikhne wale products</div>
+            </div>
+            <button class="btn btn-primary" onclick="saveFeaturedProducts()" style="background:var(--gold);color:#111;">Save Changes</button>
+          </div>
+          <div style="margin-top:16px;">
+            <div id="featuredProductsList" style="display:flex;flex-direction:column;gap:10px;max-height:400px;overflow-y:auto;"></div>
+            <div id="featuredSaveMsg" style="margin-top:10px;font-size:13px;color:#12B76A;display:none;">✓ Saved!</div>
+          </div>
+        </div>
+
         <div style="display:grid;grid-template-columns:1fr 1fr;gap:20px;max-width:800px;">
           <div class="chart-card">
             <div class="chart-title">Change Password</div>
@@ -1777,6 +1793,75 @@ document.querySelectorAll('.modal-overlay').forEach(el=>{
 document.getElementById('confirmOverlay').addEventListener('click',e=>{
   if(e.target===document.getElementById('confirmOverlay'))closeConfirm();
 });
+
+/* ── Featured Products ─────────────────────── */
+let allProductsList = [];
+let featuredSelected = new Set();
+
+async function loadFeaturedProductsPanel() {
+  try {
+    // Load all products
+    const pd = await apiFetch('/products?limit=200', 'GET', null, false);
+    if (pd.success) allProductsList = pd.products || [];
+
+    // Load current featured
+    const fd = await apiFetch('/settings/featured-products', 'GET', null, false);
+    if (fd.success && fd.value) featuredSelected = new Set(fd.value);
+
+    renderFeaturedProductsList();
+  } catch(e) {}
+}
+
+function renderFeaturedProductsList() {
+  const container = document.getElementById('featuredProductsList');
+  if (!container) return;
+
+  container.innerHTML = allProductsList.map(p => {
+    const checked = featuredSelected.has(p._id);
+    return `
+    <label style="display:flex;align-items:center;gap:12px;padding:10px 14px;border-radius:8px;border:1px solid ${checked ? 'var(--gold)' : 'var(--border)'};background:${checked ? 'rgba(201,168,76,0.07)' : 'transparent'};cursor:pointer;transition:all 0.2s;" onclick="toggleFeatured('${p._id}', this)">
+      <input type="checkbox" ${checked ? 'checked' : ''} style="width:16px;height:16px;accent-color:var(--gold);" onclick="event.stopPropagation();toggleFeatured('${p._id}', this.closest('label'))"/>
+      <div style="width:40px;height:40px;border-radius:4px;overflow:hidden;flex-shrink:0;background:#f0e8d8;">
+        ${p.images && p.images[0] ? `<img src="${p.images[0]}" style="width:100%;height:100%;object-fit:cover;"/>` : '<div style="width:100%;height:100%;display:flex;align-items:center;justify-content:center;font-size:1.2rem;">👗</div>'}
+      </div>
+      <div style="flex:1;min-width:0;">
+        <div style="font-weight:500;font-size:13px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${p.name}</div>
+        <div style="font-size:12px;color:var(--text-muted);">PKR ${p.price.toLocaleString()}</div>
+      </div>
+      ${checked ? '<span style="font-size:11px;color:var(--gold);font-weight:600;">✓ Featured</span>' : ''}
+    </label>`;
+  }).join('');
+}
+
+function toggleFeatured(id, label) {
+  if (featuredSelected.has(id)) {
+    featuredSelected.delete(id);
+    label.style.border = '1px solid var(--border)';
+    label.style.background = 'transparent';
+    const badge = label.querySelector('span');
+    if (badge) badge.remove();
+    label.querySelector('input').checked = false;
+  } else {
+    featuredSelected.add(id);
+    label.style.border = '1px solid var(--gold)';
+    label.style.background = 'rgba(201,168,76,0.07)';
+    label.querySelector('input').checked = true;
+    if (!label.querySelector('span')) {
+      label.insertAdjacentHTML('beforeend', '<span style="font-size:11px;color:var(--gold);font-weight:600;">✓ Featured</span>');
+    }
+  }
+}
+
+async function saveFeaturedProducts() {
+  const productIds = Array.from(featuredSelected);
+  const data = await apiFetch('/settings/featured-products', 'PUT', { productIds });
+  if (data.success) {
+    const msg = document.getElementById('featuredSaveMsg');
+    msg.style.display = 'block';
+    setTimeout(() => msg.style.display = 'none', 3000);
+  }
+}
+
 </script>
 </body>
 </html>
