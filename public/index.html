@@ -353,7 +353,6 @@
       display: none;
       background: rgba(28,28,28,0.5);
     }
-    .hero-slide { position: relative; z-index: 2; }
     .hero-slide {
       position: absolute;
       inset: 0;
@@ -361,17 +360,12 @@
       transition: opacity 0.9s ease;
       display: flex;
       align-items: center;
+      z-index: 2;
     }
     .hero-slide.active { opacity: 1; }
 
     /* Hero gradient backgrounds - Brown/Gold theme all slides */
-    .hero-slide:nth-child(1) {
-      background: linear-gradient(135deg, #1C1005 0%, #3D2B10 40%, #6B4226 70%, #9E6B45 100%);
-    }
-    .hero-slide:nth-child(2) {
-      background: linear-gradient(135deg, #1C1005 0%, #3D2B10 40%, #6B4226 70%, #9E6B45 100%);
-    }
-    .hero-slide:nth-child(3) {
+    .hero-slide {
       background: linear-gradient(135deg, #1C1005 0%, #3D2B10 40%, #6B4226 70%, #9E6B45 100%);
     }
 
@@ -2282,7 +2276,9 @@
   <button class="cat-pill sale-pill" onclick="catPillClick(this,'sale')">Sale</button>
   <button class="cat-pill new-pill" onclick="catPillClick(this,'new')">New Arrivals</button>
   <button class="cat-pill" onclick="catPillClick(this,'stitching')">Stitching Details</button>
-  <button class="cat-pill" onclick="catPillClick(this,'fancy')">FANCY</button>
+  <button class="cat-pill" onclick="catPillClick(this,'fancy')">Fancy</button>
+  <button class="cat-pill" onclick="catPillClick(this,'bridal')">Bridal</button>
+  <button class="cat-pill" onclick="catPillClick(this,'accessories')">Accessories</button>
 </div>
 
 <!-- =============================================
@@ -2299,6 +2295,9 @@
     <li><a href="#" onclick="filterCategory('sale');toggleMobileNav();return false;" style="color:var(--terracotta)">Sale</a></li>
     <li><a href="#" onclick="filterCategory('new');toggleMobileNav();return false;" style="color:var(--sage)">New Arrivals</a></li>
     <li><a href="#" onclick="filterCategory('stitching');toggleMobileNav();return false;">Stitching Details</a></li>
+    <li><a href="#" onclick="filterCategory('fancy');toggleMobileNav();return false;">Fancy</a></li>
+    <li><a href="#" onclick="filterCategory('bridal');toggleMobileNav();return false;">Bridal</a></li>
+    <li><a href="#" onclick="filterCategory('accessories');toggleMobileNav();return false;">Accessories</a></li>
   </ul>
 </div>
 
