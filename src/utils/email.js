@@ -1,17 +1,11 @@
-const nodemailer = require('nodemailer');
+const { Resend } = require('resend');
+const resend = new Resend(process.env.RESEND_API_KEY);
 
-const transporter = nodemailer.createTransport({
-  host: process.env.EMAIL_HOST || 'smtp.gmail.com',
-  port: Number(process.env.EMAIL_PORT) || 465,
-  secure: Number(process.env.EMAIL_PORT) === 465 || process.env.EMAIL_SECURE === 'true',
-  auth: {
-    user: process.env.EMAIL_USER,
-    pass: process.env.EMAIL_PASS,
-  },
-  tls: {
-    rejectUnauthorized: false,
-  },
-});
+// Helper to send email via Resend
+const sendEmail = async ({ from, to, subject, html }) => {
+  const { error } = await resend.emails.send({ from, to, subject, html });
+  if (error) throw new Error(error.message);
+};
 
 /* ─── helpers ──────────────────────────────────── */
 const pkr = (n) => `PKR ${Number(n).toLocaleString('en-PK')}`;
@@ -168,14 +162,14 @@ const adminNewCustomerHTML = (customer) => `
 // Order confirmation — customer + admin
 exports.sendOrderConfirmation = async (order) => {
   try {
-    await transporter.sendMail({
+    await sendEmail({
       from: process.env.EMAIL_FROM,
       to: order.customer.email,
       subject: `Order Confirmed — ${order.orderNumber} | RIWAYAT`,
       html: customerOrderHTML(order),
     });
 
-    await transporter.sendMail({
+    await sendEmail({
       from: process.env.EMAIL_FROM,
       to: process.env.ADMIN_EMAIL,
       subject: `🛍 New Order ${order.orderNumber} — ${pkr(order.total)}`,
@@ -192,7 +186,7 @@ exports.sendOrderConfirmation = async (order) => {
 // New customer signup — notify admin
 exports.sendNewCustomerNotification = async (customer) => {
   try {
-    await transporter.sendMail({
+    await sendEmail({
       from: process.env.EMAIL_FROM,
       to: process.env.ADMIN_EMAIL,
       subject: `👤 New Customer: ${customer.name} | RIWAYAT`,
@@ -219,7 +213,7 @@ exports.sendOrderStatusUpdate = async (order) => {
   if (!msg) return;
 
   try {
-    await transporter.sendMail({
+    await sendEmail({
       from: process.env.EMAIL_FROM,
       to: order.customer.email,
       subject: `Order ${order.orderNumber} — ${order.status.charAt(0).toUpperCase() + order.status.slice(1)} | RIWAYAT`,
