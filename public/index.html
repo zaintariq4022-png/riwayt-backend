@@ -4015,9 +4015,9 @@ async function submitDirectOrder() {
 
   const orderData = {
     customer: { fullName: name, email, phone, address, city },
-    items: [{ productId: orderProduct.id, qty: qty || 1, size: selectedSize || 'Free Size' }],
-    paymentMethod: payment,
-    notes,
+    items: [{ productId: orderProduct.id, qty: qty || 1, size: selectedSize || '' }],
+    paymentMethod: payment || 'cod',
+    notes: notes || '',
   };
 
   try {
@@ -4046,10 +4046,10 @@ async function submitDirectOrder() {
       btn.disabled = false;
     }
   } catch(e) {
-    // Fallback offline mode
-    closeOrderModal();
-    showToast('🎉 Order place ho gaya! Hum aap se jald rabita karenge!');
-    setTimeout(() => showPage('home'), 2000);
+    console.error('Order error:', e);
+    showToast('❌ Server se connect nahi ho saka. Dobara try karein ya WhatsApp karein.');
+    btn.textContent = 'Confirm Order';
+    btn.disabled = false;
   }
 }
 
