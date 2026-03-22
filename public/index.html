@@ -3486,7 +3486,7 @@ startHeroTimer();
 ============================================== */
 function getFilteredProducts(filter) {
   if (filter === 'all') return PRODUCTS;
-  if (filter === 'new') return PRODUCTS.filter(p => p.tags.includes('new'));
+  if (filter === 'new') return PRODUCTS.filter(p => p.category === 'new' || p.tags.includes('new'));
   if (filter === 'sale') return PRODUCTS.filter(p => p.discount >= 25);
   if (filter === 'stitching') return PRODUCTS.filter(p => p.category === 'stitching');
   return PRODUCTS.filter(p => p.category === filter);

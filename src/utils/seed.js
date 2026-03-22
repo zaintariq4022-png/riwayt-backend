@@ -10,80 +10,58 @@ const connectDB = async () => {
 
 const products = [
   {
-    name: 'Gulabi Lawn 3-Piece',
+    name: 'Gulabi Unstitched Lawn 3-Piece',
     description: 'Premium lawn fabric with intricate floral embroidery, perfect for summer. Includes dupatta.',
     price: 3499, originalPrice: 4500,
-    category: 'women', fabric: 'Lawn',
+    category: 'women', fabric: 'Lawn', subcategory: 'Summer Collection',
     sizes: ['Free Size'], emoji: '🌸', bgColor: '#FFE4E1',
     isFeatured: true, isNew: true, isSale: true, stock: 50,
-    tags: ['lawn', 'summer', 'floral'],
+    tags: ['lawn', 'summer', 'floral', 'unstitched'],
   },
   {
     name: 'Noor-e-Zara Embroidered Kurta',
     description: 'Ready-to-wear embroidered kurta with delicate threadwork on pure cotton.',
     price: 4200,
-    category: 'women', fabric: 'Cotton',
-    sizes: ['XS','S','M','L','XL'],
+    category: 'new', fabric: 'Cotton', sizes: ['XS','S','M','L','XL'],
     emoji: '👗', bgColor: '#E8D5C4',
     isFeatured: true, isNew: true, stock: 35,
-    tags: ['cotton', 'embroidered'],
+    tags: ['cotton', 'embroidered', 'pret', 'kurta'],
   },
   {
     name: 'Zevar-e-Ishq Bridal Lehenga',
     description: 'Handcrafted bridal lehenga with zardozi work, pure silk fabric and heavy dupatta.',
     price: 85000, originalPrice: 95000,
-    category: 'bridal', fabric: 'Pure Silk',
-    sizes: ['S','M','L','XL'],
+    category: 'bridal', fabric: 'Pure Silk', sizes: ['S','M','L','XL'],
     emoji: '👰', bgColor: '#FFF0E0',
     isFeatured: true, stock: 5,
-    tags: ['bridal', 'silk', 'wedding'],
+    tags: ['bridal', 'silk', 'zardozi', 'wedding'],
   },
   {
     name: 'Bahar-e-Kashmir Pashmina Shawl',
-    description: 'Authentic pashmina shawl with hand-woven patterns.',
+    description: 'Authentic pashmina shawl from Kashmir with hand-woven patterns.',
     price: 12500,
     category: 'accessories', fabric: 'Pashmina',
     emoji: '🧣', bgColor: '#E8E4DF',
-    isNew: true, stock: 20,
-    tags: ['pashmina', 'shawl', 'winter'],
+    isFeatured: false, isNew: true, stock: 20,
+    tags: ['pashmina', 'shawl', 'accessories', 'winter'],
   },
   {
     name: 'Rang-e-Mehfil Chiffon Saree',
     description: 'Elegant chiffon saree with gold zari border, ideal for festive occasions.',
     price: 6800, originalPrice: 8000,
-    category: 'fancy', fabric: 'Chiffon',
+    category: 'stitching', fabric: 'Chiffon',
     emoji: '🌺', bgColor: '#FFEAEA',
     isFeatured: true, isSale: true, stock: 15,
-    tags: ['chiffon', 'festive'],
+    tags: ['chiffon', 'saree', 'festive', 'zari'],
   },
   {
     name: 'Miniature Mischief Kids Suit',
     description: 'Adorable embroidered kids suit, comfortable and durable for daily wear.',
     price: 1800, originalPrice: 2200,
-    category: 'kids', fabric: 'Cotton',
-    sizes: ['XS','S','M'],
+    category: 'kids', fabric: 'Cotton', sizes: ['XS','S','M'],
     emoji: '🎀', bgColor: '#F0FFF4',
     isNew: true, isSale: true, stock: 40,
-    tags: ['kids', 'cotton'],
-  },
-  {
-    name: 'Custom Casual Dress Stitching',
-    description: 'Professional stitching service for casual dresses. Quality tailoring with perfect fit.',
-    price: 2000, originalPrice: 3000,
-    category: 'stitching', fabric: 'Stitching Service',
-    emoji: '🧵', bgColor: '#E8D4B0',
-    isNew: true, stock: 100,
-    tags: ['stitching', 'tailoring'],
-  },
-  {
-    name: 'New Arrival Summer Collection',
-    description: 'Latest summer collection with vibrant colors and comfortable fabrics.',
-    price: 5900, originalPrice: 7500,
-    category: 'new', fabric: 'Lawn',
-    sizes: ['S','M','L','XL'],
-    emoji: '🌟', bgColor: '#F0E8D0',
-    isFeatured: true, isNew: true, stock: 30,
-    tags: ['new', 'summer', 'lawn'],
+    tags: ['kids', 'embroidered', 'cotton'],
   },
 ];
 
@@ -91,7 +69,7 @@ const seed = async () => {
   try {
     await connectDB();
 
-    // Clear existing data
+    // Clear
     await Product.deleteMany();
     await Admin.deleteMany();
 
@@ -111,7 +89,7 @@ const seed = async () => {
     mongoose.disconnect();
     console.log('\n🎉  Seed complete!');
   } catch (err) {
-    console.error('Seed error:', err.message);
+    console.error('Seed error:', err);
     process.exit(1);
   }
 };
