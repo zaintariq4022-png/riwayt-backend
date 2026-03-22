@@ -2205,7 +2205,7 @@
     ::-webkit-scrollbar-thumb:hover { background: var(--mid-gray); }
   
     /* =============================================
-       MOBILE SEARCH OVERLAY
+       MOBILE SEARCH
     ============================================= */
     .mobile-search-btn { display: none; }
 
@@ -2214,7 +2214,7 @@
       position: fixed;
       top: 0; left: 0; right: 0;
       background: var(--cream);
-      z-index: 1100;
+      z-index: 1200;
       padding: 12px 16px;
       border-bottom: 2px solid var(--gold);
       box-shadow: 0 4px 20px rgba(28,28,28,0.15);
@@ -2228,7 +2228,6 @@
       from { transform: translateY(-100%); opacity: 0; }
       to   { transform: translateY(0);    opacity: 1; }
     }
-
     .mobile-search-overlay input {
       flex: 1;
       border: 1px solid var(--border);
@@ -2240,7 +2239,6 @@
       border-radius: 2px;
     }
     .mobile-search-overlay input:focus { border-color: var(--gold); }
-
     .mobile-search-close {
       background: none;
       border: none;
@@ -2249,7 +2247,6 @@
       color: var(--charcoal);
       font-size: 1.3rem;
       line-height: 1;
-      font-family: var(--font-body);
     }
 </style>
 </head>
@@ -2287,7 +2284,6 @@
 
     <!-- Icons -->
     <div class="header-icons">
-      <!-- Mobile Search -->
       <button class="icon-btn mobile-search-btn" onclick="toggleMobileSearch()" aria-label="Search">
         <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" width="20" height="20">
           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M21 21l-5.197-5.197m0 0A7.5 7.5 0 105.196 5.196a7.5 7.5 0 0010.607 10.607z"/>
@@ -2345,17 +2341,17 @@
 <!-- =============================================
      MOBILE NAV OVERLAY
 ============================================= -->
-<div class="mobile-nav-overlay" id="mobileNavOverlay" onclick="toggleMobileNav()"></div>
+<div class="mobile-nav-overlay" id="mobileNavOverlay" onclick="closeMobileNav()"></div>
 <div class="mobile-nav" id="mobileNav">
-  <div class="mobile-nav-close" onclick="toggleMobileNav()">✕</div>
+  <div class="mobile-nav-close" onclick="closeMobileNav()">✕</div>
   <div class="logo" style="font-size:1.6rem">RIWAYAT</div>
   <ul class="mobile-nav-list">
-    <li><a href="#" onclick="filterCategory('all');toggleMobileNav();return false;">All Products</a></li>
-    <li><a href="#" onclick="filterCategory('women');toggleMobileNav();return false;">Women</a></li>
-    <li><a href="#" onclick="filterCategory('kids');toggleMobileNav();return false;">Kids</a></li>
-    <li><a href="#" onclick="filterCategory('sale');toggleMobileNav();return false;" style="color:var(--terracotta)">Sale</a></li>
-    <li><a href="#" onclick="filterCategory('new');toggleMobileNav();return false;" style="color:var(--sage)">New Arrivals</a></li>
-    <li><a href="#" onclick="filterCategory('stitching');toggleMobileNav();return false;">Stitching Details</a></li>
+    <li><a href="#" onclick="filterCategory('all');closeMobileNav();return false;">All Products</a></li>
+    <li><a href="#" onclick="filterCategory('women');closeMobileNav();return false;">Women</a></li>
+    <li><a href="#" onclick="filterCategory('kids');closeMobileNav();return false;">Kids</a></li>
+    <li><a href="#" onclick="filterCategory('sale');closeMobileNav();return false;" style="color:var(--terracotta)">Sale</a></li>
+    <li><a href="#" onclick="filterCategory('new');closeMobileNav();return false;" style="color:var(--sage)">New Arrivals</a></li>
+    <li><a href="#" onclick="filterCategory('stitching');closeMobileNav();return false;">Stitching Details</a></li>
   </ul>
 </div>
 
@@ -3271,7 +3267,7 @@
         <li><a href="#">Size Guide</a></li>
         <li><a href="#">FAQs</a></li>
         <li><a href="/cdn-cgi/l/email-protection#580a312f3921392c283933312b2c393669183f35393134763b3735">Contact Us</a></li>
-        <li><a href="/cdn-cgi/l/email-protection#23714a54425a42575342484a5057424d1263444e424a4f0d404c4e" id="contact_gmail">✉️ <span class="__cf_email__" data-cfemail="a7f5ced0c6dec6d3d7c6ccced4d3c6c996e7c0cac6cecb89c4c8ca">[email&#160;protected]</span></a></li>
+        <li><a href="/cdn-cgi/l/email-protection#1a48736d7b637b6e6a7b7173696e7b742b5a7d777b737634797577" id="contact_gmail">✉️ <span class="__cf_email__" data-cfemail="8edce7f9eff7effafeefe5e7fdfaefe0bfcee9e3efe7e2a0ede1e3">[email&#160;protected]</span></a></li>
         <li><a href="tel:+923485393402" id="contact_phone">📞 +92 348 539 3402</a></li>
         <li><a href="https://wa.me/9203485393402" id="contact_whatsapp" target="_blank" rel="noopener noreferrer">💬 WhatsApp Us</a></li>
         <li><a href="https://www.google.com/maps/search/Mandi+Bahauddin" id="contact_location" target="_blank" rel="noopener noreferrer">📍 Mandi Bahauddin, Punjab</a></li>
@@ -3662,7 +3658,6 @@ let _searchTimer = null;
 
 function handleSearch(val) {
   clearTimeout(_searchTimer);
-
   const grid = document.getElementById('productGrid');
 
   if (!val.trim()) {
@@ -3670,21 +3665,13 @@ function handleSearch(val) {
     return;
   }
 
-  // Loading state
-  grid.innerHTML = `
-    <div style="grid-column:1/-1;text-align:center;padding:60px 20px;color:var(--mid-gray);">
-      <div style="font-size:2rem;margin-bottom:10px;">🔍</div>
-      <div style="font-family:var(--font-display);font-size:1.2rem;letter-spacing:0.05em;">Searching...</div>
-    </div>`;
+  grid.innerHTML = '<div style="grid-column:1/-1;text-align:center;padding:60px 20px;color:var(--mid-gray);"><div style="font-size:2rem;margin-bottom:10px;">🔍</div><div style="font-family:var(--font-display);font-size:1.2rem;">Searching...</div></div>';
 
-  // Scroll to products
   const sec = document.getElementById('productsSection');
   if (sec) sec.scrollIntoView({ behavior: 'smooth' });
 
   _searchTimer = setTimeout(async () => {
     const q = val.trim().toLowerCase();
-
-    // Local search first (fast)
     const local = PRODUCTS.filter(p =>
       p.name.toLowerCase().includes(q) ||
       (p.fabric && p.fabric.toLowerCase().includes(q)) ||
@@ -3693,91 +3680,47 @@ function handleSearch(val) {
       (p.tags && p.tags.some(t => t.toLowerCase().includes(q)))
     );
 
-    if (local.length > 0) {
-      renderSearchResults(local, val);
-      return;
-    }
+    if (local.length > 0) { renderSearchResults(local, val); return; }
 
-    // Backend API search
     try {
-      const res = await fetch(\`\${API_URL}/products?search=\${encodeURIComponent(val)}&limit=50\`);
+      const res = await fetch(API_URL + '/products?search=' + encodeURIComponent(val) + '&limit=50');
       const data = await res.json();
       if (data.success && data.products.length > 0) {
         const apiResults = data.products.map(p => ({
-          id: p._id,
-          name: p.name,
-          fabric: p.fabric ? \`\${p.fabric} · \${p.category}\` : p.category,
+          id: p._id, name: p.name,
+          fabric: p.fabric ? p.fabric + ' · ' + p.category : p.category,
           fabric_detail: p.description || p.fabric || '',
-          category: p.category,
-          price: p.price,
+          category: p.category, price: p.price,
           original: p.originalPrice || null,
           discount: p.originalPrice ? Math.round(((p.originalPrice - p.price) / p.originalPrice) * 100) : 0,
           colors: p.colors && p.colors.length ? p.colors : ['#C9A84C','#D4847A','#7A8C6E'],
-          emoji: p.emoji || '👗',
-          bg: p.bgColor || 'linear-gradient(160deg,#E8D4B0,#A08040)',
-          tags: [...(p.isNew?['new']:[]),...(p.isSale?['sale']:[]),...(p.isFeatured?['hot']:[])],
-          images: p.images || [],
-          stock: p.stock || 0,
+          emoji: p.emoji || '👗', bg: p.bgColor || 'linear-gradient(160deg,#E8D4B0,#A08040)',
+          tags: [].concat(p.isNew?['new']:[]).concat(p.isSale?['sale']:[]).concat(p.isFeatured?['hot']:[]),
+          images: p.images || [], stock: p.stock || 0,
         }));
         renderSearchResults(apiResults, val);
-      } else {
-        renderSearchResults([], val);
-      }
-    } catch(e) {
-      renderSearchResults([], val);
-    }
+      } else { renderSearchResults([], val); }
+    } catch(e) { renderSearchResults([], val); }
   }, 350);
 }
 
 function renderSearchResults(results, query) {
   const grid = document.getElementById('productGrid');
   if (!results.length) {
-    grid.innerHTML = \`
-      <div style="grid-column:1/-1;text-align:center;padding:80px 20px;">
-        <div style="font-size:3rem;margin-bottom:16px;">🔍</div>
-        <div style="font-family:var(--font-display);font-size:1.6rem;color:var(--charcoal);margin-bottom:8px;">
-          No results for "<em>\${query}</em>"
-        </div>
-        <p style="color:var(--mid-gray);font-size:0.88rem;margin-bottom:24px;">
-          Try different keywords like fabric, category, or product name
-        </p>
-        <button onclick="document.getElementById('searchInput').value='';document.getElementById('mobileSearchInput')&&(document.getElementById('mobileSearchInput').value='');handleSearch('');"
-          style="background:var(--charcoal);color:white;padding:10px 28px;border:none;cursor:pointer;
-                 font-family:var(--font-body);letter-spacing:1px;font-size:0.85rem;text-transform:uppercase;">
-          Clear Search
-        </button>
-      </div>\`;
+    grid.innerHTML = '<div style="grid-column:1/-1;text-align:center;padding:80px 20px;"><div style="font-size:3rem;margin-bottom:16px;">🔍</div><div style="font-family:var(--font-display);font-size:1.6rem;color:var(--charcoal);margin-bottom:8px;">No results for \"' + query + '\"</div><p style="color:var(--mid-gray);font-size:0.88rem;margin-bottom:24px;">Try different keywords</p><button onclick="document.getElementById('searchInput').value='';var mi=document.getElementById('mobileSearchInput');if(mi)mi.value='';handleSearch('');" style="background:var(--charcoal);color:white;padding:10px 28px;border:none;cursor:pointer;font-family:var(--font-body);letter-spacing:1px;font-size:0.85rem;text-transform:uppercase;">Clear Search</button></div>';
   } else {
-    const banner = \`
-      <div style="grid-column:1/-1;padding:0 0 14px;display:flex;align-items:center;justify-content:space-between;
-                  border-bottom:1px solid var(--border);margin-bottom:4px;">
-        <span style="font-size:0.85rem;color:var(--mid-gray);letter-spacing:0.04em;">
-          <strong style="color:var(--charcoal)">\${results.length}</strong> result\${results.length!==1?'s':''} for
-          "<strong style="color:var(--charcoal)">\${query}</strong>"
-        </span>
-        <button onclick="document.getElementById('searchInput').value='';document.getElementById('mobileSearchInput')&&(document.getElementById('mobileSearchInput').value='');handleSearch('');"
-          style="background:none;border:1px solid var(--border);padding:5px 12px;cursor:pointer;
-                 font-size:0.78rem;letter-spacing:0.08em;color:var(--mid-gray);font-family:var(--font-body);">
-          ✕ CLEAR
-        </button>
-      </div>\`;
+    const banner = '<div style="grid-column:1/-1;padding:0 0 14px;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid var(--border);margin-bottom:4px;"><span style="font-size:0.85rem;color:var(--mid-gray);"><strong style="color:var(--charcoal)">' + results.length + '</strong> result' + (results.length!==1?'s':'') + ' for "<strong style="color:var(--charcoal)">' + query + '</strong>"</span><button onclick="document.getElementById('searchInput').value='';var mi=document.getElementById('mobileSearchInput');if(mi)mi.value='';handleSearch('');" style="background:none;border:1px solid var(--border);padding:5px 12px;cursor:pointer;font-size:0.78rem;color:var(--mid-gray);font-family:var(--font-body);">✕ CLEAR</button></div>';
     grid.innerHTML = banner + results.map(p => renderProductCard(p)).join('');
   }
 }
 
-/* ==============================================
-   MOBILE SEARCH TOGGLE
-============================================== */
+/* Mobile Search */
 function toggleMobileSearch() {
   const overlay = document.getElementById('mobileSearchOverlay');
   if (!overlay) return;
   overlay.classList.add('active');
-  setTimeout(() => {
-    const inp = document.getElementById('mobileSearchInput');
-    if (inp) inp.focus();
-  }, 120);
-  // show home page so results are visible
   showPage('home');
+  setTimeout(() => { const inp = document.getElementById('mobileSearchInput'); if(inp) inp.focus(); }, 120);
 }
 
 function closeMobileSearch() {
@@ -4094,8 +4037,19 @@ function toggleWishlistItem(btn) {
    MOBILE NAV
 ============================================== */
 function toggleMobileNav() {
-  document.getElementById('mobileNav').classList.toggle('open');
-  document.getElementById('mobileNavOverlay').classList.toggle('open');
+  const nav = document.getElementById('mobileNav');
+  const overlay = document.getElementById('mobileNavOverlay');
+  const isOpen = nav.classList.contains('open');
+  nav.classList.toggle('open');
+  overlay.classList.toggle('open');
+  // Body scroll lock
+  document.body.style.overflow = isOpen ? '' : 'hidden';
+}
+
+function closeMobileNav() {
+  document.getElementById('mobileNav').classList.remove('open');
+  document.getElementById('mobileNavOverlay').classList.remove('open');
+  document.body.style.overflow = '';
 }
 
 /* ==============================================
@@ -4273,7 +4227,11 @@ async function trackOrder() {
     }
 
     // Tracking number
-    ifne';
+    if (o.trackingNumber) {
+      document.getElementById('tr_trackingWrap').style.display = 'block';
+      document.getElementById('tr_trackingNum').textContent = o.trackingNumber;
+    } else {
+      document.getElementById('tr_trackingWrap').style.display = 'none';
     }
 
     document.getElementById('trackResult').style.display = 'block';
@@ -4927,17 +4885,4 @@ updateCartBadge();
        onmouseout="this.style.background='var(--charcoal)';this.style.color='white'">
       Confirm Order
     </button>
-    <p style="font-size:0.72rem;color:var(--mid-gray);text-align:center;margin-top:10px;letter-spacing:0.05em">
-      Order confirmation will be sent to your email & WhatsApp
-    </p>
-  </div>
-</div>
-
-<style>
-  @media(max-width:600px) {
-    #orderModal > div { padding: 24px 20px; }
-  }
-</style>
-
-</body>
-</html>
+    <p style="font-size:0.72rem;color:var(--mid-gray);te
