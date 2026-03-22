@@ -57,18 +57,17 @@ exports.placeOrder = async (req, res) => {
     await Product.findByIdAndUpdate(item.productId, { $inc: { stock: -item.qty } });
   }
 
-  // Send emails (non-blocking)
-  const emailSent = await sendOrderConfirmation(order);
-  if (emailSent) {
-    order.emailSent = true;
-    await order.save();
-  }
-
+  // Send response immediately, email in background
   res.status(201).json({
     success: true,
     message: 'Order placed successfully!',
     order: { orderNumber: order.orderNumber, total: order.total, status: order.status },
   });
+
+  // Send email in background (non-blocking)
+  sendOrderConfirmation(order).then(sent => {
+    if (sent) Order.findByIdAndUpdate(order._id, { emailSent: true }).catch(() => {});
+  }).catch(() => {});
 };
 
 // GET /api/orders/:orderNumber  — Track order by number
