@@ -4031,15 +4031,8 @@ async function submitDirectOrder() {
     if (data.success) {
       closeOrderModal();
       showToast(`🎉 Order placed! #${data.order.orderNumber}`);
-      // Show tracking option
-      setTimeout(() => {
-        document.getElementById('trackInput').value = data.order.orderNumber;
-        if(confirm(`Order #${data.order.orderNumber} confirmed!\n\nKya aap order track karna chahte hain?`)) {
-          showPage('track');
-          trackOrder();
-        }
-      }, 1500);
-      setTimeout(() => showPage('home'), 2000);
+      document.getElementById('trackInput').value = data.order.orderNumber;
+      setTimeout(() => showPage('home'), 2500);
     } else {
       showToast('Error: ' + (data.message || 'Kuch masla hua'));
       btn.textContent = 'Confirm Order';
