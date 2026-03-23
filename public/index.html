@@ -3478,6 +3478,7 @@ async function fetchProducts() {
     PRODUCTS = getFallbackProducts();
   }
   renderProducts(currentFilter);
+  loadFeaturedSlider();
 }
 
 // Fallback: agar backend offline ho toh yeh products dikhao
@@ -4502,7 +4503,8 @@ async function loadFeaturedSlider() {
 
     // Match IDs with loaded PRODUCTS
     const ids = data.value;
-    featuredProducts = ids.map(id => PRODUCTS.find(p => p.id === id)).filter(Boolean);
+    featuredProducts = ids.map(id => PRODUCTS.find(p => p.id === id || p.id === String(id))).filter(Boolean);
+    console.log('Featured matched:', featuredProducts.length, 'of', ids.length);
     if (featuredProducts.length < 2) return;
 
     renderFeaturedSlider();
