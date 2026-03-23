@@ -26,7 +26,8 @@ exports.getProduct = async (req, res) => {
 };
 
 exports.createProduct = async (req, res) => {
-  const images = req.files ? req.files.map(f => `/uploads/${f.filename}`) : [];
+  // Cloudinary: req.files mein path (URL) hoga
+  const images = req.files ? req.files.map(f => f.path || `/uploads/${f.filename}`) : [];
   const product = await Product.create({ ...req.body, images });
   res.status(201).json({ success:true, product });
 };
@@ -35,7 +36,7 @@ exports.updateProduct = async (req, res) => {
   const product = await Product.findById(req.params.id);
   if (!product) return res.status(404).json({ success:false, message:'Product not found' });
   if (req.files && req.files.length > 0) {
-    req.body.images = [...(product.images||[]), ...req.files.map(f => `/uploads/${f.filename}`)];
+    req.body.images = [...(product.images||[]), ...req.files.map(f => f.path || `/uploads/${f.filename}`)];
   }
   Object.assign(product, req.body);
   await product.save();
@@ -45,9 +46,12 @@ exports.updateProduct = async (req, res) => {
 exports.deleteProduct = async (req, res) => {
   const product = await Product.findById(req.params.id);
   if (!product) return res.status(404).json({ success:false, message:'Product not found' });
+  // Local files delete karo agar hain
   product.images.forEach(img => {
-    const fp = path.join(__dirname, '../../', img);
-    if (fs.existsSync(fp)) fs.unlinkSync(fp);
+    if (img.startsWith('/uploads/')) {
+      const fp = path.join(__dirname, '../../', img);
+      if (fs.existsSync(fp)) fs.unlinkSync(fp);
+    }
   });
   await product.deleteOne();
   res.json({ success:true, message:'Product deleted' });
