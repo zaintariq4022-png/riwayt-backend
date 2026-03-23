@@ -3324,12 +3324,12 @@
    BACKEND API URL
 ============================================== */
 const API_URL = window.location.hostname === 'localhost' ? 'http://localhost:5000/api' : (window.location.origin + '/api');
-
 function imgUrl(url) {
   if (!url) return '';
   if (url.startsWith('http')) return url;
   return API_URL.replace('/api', '') + url;
 }
+
 
 /* ==============================================
    DATA — Products (Backend se load honge)
