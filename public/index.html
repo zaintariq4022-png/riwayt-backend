@@ -4502,6 +4502,8 @@ const FEATURED_VISIBLE = 2;
 
 async function loadFeaturedSlider() {
   try {
+    featuredIndex = 0;
+    clearInterval(featuredAutoTimer);
     const res = await fetch(`${API_URL}/settings/featured-products`);
     if (!res.ok) return;
     const data = await res.json();
