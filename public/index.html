@@ -3565,7 +3565,7 @@ function renderProducts(filter) {
     <div class="product-card" onclick="openProduct('${p.id}')">
       <div class="product-img-wrap">
         ${p.images && p.images.length > 0 
-          ? `<img src="${API_URL.replace('/api','')}${p.images[0]}" style="width:100%;height:100%;object-fit:cover;" alt="${p.name}"/>`
+          ? `<img src="${imgUrl(p.images[0])}" style="width:100%;height:100%;object-fit:cover;" alt="${p.name}"/>`
           : `<div class="prod-img-placeholder" style="background:${p.bg}"><span style="font-size:4rem">${p.emoji}</span></div>`
         }
         ${p.tags.includes('sale') ? '<span class="badge badge-sale">Sale</span>' : ''}
@@ -3637,7 +3637,7 @@ function renderProductCard(p) {
     <div class="product-card" onclick="openProduct('${p.id}')">
       <div class="product-img-wrap">
         ${p.images && p.images.length > 0 
-          ? `<img src="${API_URL.replace('/api','')}${p.images[0]}" style="width:100%;height:100%;object-fit:cover;" alt="${p.name}"/>`
+          ? `<img src="${imgUrl(p.images[0])}" style="width:100%;height:100%;object-fit:cover;" alt="${p.name}"/>`
           : `<div class="prod-img-placeholder" style="background:${p.bg}"><span style="font-size:4rem">${p.emoji}</span></div>`
         }
         ${p.tags.includes('sale') ? '<span class="badge badge-sale">Sale</span>' : ''}
@@ -3706,7 +3706,7 @@ function openProduct(id) {
   // Main image — backend image ya emoji
   const mainImgEl = document.getElementById('detailMainImg');
   if (currentProduct.images && currentProduct.images.length > 0) {
-    mainImgEl.innerHTML = `<img src="${API_URL.replace('/api','')}${currentProduct.images[0]}" alt="${currentProduct.name}" style="width:100%;height:100%;object-fit:cover;"/>`;
+    mainImgEl.innerHTML = `<img src="${imgUrl(currentProduct.images[0])}" alt="${currentProduct.name}" style="width:100%;height:100%;object-fit:cover;"/>`;
   } else {
     mainImgEl.innerHTML = `
       <div style="background:${currentProduct.bg};width:100%;height:100%;display:flex;align-items:center;justify-content:center;">
@@ -3718,8 +3718,8 @@ function openProduct(id) {
   const thumbColors = ['#F0E8E0','#E0D0C0','#D0C0A0','#E8D8C0'];
   if (currentProduct.images && currentProduct.images.length > 0) {
     document.getElementById('thumbGrid').innerHTML = currentProduct.images.map((img, i) => `
-      <div class="thumb ${i===0?'active':''}" onclick="selectThumbImg(this, '${API_URL.replace('/api','')}${img}')">
-        <img src="${API_URL.replace('/api','')}${img}" alt="thumb" style="width:100%;height:100%;object-fit:cover;"/>
+      <div class="thumb ${i===0?'active':''}" onclick="selectThumbImg(this, '${imgUrl(img)}')">
+        <img src="${imgUrl(img)}" alt="thumb" style="width:100%;height:100%;object-fit:cover;"/>
       </div>
     `).join('');
   } else {
@@ -4462,7 +4462,7 @@ function openOrderModal() {
   }
 
   const img = orderProduct.images && orderProduct.images.length > 0
-    ? `<img src="${API_URL.replace('/api','')}${orderProduct.images[0]}" style="width:56px;height:56px;object-fit:cover;border-radius:2px;flex-shrink:0;"/>`
+    ? `<img src="${imgUrl(orderProduct.images[0])}" style="width:56px;height:56px;object-fit:cover;border-radius:2px;flex-shrink:0;"/>`
     : `<div style="width:56px;height:56px;background:${orderProduct.bg};display:flex;align-items:center;justify-content:center;font-size:1.8rem;flex-shrink:0;">${orderProduct.emoji}</div>`;
 
   document.getElementById('orderProductSummary').innerHTML = `
@@ -4519,7 +4519,7 @@ function renderFeaturedSlider() {
 
   track.innerHTML = featuredProducts.map((p, i) => {
     const img = p.images && p.images.length > 0
-      ? `<img class="prod-img" src="${API_URL.replace('/api','')}${p.images[0]}" alt="${p.name}" style="width:100%;height:100%;object-fit:cover;"/>`
+      ? `<img class="prod-img" src="${imgUrl(p.images[0])}" alt="${p.name}" style="width:100%;height:100%;object-fit:cover;"/>`
       : `<div class="prod-img-placeholder" style="background:${p.bg||'#f0e8d8'};width:100%;height:100%;display:flex;align-items:center;justify-content:center;font-size:3rem;">${p.emoji||'👗'}</div>`;
 
     const badge = p.discount > 0 ? `<span class="badge badge-sale">${p.discount}% OFF</span>` : (p.isNew ? `<span class="badge badge-new">New</span>` : '');
@@ -4584,6 +4584,12 @@ function resetFeaturedAuto() {
   startFeaturedAuto();
 }
 
+
+function imgUrl(url) {
+  if (!url) return '';
+  if (url.startsWith('http')) return url;
+  return API_URL.replace('/api', '') + url;
+}
 // Products backend se load karo
 fetchProducts();
 loadHeroVideo();
