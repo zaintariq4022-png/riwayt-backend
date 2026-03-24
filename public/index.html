@@ -2228,6 +2228,19 @@
     ::-webkit-scrollbar-track { background: var(--cream); }
     ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
     ::-webkit-scrollbar-thumb:hover { background: var(--mid-gray); }
+
+    /* ── Featured Slider ─────────────────────────── */
+    .fs-section { padding: 28px 0 20px; background: var(--warm-white); }
+    .fs-section .section-header { padding: 0 16px; margin-bottom: 14px; }
+    .fs-scroll { display: flex; gap: 10px; overflow-x: auto; scroll-snap-type: x mandatory; -webkit-overflow-scrolling: touch; scrollbar-width: none; padding: 0 16px 4px; }
+    .fs-scroll::-webkit-scrollbar { display: none; }
+    .fs-card { flex: 0 0 150px; width: 150px; scroll-snap-align: start; cursor: pointer; }
+    .fs-card .product-img-wrap { aspect-ratio: 3/4; margin-bottom: 6px; overflow: hidden; }
+    .fs-name { font-size: 0.72rem; color: #555; overflow: hidden; white-space: nowrap; text-overflow: ellipsis; margin-top: 4px; }
+    .fs-price { font-size: 0.78rem; font-weight: 600; margin-top: 2px; color: var(--charcoal); }
+    .featured-dots { display: flex; justify-content: center; gap: 5px; margin-top: 10px; }
+    .featured-dot { width: 5px; height: 5px; border-radius: 50%; background: #ccc; cursor: pointer; transition: all 0.3s; }
+    .featured-dot.active { background: var(--charcoal); width: 14px; border-radius: 3px; }
   </style>
 </head>
 <body>
