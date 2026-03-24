@@ -2430,22 +2430,12 @@
 
 
   <!-- FEATURED SLIDER -->
-  <section class="featured-slider-section" id="featuredSliderSection" style="display:none;">
-    <div class="section-header">
-      <span class="section-label" id="featuredSliderLabel">Handpicked For You</span>
+  <section class="fs-section" id="featuredSliderSection" style="display:none;">
+    <div class="section-header" style="padding:0 16px;margin-bottom:16px;">
+      <span class="section-label">Handpicked For You</span>
       <h2 class="section-title">Featured <em>Picks</em></h2>
     </div>
-    <div class="featured-slider-wrap">
-      <button class="featured-slider-arrow prev" onclick="featuredSlide(-1)">
-        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.75 19.5L8.25 12l7.5-7.5"/></svg>
-      </button>
-      <div class="featured-slider-track-outer">
-        <div class="featured-slider-track" id="featuredSliderTrack"></div>
-      </div>
-      <button class="featured-slider-arrow next" onclick="featuredSlide(1)">
-        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8.25 4.5l7.5 7.5-7.5 7.5"/></svg>
-      </button>
-    </div>
+    <div class="fs-scroll" id="featuredSliderTrack"></div>
     <div class="featured-dots" id="featuredDots"></div>
   </section>
 
@@ -4493,10 +4483,9 @@ function openOrderModal() {
 
 
 /* ==============================================
-   FEATURED SLIDER
+   FEATURED SLIDER — scroll-snap approach
 ============================================== */
 let featuredProducts = [];
-let featuredIdx = 0;
 let featuredTimer = null;
 
 async function loadFeaturedSlider() {
@@ -4507,11 +4496,10 @@ async function loadFeaturedSlider() {
     if (!data.success || !data.value || !data.value.length) return;
     featuredProducts = data.value.map(id => PRODUCTS.find(p => p.id === id)).filter(Boolean);
     if (featuredProducts.length < 2) return;
-    featuredIdx = 0;
     buildFeaturedSlider();
     document.getElementById('featuredSliderSection').style.display = '';
     clearInterval(featuredTimer);
-    featuredTimer = setInterval(featuredNext, 3500);
+    featuredTimer = setInterval(featuredAutoScroll, 3500);
   } catch(e) {}
 }
 
@@ -4519,6 +4507,7 @@ function buildFeaturedSlider() {
   const track = document.getElementById('featuredSliderTrack');
   const dots = document.getElementById('featuredDots');
   if (!track) return;
+
   track.innerHTML = featuredProducts.map((p) => {
     const src = imgUrl(p.images && p.images[0] ? p.images[0] : '');
     const badge = p.discount > 0 ? `<span class="badge badge-sale">${p.discount}% OFF</span>` : (p.isNew ? `<span class="badge badge-new">New</span>` : '');
@@ -4527,45 +4516,49 @@ function buildFeaturedSlider() {
         ${badge}
         ${src ? `<img src="${src}" alt="${p.name}" style="width:100%;height:100%;object-fit:cover;">` : `<div style="width:100%;height:100%;background:${p.bg||'#f0e8d8'};display:flex;align-items:center;justify-content:center;font-size:2rem;">${p.emoji||'👗'}</div>`}
       </div>
-      <div style="font-size:0.78rem;color:#555;margin-top:6px;overflow:hidden;white-space:nowrap;text-overflow:ellipsis;">${p.name}</div>
-      <div style="font-size:0.85rem;font-weight:600;margin-top:2px;">PKR ${p.price.toLocaleString()}</div>
+      <div class="fs-name">${p.name}</div>
+      <div class="fs-price">PKR ${p.price.toLocaleString()}</div>
     </div>`;
   }).join('');
-  const pages = Math.max(featuredProducts.length - 1, 1);
-  if (dots) dots.innerHTML = Array.from({length: pages}, (_, i) =>
-    `<div class="featured-dot${i===0?' active':''}" onclick="featuredGoTo(${i})"></div>`
+
+  if (dots) dots.innerHTML = featuredProducts.map((_, i) =>
+    `<div class="featured-dot${i===0?' active':''}" onclick="featuredScrollTo(${i})"></div>`
   ).join('');
+
+  // Update dots on scroll
+  track.addEventListener('scroll', () => {
+    const idx = Math.round(track.scrollLeft / (track.scrollWidth / featuredProducts.length));
+    document.querySelectorAll('.featured-dot').forEach((d, i) => d.classList.toggle('active', i === idx));
+  });
 }
 
-function featuredNext() {
-  const max = Math.max(featuredProducts.length - 2, 0);
-  featuredIdx = featuredIdx >= max ? 0 : featuredIdx + 1;
-  featuredMove();
+function featuredAutoScroll() {
+  const track = document.getElementById('featuredSliderTrack');
+  if (!track || !track.children.length) return;
+  const cardW = track.children[0].offsetWidth + 12;
+  const maxScroll = track.scrollWidth - track.clientWidth;
+  const next = track.scrollLeft + cardW > maxScroll ? 0 : track.scrollLeft + cardW;
+  track.scrollTo({ left: next, behavior: 'smooth' });
 }
 
+function featuredScrollTo(i) {
+  const track = document.getElementById('featuredSliderTrack');
+  if (!track || !track.children[i]) return;
+  track.scrollTo({ left: track.children[i].offsetLeft - 16, behavior: 'smooth' });
+  clearInterval(featuredTimer);
+  featuredTimer = setInterval(featuredAutoScroll, 3500);
+}
+
+// Keep these for arrow buttons compatibility
 function featuredSlide(dir) {
-  const max = Math.max(featuredProducts.length - 2, 0);
-  featuredIdx = Math.min(Math.max(featuredIdx + dir, 0), max);
-  featuredMove();
+  const track = document.getElementById('featuredSliderTrack');
+  if (!track || !track.children.length) return;
+  const cardW = track.children[0].offsetWidth + 12;
+  track.scrollBy({ left: dir * cardW, behavior: 'smooth' });
   clearInterval(featuredTimer);
-  featuredTimer = setInterval(featuredNext, 3500);
+  featuredTimer = setInterval(featuredAutoScroll, 3500);
 }
-
-function featuredGoTo(i) {
-  featuredIdx = i;
-  featuredMove();
-  clearInterval(featuredTimer);
-  featuredTimer = setInterval(featuredNext, 3500);
-}
-
-function featuredMove() {
-  const cards = document.querySelectorAll('.fs-card');
-  if (!cards.length) return;
-  const w = cards[0].offsetWidth + 12;
-  document.getElementById('featuredSliderTrack').style.transform = `translateX(-${featuredIdx * w}px)`;
-  document.querySelectorAll('.featured-dot').forEach((d,i) => d.classList.toggle('active', i === featuredIdx));
-}
-
+function featuredGoTo(i) { featuredScrollTo(i); }
 
 // Products backend se load karo
 fetchProducts();
