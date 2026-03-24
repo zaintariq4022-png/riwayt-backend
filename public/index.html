@@ -4570,8 +4570,11 @@ function featuredGoTo(i) {
 
 function updateFeaturedSlider() {
   const track = document.getElementById('featuredSliderTrack');
-  const itemWidth = track.children[0] ? track.children[0].offsetWidth + 20 : 0;
-  track.style.transform = `translateX(-${featuredIndex * itemWidth}px)`;
+  const outer = document.querySelector('.featured-slider-track-outer');
+  if (!outer) return;
+  const gap = 16;
+  const itemWidth = (outer.offsetWidth - gap) / FEATURED_VISIBLE;
+  track.style.transform = `translateX(-${featuredIndex * (itemWidth + gap)}px)`;
 
   // Update dots
   document.querySelectorAll('.featured-dot').forEach((d, i) => {
