@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, maximum-scale=1.0" />
   <meta name="mobile-web-app-capable" content="yes" />
   <meta name="apple-mobile-web-app-capable" content="yes" />
   <meta name="apple-mobile-web-app-status-bar-style" content="default" />
@@ -50,6 +50,8 @@
       line-height: 1.6;
       max-width: 100%;
       width: 100%;
+      -webkit-text-size-adjust: 100%;
+      text-size-adjust: 100%;
     }
     *, *::before, *::after { box-sizing: border-box; }
 
@@ -3528,16 +3530,27 @@ let heroTimer;
 /* ==============================================
    PAGE NAVIGATION
 ============================================== */
-function showPage(page) {
+function showPage(page, pushHistory = true) {
   document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
   document.getElementById('page-' + page).classList.add('active');
   window.scrollTo({ top: 0, behavior: 'smooth' });
   if (page === 'cart') renderCart();
   if (page === 'checkout') renderCheckout();
-  // Show footer only on home page
   const footer = document.querySelector('footer');
   if (footer) footer.style.display = (page === 'home') ? '' : 'none';
+  if (pushHistory) {
+    history.pushState({ page }, '', '#' + page);
+  }
 }
+
+// Handle browser back button
+window.addEventListener('popstate', (e) => {
+  const page = (e.state && e.state.page) ? e.state.page : 'home';
+  showPage(page, false);
+});
+
+// Set initial history state
+history.replaceState({ page: 'home' }, '', '#home');
 
 /* ==============================================
    HERO SLIDER
