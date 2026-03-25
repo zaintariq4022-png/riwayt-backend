@@ -1636,11 +1636,11 @@ async function loadHeroTextEditor() {
     if (sb.bgColor)    { const el = document.getElementById('sb_bg_color'); if(el) { el.value = sb.bgColor; document.getElementById('sb_bg_color_hex').value = sb.bgColor; } }
     if (sb.bgOpacity)  { const el = document.getElementById('sb_bg_opacity'); if(el) { el.value = sb.bgOpacity; document.getElementById('sb_bg_opacity_val').textContent = sb.bgOpacity; } }
     // Announcement colors
-    const ann = slides[4] || {};
-    if (ann.text1Color) { const el = document.getElementById('ann_text1_color'); if(el) el.value = ann.text1Color; }
-    if (ann.text2Color) { const el = document.getElementById('ann_text2_color'); if(el) el.value = ann.text2Color; }
-    if (ann.text3Color) { const el = document.getElementById('ann_text3_color'); if(el) el.value = ann.text3Color; }
-    if (ann.bgColor)    { const el = document.getElementById('ann_bg_color'); if(el) el.value = ann.bgColor; }
+    const annColors = slides[4] || {};
+    if (annColors.text1Color) { const el = document.getElementById('ann_text1_color'); if(el) el.value = annColors.text1Color; }
+    if (annColors.text2Color) { const el = document.getElementById('ann_text2_color'); if(el) el.value = annColors.text2Color; }
+    if (annColors.text3Color) { const el = document.getElementById('ann_text3_color'); if(el) el.value = annColors.text3Color; }
+    if (annColors.bgColor)    { const el = document.getElementById('ann_bg_color'); if(el) el.value = annColors.bgColor; }
   } catch(e) {
     defaultSlides.slice(0,3).forEach((s, idx) => {
       const i = idx + 1;
