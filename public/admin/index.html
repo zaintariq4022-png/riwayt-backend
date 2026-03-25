@@ -555,24 +555,74 @@ tr:hover td{background:#FAFAFA;}
           <div class="chart-card" style="margin-bottom:16px;border-left:3px solid #E53935;margin-top:4px;">
             <div class="chart-title" style="color:#E53935;">🏷️ Sale Banner Section</div>
             <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:14px;">
-              <div class="field">
+
+              <div class="field" style="grid-column:1/-1">
                 <label>Tag (upar choti label)</label>
-                <input type="text" id="sb_tag_edit" placeholder="e.g. Limited Time"/>
+                <div style="display:flex;gap:8px;align-items:center;">
+                  <input type="color" id="sb_tag_color" value="#E53935" style="width:44px;height:34px;padding:2px;border:1px solid var(--border);border-radius:4px;cursor:pointer;flex-shrink:0;" oninput="document.getElementById('sb_tag_color_hex').value=this.value"/>
+                  <input type="text" id="sb_tag_color_hex" placeholder="#E53935" style="width:80px;" oninput="document.getElementById('sb_tag_color').value=this.value"/>
+                  <input type="text" id="sb_tag_edit" placeholder="e.g. Limited Time" style="flex:1;"/>
+                </div>
               </div>
-              <div class="field">
-                <label>Button Text</label>
-                <input type="text" id="sb_btn_edit" placeholder="e.g. Shop Sale Now"/>
-              </div>
+
               <div class="field" style="grid-column:1/-1">
                 <label>Title (HTML allowed — em italic k liye)</label>
-                <input type="text" id="sb_title_edit" placeholder="e.g. End of Season&lt;br&gt;&lt;em&gt;Clearance Sale&lt;/em&gt;"/>
+                <div style="display:flex;gap:8px;align-items:center;">
+                  <input type="color" id="sb_title_color" value="#1C1C1C" style="width:44px;height:34px;padding:2px;border:1px solid var(--border);border-radius:4px;cursor:pointer;flex-shrink:0;" oninput="document.getElementById('sb_title_color_hex').value=this.value"/>
+                  <input type="text" id="sb_title_color_hex" placeholder="#1C1C1C" style="width:80px;" oninput="document.getElementById('sb_title_color').value=this.value"/>
+                  <input type="text" id="sb_title_edit" placeholder="e.g. End of Season&lt;br&gt;&lt;em&gt;Clearance Sale&lt;/em&gt;" style="flex:1;"/>
+                </div>
               </div>
+
               <div class="field" style="grid-column:1/-1">
                 <label>Description</label>
-                <textarea id="sb_desc_edit" rows="2" placeholder="Sale description..."></textarea>
+                <div style="display:flex;gap:8px;align-items:flex-start;">
+                  <div style="display:flex;flex-direction:column;gap:4px;flex-shrink:0;">
+                    <input type="color" id="sb_desc_color" value="#555555" style="width:44px;height:34px;padding:2px;border:1px solid var(--border);border-radius:4px;cursor:pointer;" oninput="document.getElementById('sb_desc_color_hex').value=this.value"/>
+                    <input type="text" id="sb_desc_color_hex" placeholder="#555555" style="width:80px;font-size:11px;" oninput="document.getElementById('sb_desc_color').value=this.value"/>
+                  </div>
+                  <textarea id="sb_desc_edit" rows="2" placeholder="Sale description..." style="flex:1;"></textarea>
+                </div>
               </div>
+
+              <div class="field" style="grid-column:1/-1">
+                <label>Button Text</label>
+                <div style="display:flex;gap:8px;align-items:center;">
+                  <input type="color" id="sb_btn_color" value="#C9A84C" style="width:44px;height:34px;padding:2px;border:1px solid var(--border);border-radius:4px;cursor:pointer;flex-shrink:0;" oninput="document.getElementById('sb_btn_color_hex').value=this.value"/>
+                  <input type="text" id="sb_btn_color_hex" placeholder="#C9A84C" style="width:80px;" oninput="document.getElementById('sb_btn_color').value=this.value"/>
+                  <input type="text" id="sb_btn_edit" placeholder="e.g. Shop Sale Now" style="flex:1;"/>
+                </div>
+              </div>
+
+              <div class="field" style="grid-column:1/-1">
+                <label>🔤 Watermark Text (bada blurred "SALE" jैसा background text)</label>
+                <div style="display:flex;gap:8px;align-items:center;">
+                  <input type="color" id="sb_watermark_color" value="#1C1C1C" style="width:44px;height:34px;padding:2px;border:1px solid var(--border);border-radius:4px;cursor:pointer;flex-shrink:0;" oninput="document.getElementById('sb_watermark_color_hex').value=this.value"/>
+                  <input type="text" id="sb_watermark_color_hex" placeholder="#1C1C1C" style="width:80px;" oninput="document.getElementById('sb_watermark_color').value=this.value"/>
+                  <input type="text" id="sb_watermark_edit" placeholder="e.g. SALE" style="flex:1;"/>
+                </div>
+              </div>
+
+              <div class="field" style="grid-column:1/-1">
+                <label>🌑 Watermark Opacity (0 = poora hide, 1 = poora visible)</label>
+                <div style="display:flex;gap:12px;align-items:center;">
+                  <input type="range" id="sb_watermark_opacity" min="0" max="1" step="0.05" value="0.08" style="flex:1;" oninput="document.getElementById('sb_watermark_opacity_val').textContent=this.value"/>
+                  <span id="sb_watermark_opacity_val" style="font-weight:600;color:var(--gold);min-width:32px;">0.08</span>
+                </div>
+              </div>
+
+              <div class="field" style="grid-column:1/-1">
+                <label>🌑 Background Overlay (0 = light, 1 = dark)</label>
+                <div style="display:flex;gap:12px;align-items:center;">
+                  <input type="color" id="sb_bg_color" value="#F5EFE6" style="width:44px;height:34px;padding:2px;border:1px solid var(--border);border-radius:4px;cursor:pointer;flex-shrink:0;" oninput="document.getElementById('sb_bg_color_hex').value=this.value"/>
+                  <input type="text" id="sb_bg_color_hex" placeholder="#F5EFE6" style="width:80px;" oninput="document.getElementById('sb_bg_color').value=this.value"/>
+                  <input type="range" id="sb_bg_opacity" min="0" max="1" step="0.05" value="1" style="flex:1;" oninput="document.getElementById('sb_bg_opacity_val').textContent=this.value"/>
+                  <span id="sb_bg_opacity_val" style="font-weight:600;color:var(--gold);min-width:32px;">1</span>
+                </div>
+              </div>
+
               <div class="field">
-                <label>Box 1 % (jaise 10%)</label>
+                <label>Box 1 %</label>
                 <input type="text" id="sb_box1_pct_edit" placeholder="10%"/>
               </div>
               <div class="field">
@@ -580,7 +630,7 @@ tr:hover td{background:#FAFAFA;}
                 <input type="text" id="sb_box1_cat_edit" placeholder="Women"/>
               </div>
               <div class="field">
-                <label>Box 2 % (jaise 15%)</label>
+                <label>Box 2 %</label>
                 <input type="text" id="sb_box2_pct_edit" placeholder="15%"/>
               </div>
               <div class="field">
@@ -596,18 +646,34 @@ tr:hover td{background:#FAFAFA;}
             <div style="background:#1C1C1C;color:#FAF7F2;padding:10px 16px;border-radius:6px;font-size:12px;text-align:center;margin:10px 0;letter-spacing:1px;">
               Preview: Text 1 &nbsp;|&nbsp; Text 2 &nbsp;|&nbsp; Text 3
             </div>
-            <div style="display:flex;flex-direction:column;gap:12px;margin-top:14px;">
+            <div style="display:flex;flex-direction:column;gap:14px;margin-top:14px;">
               <div class="field">
                 <label>Text 1 (delivery info)</label>
-                <input type="text" id="ann_text1" placeholder="FREE DELIVERY ON ORDERS ABOVE PKR &lt;span&gt;10,000&lt;/span&gt;"/>
+                <div style="display:flex;gap:8px;align-items:center;">
+                  <input type="color" id="ann_text1_color" value="#FAF7F2" style="width:44px;height:34px;padding:2px;border:1px solid var(--border);border-radius:4px;cursor:pointer;flex-shrink:0;"/>
+                  <input type="text" id="ann_text1" placeholder="FREE DELIVERY ON ORDERS ABOVE PKR &lt;span&gt;10,000&lt;/span&gt;" style="flex:1;"/>
+                </div>
               </div>
               <div class="field">
-                <label>Text 2 (sale info — gold color mein)</label>
-                <input type="text" id="ann_text2" placeholder="SUMMER SALE — FLAT &lt;span&gt;10% OFF&lt;/span&gt;"/>
+                <label>Text 2 (sale info)</label>
+                <div style="display:flex;gap:8px;align-items:center;">
+                  <input type="color" id="ann_text2_color" value="#C9A84C" style="width:44px;height:34px;padding:2px;border:1px solid var(--border);border-radius:4px;cursor:pointer;flex-shrink:0;"/>
+                  <input type="text" id="ann_text2" placeholder="SUMMER SALE — FLAT &lt;span&gt;10% OFF&lt;/span&gt;" style="flex:1;"/>
+                </div>
               </div>
               <div class="field">
                 <label>Text 3 (rating info)</label>
-                <input type="text" id="ann_text3" placeholder="Rated 4.8 by &lt;span&gt;1,240+&lt;/span&gt; Happy Customers"/>
+                <div style="display:flex;gap:8px;align-items:center;">
+                  <input type="color" id="ann_text3_color" value="#FAF7F2" style="width:44px;height:34px;padding:2px;border:1px solid var(--border);border-radius:4px;cursor:pointer;flex-shrink:0;"/>
+                  <input type="text" id="ann_text3" placeholder="Rated 4.8 by &lt;span&gt;1,240+&lt;/span&gt; Happy Customers" style="flex:1;"/>
+                </div>
+              </div>
+              <div class="field">
+                <label>Bar Background Color</label>
+                <div style="display:flex;gap:8px;align-items:center;">
+                  <input type="color" id="ann_bg_color" value="#1C1C1C" style="width:44px;height:34px;padding:2px;border:1px solid var(--border);border-radius:4px;cursor:pointer;flex-shrink:0;"/>
+                  <span style="font-size:12px;color:var(--text-muted);">Header announcement bar ka background color</span>
+                </div>
               </div>
             </div>
           </div>
@@ -1560,6 +1626,21 @@ async function loadHeroTextEditor() {
     document.getElementById('sb_box1_cat_edit').value = sb.box1_cat || '';
     document.getElementById('sb_box2_pct_edit').value = sb.box2_pct || '';
     document.getElementById('sb_box2_cat_edit').value = sb.box2_cat || '';
+    if (sb.tagColor)   { const el = document.getElementById('sb_tag_color'); if(el) { el.value = sb.tagColor; document.getElementById('sb_tag_color_hex').value = sb.tagColor; } }
+    if (sb.titleColor) { const el = document.getElementById('sb_title_color'); if(el) { el.value = sb.titleColor; document.getElementById('sb_title_color_hex').value = sb.titleColor; } }
+    if (sb.descColor)  { const el = document.getElementById('sb_desc_color'); if(el) { el.value = sb.descColor; document.getElementById('sb_desc_color_hex').value = sb.descColor; } }
+    if (sb.btnColor)   { const el = document.getElementById('sb_btn_color'); if(el) { el.value = sb.btnColor; document.getElementById('sb_btn_color_hex').value = sb.btnColor; } }
+    if (sb.watermark)  { document.getElementById('sb_watermark_edit').value = sb.watermark; }
+    if (sb.watermarkColor) { const el = document.getElementById('sb_watermark_color'); if(el) { el.value = sb.watermarkColor; document.getElementById('sb_watermark_color_hex').value = sb.watermarkColor; } }
+    if (sb.watermarkOpacity) { const el = document.getElementById('sb_watermark_opacity'); if(el) { el.value = sb.watermarkOpacity; document.getElementById('sb_watermark_opacity_val').textContent = sb.watermarkOpacity; } }
+    if (sb.bgColor)    { const el = document.getElementById('sb_bg_color'); if(el) { el.value = sb.bgColor; document.getElementById('sb_bg_color_hex').value = sb.bgColor; } }
+    if (sb.bgOpacity)  { const el = document.getElementById('sb_bg_opacity'); if(el) { el.value = sb.bgOpacity; document.getElementById('sb_bg_opacity_val').textContent = sb.bgOpacity; } }
+    // Announcement colors
+    const ann = slides[4] || {};
+    if (ann.text1Color) { const el = document.getElementById('ann_text1_color'); if(el) el.value = ann.text1Color; }
+    if (ann.text2Color) { const el = document.getElementById('ann_text2_color'); if(el) el.value = ann.text2Color; }
+    if (ann.text3Color) { const el = document.getElementById('ann_text3_color'); if(el) el.value = ann.text3Color; }
+    if (ann.bgColor)    { const el = document.getElementById('ann_bg_color'); if(el) el.value = ann.bgColor; }
   } catch(e) {
     defaultSlides.slice(0,3).forEach((s, idx) => {
       const i = idx + 1;
@@ -1594,22 +1675,35 @@ async function saveHeroText() {
   }));
   // Announcement bar
   slides.push({
-    text1: document.getElementById('ann_text1').value.trim(),
-    text2: document.getElementById('ann_text2').value.trim(),
-    text3: document.getElementById('ann_text3').value.trim(),
+    text1:      document.getElementById('ann_text1').value.trim(),
+    text2:      document.getElementById('ann_text2').value.trim(),
+    text3:      document.getElementById('ann_text3').value.trim(),
+    text1Color: document.getElementById('ann_text1_color')?.value || '#FAF7F2',
+    text2Color: document.getElementById('ann_text2_color')?.value || '#C9A84C',
+    text3Color: document.getElementById('ann_text3_color')?.value || '#FAF7F2',
+    bgColor:    document.getElementById('ann_bg_color')?.value || '#1C1C1C',
   });
   // But we need index 3 to be sale banner, so reorder
   const annSlide = slides.pop();
   // Sale banner
   slides.push({
-    tag:      document.getElementById('sb_tag_edit').value.trim(),
-    title:    document.getElementById('sb_title_edit').value.trim(),
-    desc:     document.getElementById('sb_desc_edit').value.trim(),
-    btn:      document.getElementById('sb_btn_edit').value.trim(),
-    box1_pct: document.getElementById('sb_box1_pct_edit').value.trim(),
-    box1_cat: document.getElementById('sb_box1_cat_edit').value.trim(),
-    box2_pct: document.getElementById('sb_box2_pct_edit').value.trim(),
-    box2_cat: document.getElementById('sb_box2_cat_edit').value.trim(),
+    tag:              document.getElementById('sb_tag_edit').value.trim(),
+    title:            document.getElementById('sb_title_edit').value.trim(),
+    desc:             document.getElementById('sb_desc_edit').value.trim(),
+    btn:              document.getElementById('sb_btn_edit').value.trim(),
+    box1_pct:         document.getElementById('sb_box1_pct_edit').value.trim(),
+    box1_cat:         document.getElementById('sb_box1_cat_edit').value.trim(),
+    box2_pct:         document.getElementById('sb_box2_pct_edit').value.trim(),
+    box2_cat:         document.getElementById('sb_box2_cat_edit').value.trim(),
+    tagColor:         document.getElementById('sb_tag_color')?.value || '#E53935',
+    titleColor:       document.getElementById('sb_title_color')?.value || '#1C1C1C',
+    descColor:        document.getElementById('sb_desc_color')?.value || '#555555',
+    btnColor:         document.getElementById('sb_btn_color')?.value || '#C9A84C',
+    watermark:        document.getElementById('sb_watermark_edit')?.value.trim() || 'SALE',
+    watermarkColor:   document.getElementById('sb_watermark_color')?.value || '#1C1C1C',
+    watermarkOpacity: document.getElementById('sb_watermark_opacity')?.value || '0.08',
+    bgColor:          document.getElementById('sb_bg_color')?.value || '#F5EFE6',
+    bgOpacity:        document.getElementById('sb_bg_opacity')?.value || '1',
   });
 
   slides.push(annSlide); // index 4 = announcement
