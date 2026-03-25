@@ -370,7 +370,13 @@ tr:hover td{background:#FAFAFA;}
 
           <!-- Slide 1 -->
           <div class="chart-card" style="margin-bottom:16px;border-left:3px solid #C9A84C;">
-            <div class="chart-title" style="color:var(--gold);">Slide 1</div>
+            <div style="display:flex;align-items:center;justify-content:space-between;">
+              <div style="display:flex;align-items:center;justify-content:space-between;">
+              <div class="chart-title" style="color:var(--gold);">Slide 1</div>
+              <button id="s1_toggle_btn" onclick="toggleSlide(1)" style="padding:5px 14px;border-radius:20px;border:1px solid #12B76A;background:rgba(18,183,106,0.1);color:#12B76A;font-size:12px;font-weight:600;cursor:pointer;">✓ Visible</button>
+            </div>
+              <button id="s1_toggle_btn" onclick="toggleSlideVisibility(1)" style="padding:4px 14px;border-radius:20px;font-size:12px;font-weight:600;border:none;cursor:pointer;background:#12B76A;color:white;" title="Show/Hide this slide">● Visible</button>
+            </div>
             <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:14px;">
 
               <div class="field" style="grid-column:1/-1">
@@ -431,7 +437,13 @@ tr:hover td{background:#FAFAFA;}
           </div>
           <!-- Slide 2 -->
           <div class="chart-card" style="margin-bottom:16px;border-left:3px solid #3B82F6;">
-            <div class="chart-title" style="color:#3B82F6;">Slide 2</div>
+            <div style="display:flex;align-items:center;justify-content:space-between;">
+              <div style="display:flex;align-items:center;justify-content:space-between;">
+              <div class="chart-title" style="color:#3B82F6;">Slide 2</div>
+              <button id="s2_toggle_btn" onclick="toggleSlide(2)" style="padding:5px 14px;border-radius:20px;border:1px solid #12B76A;background:rgba(18,183,106,0.1);color:#12B76A;font-size:12px;font-weight:600;cursor:pointer;">✓ Visible</button>
+            </div>
+              <button id="s2_toggle_btn" onclick="toggleSlideVisibility(2)" style="padding:4px 14px;border-radius:20px;font-size:12px;font-weight:600;border:none;cursor:pointer;background:#12B76A;color:white;" title="Show/Hide this slide">● Visible</button>
+            </div>
             <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:14px;">
 
               <div class="field" style="grid-column:1/-1">
@@ -492,7 +504,13 @@ tr:hover td{background:#FAFAFA;}
           </div>
           <!-- Slide 3 -->
           <div class="chart-card" style="margin-bottom:16px;border-left:3px solid #A855F7;">
-            <div class="chart-title" style="color:#A855F7;">Slide 3</div>
+            <div style="display:flex;align-items:center;justify-content:space-between;">
+              <div style="display:flex;align-items:center;justify-content:space-between;">
+              <div class="chart-title" style="color:#A855F7;">Slide 3</div>
+              <button id="s3_toggle_btn" onclick="toggleSlide(3)" style="padding:5px 14px;border-radius:20px;border:1px solid #12B76A;background:rgba(18,183,106,0.1);color:#12B76A;font-size:12px;font-weight:600;cursor:pointer;">✓ Visible</button>
+            </div>
+              <button id="s3_toggle_btn" onclick="toggleSlideVisibility(3)" style="padding:4px 14px;border-radius:20px;font-size:12px;font-weight:600;border:none;cursor:pointer;background:#12B76A;color:white;" title="Show/Hide this slide">● Visible</button>
+            </div>
             <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:14px;">
 
               <div class="field" style="grid-column:1/-1">
@@ -1669,6 +1687,50 @@ async function saveCategories() {
   }
 }
 
+
+/* ── Slide Toggle (Hide/Show) ─────────────────── */
+const slideVisibility = { 1: true, 2: true, 3: true };
+
+function toggleSlide(n) {
+  slideVisibility[n] = !slideVisibility[n];
+  const btn = document.getElementById(`s${n}_toggle_btn`);
+  const card = btn.closest('.chart-card');
+  const fields = card.querySelectorAll('.field');
+  if (slideVisibility[n]) {
+    btn.textContent = '✓ Visible';
+    btn.style.borderColor = '#12B76A';
+    btn.style.background = 'rgba(18,183,106,0.1)';
+    btn.style.color = '#12B76A';
+    fields.forEach(f => f.style.opacity = '1');
+    card.style.opacity = '1';
+  } else {
+    btn.textContent = '✗ Hidden';
+    btn.style.borderColor = '#F04438';
+    btn.style.background = 'rgba(240,68,56,0.1)';
+    btn.style.color = '#F04438';
+    fields.forEach(f => f.style.opacity = '0.4');
+    card.style.opacity = '0.6';
+  }
+}
+
+function loadSlideVisibility(slides) {
+  [1,2,3].forEach(n => {
+    const s = slides[n-1];
+    const isVisible = s ? (s.visible !== false) : true;
+    slideVisibility[n] = isVisible;
+    const btn = document.getElementById(`s${n}_toggle_btn`);
+    if (!btn) return;
+    const card = btn.closest('.chart-card');
+    if (!isVisible) {
+      btn.textContent = '✗ Hidden';
+      btn.style.borderColor = '#F04438';
+      btn.style.background = 'rgba(240,68,56,0.1)';
+      btn.style.color = '#F04438';
+      card.style.opacity = '0.6';
+    }
+  });
+}
+
 /* ── Hero Text Editor ──────────────────────────── */
 const defaultSlides = [
   { tag: 'Summer Collection 2026', title: 'Festive <em>Lawn</em><br>Unstitched', sub: 'Crafted with Heritage', desc: 'Discover our exclusive summer lawn collection — where tradition meets contemporary Pakistani fashion.', badge_pct: '10%', badge_off: 'OFF' },
@@ -1696,6 +1758,8 @@ async function loadHeroTextEditor() {
       if (s.font) { document.getElementById(`s${i}_font`).value = s.font; }
     });
     // Announcement bar
+    loadSlideVisibility(slides);
+    loadSlideVisibility(slides);
     const ann = slides[4] || defaultSlides[4];
     document.getElementById('ann_text1').value = ann.text1 || '';
     document.getElementById('ann_text2').value = ann.text2 || '';
@@ -1745,8 +1809,38 @@ async function loadHeroTextEditor() {
   }
 }
 
+
+/* ── Slide Visibility Toggle ─────────────────────── */
+const slideVisibility = {1: true, 2: true, 3: true};
+
+function toggleSlideVisibility(n) {
+  slideVisibility[n] = !slideVisibility[n];
+  const btn = document.getElementById(`s${n}_toggle_btn`);
+  if (slideVisibility[n]) {
+    btn.style.background = '#12B76A';
+    btn.textContent = '● Visible';
+  } else {
+    btn.style.background = '#E53935';
+    btn.textContent = '○ Hidden';
+  }
+}
+
+function loadSlideVisibility(slides) {
+  [1,2,3].forEach(n => {
+    const s = slides[n-1];
+    const hidden = s && s.hidden === true;
+    slideVisibility[n] = !hidden;
+    const btn = document.getElementById(`s${n}_toggle_btn`);
+    if (btn) {
+      btn.style.background = hidden ? '#E53935' : '#12B76A';
+      btn.textContent = hidden ? '○ Hidden' : '● Visible';
+    }
+  });
+}
+
 async function saveHeroText() {
   const slides = [1,2,3].map(i => ({
+    visible:    slideVisibility[i] !== false,
     tag:        document.getElementById(`s${i}_tag_edit`).value.trim(),
     title:      document.getElementById(`s${i}_title_edit`).value.trim(),
     sub:        document.getElementById(`s${i}_sub_edit`).value.trim(),
@@ -1756,6 +1850,7 @@ async function saveHeroText() {
     subColor:   document.getElementById(`s${i}_sub_color`)?.value || '#FAF7F2',
     descColor:  document.getElementById(`s${i}_desc_color`)?.value || '#FAF7F2',
     font:       document.getElementById(`s${i}_font`)?.value || '',
+    hidden:     !slideVisibility[i],
   }));
   // Announcement bar
   slides.push({
