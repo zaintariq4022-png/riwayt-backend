@@ -70,6 +70,28 @@ router.put('/featured-products', protect, async (req, res) => {
   res.json({ success: true, message: 'Featured products updated!' });
 });
 
+
+// GET /api/settings/featured-heading — public
+router.get('/featured-heading', async (req, res) => {
+  try {
+    const setting = await Settings.findOne({ key: 'featured_heading' });
+    res.json({ success: true, value: setting ? setting.value : null });
+  } catch (err) {
+    res.json({ success: true, value: null });
+  }
+});
+
+// PUT /api/settings/featured-heading — admin only
+router.put('/featured-heading', protect, async (req, res) => {
+  const { label, labelColor, titleText, title, titleColor, emColor, font } = req.body;
+  await Settings.findOneAndUpdate(
+    { key: 'featured_heading' },
+    { key: 'featured_heading', value: { label, labelColor, titleText, title, titleColor, emColor, font } },
+    { upsert: true, new: true }
+  );
+  res.json({ success: true, message: 'Featured heading updated!' });
+});
+
 module.exports = router;
 
 // GET /api/settings/social — public

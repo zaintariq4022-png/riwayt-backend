@@ -2484,8 +2484,8 @@
   <!-- FEATURED SLIDER -->
   <section class="fs-section" id="featuredSliderSection" style="display:none;">
     <div class="section-header" style="padding:0 16px;margin-bottom:16px;">
-      <span class="section-label">Handpicked For You</span>
-      <h2 class="section-title">Featured <em>Picks</em></h2>
+      <span class="section-label" id="fs_label">Handpicked For You</span>
+      <h2 class="section-title" id="fs_title">Featured <em id="fs_title_em">Picks</em></h2>
     </div>
     <div class="fs-scroll" id="featuredSliderTrack"></div>
     <div class="featured-dots" id="featuredDots"></div>
@@ -4553,6 +4553,21 @@ let featuredTimer = null;
 
 async function loadFeaturedSlider() {
   try {
+    // Load heading settings
+    const hRes = await fetch(`${API_URL}/settings/featured-heading`);
+    if (hRes.ok) {
+      const hData = await hRes.json();
+      if (hData.success && hData.value) {
+        const h = hData.value;
+        const lbl = document.getElementById('fs_label');
+        const ttl = document.getElementById('fs_title');
+        const em = document.getElementById('fs_title_em');
+        if (lbl) { if(h.label) lbl.textContent = h.label; if(h.labelColor) lbl.style.color = h.labelColor; }
+        if (ttl) { if(h.titleColor) ttl.style.color = h.titleColor; if(h.font) ttl.style.fontFamily = h.font; }
+        if (em)  { if(h.title) em.textContent = h.title; if(h.emColor) em.style.color = h.emColor; }
+        if (ttl && h.titleText) { ttl.childNodes[0].textContent = h.titleText + ' '; }
+      }
+    }
     const res = await fetch(`${API_URL}/settings/featured-products`);
     if (!res.ok) return;
     const data = await res.json();

@@ -678,6 +678,56 @@ tr:hover td{background:#FAFAFA;}
             </div>
           </div>
 
+
+          <!-- Featured Picks Heading Editor -->
+          <div class="chart-card" style="margin-bottom:16px;border-left:3px solid var(--gold);margin-top:4px;">
+            <div class="chart-title" style="color:var(--gold);">⭐ Featured Picks Section Heading</div>
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:14px;">
+
+              <div class="field" style="grid-column:1/-1">
+                <label>Label (choti text — "Handpicked For You")</label>
+                <div style="display:flex;gap:8px;align-items:center;">
+                  <input type="color" id="fs_label_color" value="#C9A84C" style="width:44px;height:34px;padding:2px;border:1px solid var(--border);border-radius:4px;cursor:pointer;flex-shrink:0;"/>
+                  <input type="text" id="fs_label_edit" placeholder="Handpicked For You" style="flex:1;"/>
+                </div>
+              </div>
+
+              <div class="field" style="grid-column:1/-1">
+                <label>Title Main Text (e.g. "Featured")</label>
+                <div style="display:flex;gap:8px;align-items:center;">
+                  <input type="color" id="fs_title_color" value="#1C1C1C" style="width:44px;height:34px;padding:2px;border:1px solid var(--border);border-radius:4px;cursor:pointer;flex-shrink:0;"/>
+                  <input type="text" id="fs_title_edit" placeholder="Featured" style="flex:1;"/>
+                </div>
+              </div>
+
+              <div class="field" style="grid-column:1/-1">
+                <label>Title Italic Text (e.g. "Picks") — gold mein dikhta hai</label>
+                <div style="display:flex;gap:8px;align-items:center;">
+                  <input type="color" id="fs_em_color" value="#C9A84C" style="width:44px;height:34px;padding:2px;border:1px solid var(--border);border-radius:4px;cursor:pointer;flex-shrink:0;"/>
+                  <input type="text" id="fs_em_edit" placeholder="Picks" style="flex:1;"/>
+                </div>
+              </div>
+
+              <div class="field" style="grid-column:1/-1">
+                <label>Font Style</label>
+                <select id="fs_font">
+                  <option value="">Default</option>
+                  <option value="'Playfair Display', serif">Playfair Display</option>
+                  <option value="'Montserrat', sans-serif">Montserrat</option>
+                  <option value="'Lato', sans-serif">Lato</option>
+                  <option value="'Raleway', sans-serif">Raleway</option>
+                  <option value="'Dancing Script', cursive">Dancing Script</option>
+                  <option value="'Merriweather', serif">Merriweather</option>
+                  <option value="Georgia, serif">Georgia</option>
+                  <option value="Arial, sans-serif">Arial</option>
+                </select>
+              </div>
+
+            </div>
+            <button class="btn btn-primary" onclick="saveFeaturedHeading()" style="margin-top:14px;width:100%;">💾 Save Featured Heading</button>
+            <div id="fs_save_msg" style="margin-top:8px;font-size:13px;color:#12B76A;display:none;">✓ Saved!</div>
+          </div>
+
           <button class="btn btn-primary" onclick="saveHeroText()" style="width:100%;padding:14px;font-size:14px;">
             💾 Save All Text
           </button>
