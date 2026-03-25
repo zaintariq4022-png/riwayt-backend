@@ -1034,6 +1034,13 @@ tr:hover td{background:#FAFAFA;}
         <div class="field"><label>Tags (comma-separated)</label><input type="text" id="pTags" placeholder="summer, floral"/></div>
       </div>
       <div class="form-row full">
+        <div class="field">
+          <label>🎨 Product Colors (product card ke neeche dots)</label>
+          <div id="colorPickerList" style="display:flex;flex-wrap:wrap;gap:10px;margin-top:8px;align-items:center;"></div>
+          <button type="button" onclick="addColorPicker()" style="margin-top:10px;padding:7px 16px;background:var(--gold);color:#111;border:none;border-radius:4px;cursor:pointer;font-size:13px;font-weight:600;">+ Add Color</button>
+        </div>
+      </div>
+      <div class="form-row full">
         <div class="field"><label>Flags</label>
           <div class="checkbox-row">
             <label><input type="checkbox" id="pFeatured"/> Featured</label>
@@ -1273,6 +1280,7 @@ function openProductModal(id=null){
     ['pPrice','pOriginalPrice','pStock'].forEach(f=>document.getElementById(f).value='');
     document.getElementById('pCategory').value='';
     ['pFeatured','pIsNew','pSale','pHot'].forEach(f=>document.getElementById(f).checked=false);
+    initColorPickers([]);
     document.getElementById('productModal').classList.add('open');
     return;
   }
@@ -1299,6 +1307,7 @@ function openProductModal(id=null){
           <div class="remove-img" onclick="removeExistingImage('${id}','${img}',${idx})">✕</div>
         </div>`).join('');
     }
+    initColorPickers(p.colors || []);
     document.getElementById('productModal').classList.add('open');
   }).catch(e=>showToast('Error: '+e.message,'error'));
 }
@@ -1325,6 +1334,30 @@ async function removeExistingImage(productId,imageUrl,idx){
   }catch(e){showToast('Error: '+e.message,'error');}
 }
 
+
+/* ── Product Color Picker ─────────────────────── */
+function addColorPicker(value='#C9A84C') {
+  const list = document.getElementById('colorPickerList');
+  const wrap = document.createElement('div');
+  wrap.style.cssText = 'position:relative;display:inline-flex;align-items:center;gap:4px;';
+  wrap.innerHTML = `
+    <input type="color" value="${value}" style="width:42px;height:42px;padding:2px;border:2px solid #ddd;border-radius:50%;cursor:pointer;"/>
+    <button onclick="this.parentElement.remove()" style="position:absolute;top:-6px;right:-6px;width:18px;height:18px;background:#E53935;color:white;border:none;border-radius:50%;font-size:11px;cursor:pointer;display:flex;align-items:center;justify-content:center;padding:0;line-height:1;">✕</button>
+  `;
+  list.appendChild(wrap);
+}
+
+function initColorPickers(colors=[]) {
+  const list = document.getElementById('colorPickerList');
+  list.innerHTML = '';
+  if (colors && colors.length > 0) {
+    colors.forEach(c => addColorPicker(c));
+  } else {
+    // Default 3 colors
+    ['#C9A84C','#D4847A','#7A8C6E'].forEach(c => addColorPicker(c));
+  }
+}
+
 async function saveProduct(){
   const id=document.getElementById('editProductId').value;
   const btn=document.getElementById('saveProductBtn');
@@ -1344,6 +1377,7 @@ async function saveProduct(){
   fd.append('isHot',document.getElementById('pHot').checked);
   document.getElementById('pSizes').value.split(',').map(s=>s.trim()).filter(Boolean).forEach(s=>fd.append('sizes[]',s));
   document.getElementById('pTags').value.split(',').map(t=>t.trim()).filter(Boolean).forEach(t=>fd.append('tags[]',t));
+  document.querySelectorAll('#colorPickerList input[type="color"]').forEach(c=>fd.append('colors[]',c.value));
   Array.from(document.getElementById('pImages').files).forEach(f=>fd.append('images',f));
   try{
     const res=await fetch(API+(id?`/products/${id}`:'/products'),{
