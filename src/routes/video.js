@@ -1,29 +1,26 @@
 const express = require('express');
 const router = express.Router();
 const multer = require('multer');
-const path = require('path');
-const fs = require('fs');
+const cloudinary = require('cloudinary').v2;
 const Settings = require('../models/Settings');
 const { protect } = require('../middleware/auth');
 
-// Video upload storage
-const videoDir = path.join(__dirname, '../../uploads/videos');
-if (!fs.existsSync(videoDir)) fs.mkdirSync(videoDir, { recursive: true });
-
-const storage = multer.diskStorage({
-  destination: (req, file, cb) => cb(null, videoDir),
-  filename: (req, file, cb) => cb(null, `hero-video-${Date.now()}${path.extname(file.originalname)}`),
+cloudinary.config({
+  cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
+  api_key: process.env.CLOUDINARY_API_KEY,
+  api_secret: process.env.CLOUDINARY_API_SECRET,
 });
 
+// Memory storage — file Cloudinary pe jayegi
 const upload = multer({
-  storage,
-  limits: { fileSize: 100 * 1024 * 1024 }, // 100MB max
+  storage: multer.memoryStorage(),
+  limits: { fileSize: 100 * 1024 * 1024 },
   fileFilter: (req, file, cb) => {
     const allowed = /mp4|webm|ogg|mov|jpg|jpeg|png|webp/;
-    if (allowed.test(path.extname(file.originalname).toLowerCase())) {
+    if (allowed.test(file.originalname.toLowerCase().split('.').pop())) {
       cb(null, true);
     } else {
-      cb(new Error('Sirf MP4, WebM, MOV ya JPG, PNG, WebP files allowed hain'));
+      cb(new Error('Sirf MP4, WebM, MOV ya image files allowed hain'));
     }
   },
 });
@@ -43,27 +40,40 @@ router.get('/', async (req, res) => {
 
 // POST /api/video/upload — admin only
 router.post('/upload', protect, upload.single('video'), async (req, res) => {
-  if (!req.file) return res.status(400).json({ success: false, message: 'Koi video file nahi mili' });
+  if (!req.file) return res.status(400).json({ success: false, message: 'Koi file nahi mili' });
 
   const opacity = parseFloat(req.body.opacity) || 0.5;
-  const videoUrl = `/uploads/videos/${req.file.filename}`;
+  const isVideo = /mp4|webm|ogg|mov/.test(req.file.originalname.toLowerCase().split('.').pop());
 
-  // Delete old video file
   try {
-    const old = await Settings.findOne({ key: 'hero_video' });
-    if (old && old.value && old.value.url) {
-      const oldPath = path.join(__dirname, '../../', old.value.url);
-      if (fs.existsSync(oldPath)) fs.unlinkSync(oldPath);
-    }
-  } catch(e) {}
+    // Upload to Cloudinary
+    const uploadResult = await new Promise((resolve, reject) => {
+      const stream = cloudinary.uploader.upload_stream(
+        {
+          folder: 'riwayat-hero',
+          resource_type: isVideo ? 'video' : 'image',
+          public_id: `hero-${Date.now()}`,
+        },
+        (error, result) => {
+          if (error) reject(error);
+          else resolve(result);
+        }
+      );
+      stream.end(req.file.buffer);
+    });
 
-  await Settings.findOneAndUpdate(
-    { key: 'hero_video' },
-    { key: 'hero_video', value: { active: true, url: videoUrl, opacity } },
-    { upsert: true, new: true }
-  );
+    const videoUrl = uploadResult.secure_url;
 
-  res.json({ success: true, video: { active: true, url: videoUrl, opacity } });
+    await Settings.findOneAndUpdate(
+      { key: 'hero_video' },
+      { key: 'hero_video', value: { active: true, url: videoUrl, opacity } },
+      { upsert: true, new: true }
+    );
+
+    res.json({ success: true, video: { active: true, url: videoUrl, opacity } });
+  } catch (err) {
+    res.status(500).json({ success: false, message: err.message });
+  }
 });
 
 // PUT /api/video/settings — update opacity/active
@@ -83,21 +93,12 @@ router.put('/settings', protect, async (req, res) => {
 
 // DELETE /api/video — remove video
 router.delete('/', protect, async (req, res) => {
-  try {
-    const setting = await Settings.findOne({ key: 'hero_video' });
-    if (setting && setting.value && setting.value.url) {
-      const filePath = path.join(__dirname, '../../', setting.value.url);
-      if (fs.existsSync(filePath)) fs.unlinkSync(filePath);
-    }
-    await Settings.findOneAndUpdate(
-      { key: 'hero_video' },
-      { key: 'hero_video', value: { active: false, url: '', opacity: 0.5 } },
-      { upsert: true }
-    );
-    res.json({ success: true, message: 'Video hata di gayi' });
-  } catch (err) {
-    res.status(500).json({ success: false, message: err.message });
-  }
+  await Settings.findOneAndUpdate(
+    { key: 'hero_video' },
+    { key: 'hero_video', value: { active: false, url: '', opacity: 0.5 } },
+    { upsert: true }
+  );
+  res.json({ success: true, message: 'Video hata di gayi' });
 });
 
 module.exports = router;
