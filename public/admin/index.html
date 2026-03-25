@@ -372,38 +372,47 @@ tr:hover td{background:#FAFAFA;}
           <div class="chart-card" style="margin-bottom:16px;border-left:3px solid #C9A84C;">
             <div class="chart-title" style="color:var(--gold);">Slide 1</div>
             <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:14px;">
-              <div class="field">
+
+              <div class="field" style="grid-column:1/-1">
                 <label>Tag (choti label upar)</label>
-                <input type="text" id="s1_tag_edit" placeholder="e.g. Summer Collection 2026"/>
+                <div style="display:flex;gap:8px;align-items:center;">
+                  <input type="color" id="s1_tag_color" value="#111111" style="width:44px;height:34px;padding:2px;border:1px solid var(--border);border-radius:4px;cursor:pointer;flex-shrink:0;" oninput="document.getElementById('s1_tag_color_hex').value=this.value"/>
+                  <input type="text" id="s1_tag_color_hex" placeholder="#111111" style="width:80px;" oninput="document.getElementById('s1_tag_color').value=this.value"/>
+                  <input type="text" id="s1_tag_edit" placeholder="e.g. Summer Collection 2026" style="flex:1;"/>
+                </div>
               </div>
-              <div class="field">
-                <label>Subtitle</label>
-                <input type="text" id="s1_sub_edit" placeholder="e.g. Crafted with Heritage"/>
-              </div>
+
               <div class="field" style="grid-column:1/-1">
                 <label>Title (bada heading — use &lt;em&gt; italic k liye)</label>
-                <input type="text" id="s1_title_edit" placeholder="e.g. Festive &lt;em&gt;Lawn&lt;/em&gt;&lt;br&gt;Unstitched"/>
+                <div style="display:flex;gap:8px;align-items:center;">
+                  <input type="color" id="s1_title_color" value="#FAF7F2" style="width:44px;height:34px;padding:2px;border:1px solid var(--border);border-radius:4px;cursor:pointer;flex-shrink:0;" oninput="document.getElementById('s1_title_color_hex').value=this.value"/>
+                  <input type="text" id="s1_title_color_hex" placeholder="#FAF7F2" style="width:80px;" oninput="document.getElementById('s1_title_color').value=this.value"/>
+                  <input type="text" id="s1_title_edit" placeholder="e.g. Festive &lt;em&gt;Lawn&lt;/em&gt;&lt;br&gt;Unstitched" style="flex:1;"/>
+                </div>
               </div>
+
+              <div class="field" style="grid-column:1/-1">
+                <label>Subtitle</label>
+                <div style="display:flex;gap:8px;align-items:center;">
+                  <input type="color" id="s1_sub_color" value="#FAF7F2" style="width:44px;height:34px;padding:2px;border:1px solid var(--border);border-radius:4px;cursor:pointer;flex-shrink:0;" oninput="document.getElementById('s1_sub_color_hex').value=this.value"/>
+                  <input type="text" id="s1_sub_color_hex" placeholder="#FAF7F2" style="width:80px;" oninput="document.getElementById('s1_sub_color').value=this.value"/>
+                  <input type="text" id="s1_sub_edit" placeholder="e.g. Crafted with Heritage" style="flex:1;"/>
+                </div>
+              </div>
+
               <div class="field" style="grid-column:1/-1">
                 <label>Description</label>
-                <textarea id="s1_desc_edit" rows="2" placeholder="Product description..."></textarea>
-              </div>
-              <div class="field">
-                <label>Title Color</label>
-                <div style="display:flex;gap:8px;align-items:center;">
-                  <input type="color" id="s1_title_color" value="#FAF7F2" style="width:48px;height:36px;padding:2px;border:1px solid var(--border);border-radius:4px;cursor:pointer;"/>
-                  <input type="text" id="s1_title_color_hex" placeholder="#FAF7F2" style="flex:1;" oninput="document.getElementById('s1_title_color').value=this.value"/>
+                <div style="display:flex;gap:8px;align-items:flex-start;">
+                  <div style="display:flex;flex-direction:column;gap:4px;flex-shrink:0;">
+                    <input type="color" id="s1_desc_color" value="#FAF7F2" style="width:44px;height:34px;padding:2px;border:1px solid var(--border);border-radius:4px;cursor:pointer;" oninput="document.getElementById('s1_desc_color_hex').value=this.value"/>
+                    <input type="text" id="s1_desc_color_hex" placeholder="#FAF7F2" style="width:80px;font-size:11px;" oninput="document.getElementById('s1_desc_color').value=this.value"/>
+                  </div>
+                  <textarea id="s1_desc_edit" rows="2" placeholder="Product description..." style="flex:1;"></textarea>
                 </div>
               </div>
-              <div class="field">
-                <label>Description Color</label>
-                <div style="display:flex;gap:8px;align-items:center;">
-                  <input type="color" id="s1_desc_color" value="#FAF7F2" style="width:48px;height:36px;padding:2px;border:1px solid var(--border);border-radius:4px;cursor:pointer;"/>
-                  <input type="text" id="s1_desc_color_hex" placeholder="#FAF7F2" style="flex:1;" oninput="document.getElementById('s1_desc_color').value=this.value"/>
-                </div>
-              </div>
+
               <div class="field" style="grid-column:1/-1">
-                <label>Font Style</label>
+                <label>Font Style (sab text pe apply hoga)</label>
                 <select id="s1_font">
                   <option value="">Default (Cormorant Garamond)</option>
                   <option value="'Playfair Display', serif">Playfair Display</option>
@@ -417,44 +426,54 @@ tr:hover td{background:#FAFAFA;}
                   <option value="Arial, sans-serif">Arial</option>
                 </select>
               </div>
+
             </div>
           </div>
           <!-- Slide 2 -->
           <div class="chart-card" style="margin-bottom:16px;border-left:3px solid #3B82F6;">
             <div class="chart-title" style="color:#3B82F6;">Slide 2</div>
             <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:14px;">
-              <div class="field">
+
+              <div class="field" style="grid-column:1/-1">
                 <label>Tag (choti label upar)</label>
-                <input type="text" id="s2_tag_edit" placeholder="e.g. Summer Collection 2026"/>
+                <div style="display:flex;gap:8px;align-items:center;">
+                  <input type="color" id="s2_tag_color" value="#111111" style="width:44px;height:34px;padding:2px;border:1px solid var(--border);border-radius:4px;cursor:pointer;flex-shrink:0;" oninput="document.getElementById('s2_tag_color_hex').value=this.value"/>
+                  <input type="text" id="s2_tag_color_hex" placeholder="#111111" style="width:80px;" oninput="document.getElementById('s2_tag_color').value=this.value"/>
+                  <input type="text" id="s2_tag_edit" placeholder="e.g. Summer Collection 2026" style="flex:1;"/>
+                </div>
               </div>
-              <div class="field">
-                <label>Subtitle</label>
-                <input type="text" id="s2_sub_edit" placeholder="e.g. Crafted with Heritage"/>
-              </div>
+
               <div class="field" style="grid-column:1/-1">
                 <label>Title (bada heading — use &lt;em&gt; italic k liye)</label>
-                <input type="text" id="s2_title_edit" placeholder="e.g. Festive &lt;em&gt;Lawn&lt;/em&gt;&lt;br&gt;Unstitched"/>
+                <div style="display:flex;gap:8px;align-items:center;">
+                  <input type="color" id="s2_title_color" value="#FAF7F2" style="width:44px;height:34px;padding:2px;border:1px solid var(--border);border-radius:4px;cursor:pointer;flex-shrink:0;" oninput="document.getElementById('s2_title_color_hex').value=this.value"/>
+                  <input type="text" id="s2_title_color_hex" placeholder="#FAF7F2" style="width:80px;" oninput="document.getElementById('s2_title_color').value=this.value"/>
+                  <input type="text" id="s2_title_edit" placeholder="e.g. Festive &lt;em&gt;Lawn&lt;/em&gt;&lt;br&gt;Unstitched" style="flex:1;"/>
+                </div>
               </div>
+
+              <div class="field" style="grid-column:1/-1">
+                <label>Subtitle</label>
+                <div style="display:flex;gap:8px;align-items:center;">
+                  <input type="color" id="s2_sub_color" value="#FAF7F2" style="width:44px;height:34px;padding:2px;border:1px solid var(--border);border-radius:4px;cursor:pointer;flex-shrink:0;" oninput="document.getElementById('s2_sub_color_hex').value=this.value"/>
+                  <input type="text" id="s2_sub_color_hex" placeholder="#FAF7F2" style="width:80px;" oninput="document.getElementById('s2_sub_color').value=this.value"/>
+                  <input type="text" id="s2_sub_edit" placeholder="e.g. Crafted with Heritage" style="flex:1;"/>
+                </div>
+              </div>
+
               <div class="field" style="grid-column:1/-1">
                 <label>Description</label>
-                <textarea id="s2_desc_edit" rows="2" placeholder="Product description..."></textarea>
-              </div>
-              <div class="field">
-                <label>Title Color</label>
-                <div style="display:flex;gap:8px;align-items:center;">
-                  <input type="color" id="s2_title_color" value="#FAF7F2" style="width:48px;height:36px;padding:2px;border:1px solid var(--border);border-radius:4px;cursor:pointer;"/>
-                  <input type="text" id="s2_title_color_hex" placeholder="#FAF7F2" style="flex:1;" oninput="document.getElementById('s2_title_color').value=this.value"/>
+                <div style="display:flex;gap:8px;align-items:flex-start;">
+                  <div style="display:flex;flex-direction:column;gap:4px;flex-shrink:0;">
+                    <input type="color" id="s2_desc_color" value="#FAF7F2" style="width:44px;height:34px;padding:2px;border:1px solid var(--border);border-radius:4px;cursor:pointer;" oninput="document.getElementById('s2_desc_color_hex').value=this.value"/>
+                    <input type="text" id="s2_desc_color_hex" placeholder="#FAF7F2" style="width:80px;font-size:11px;" oninput="document.getElementById('s2_desc_color').value=this.value"/>
+                  </div>
+                  <textarea id="s2_desc_edit" rows="2" placeholder="Product description..." style="flex:1;"></textarea>
                 </div>
               </div>
-              <div class="field">
-                <label>Description Color</label>
-                <div style="display:flex;gap:8px;align-items:center;">
-                  <input type="color" id="s2_desc_color" value="#FAF7F2" style="width:48px;height:36px;padding:2px;border:1px solid var(--border);border-radius:4px;cursor:pointer;"/>
-                  <input type="text" id="s2_desc_color_hex" placeholder="#FAF7F2" style="flex:1;" oninput="document.getElementById('s2_desc_color').value=this.value"/>
-                </div>
-              </div>
+
               <div class="field" style="grid-column:1/-1">
-                <label>Font Style</label>
+                <label>Font Style (sab text pe apply hoga)</label>
                 <select id="s2_font">
                   <option value="">Default (Cormorant Garamond)</option>
                   <option value="'Playfair Display', serif">Playfair Display</option>
@@ -468,44 +487,54 @@ tr:hover td{background:#FAFAFA;}
                   <option value="Arial, sans-serif">Arial</option>
                 </select>
               </div>
+
             </div>
           </div>
           <!-- Slide 3 -->
           <div class="chart-card" style="margin-bottom:16px;border-left:3px solid #A855F7;">
             <div class="chart-title" style="color:#A855F7;">Slide 3</div>
             <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:14px;">
-              <div class="field">
+
+              <div class="field" style="grid-column:1/-1">
                 <label>Tag (choti label upar)</label>
-                <input type="text" id="s3_tag_edit" placeholder="e.g. Summer Collection 2026"/>
+                <div style="display:flex;gap:8px;align-items:center;">
+                  <input type="color" id="s3_tag_color" value="#111111" style="width:44px;height:34px;padding:2px;border:1px solid var(--border);border-radius:4px;cursor:pointer;flex-shrink:0;" oninput="document.getElementById('s3_tag_color_hex').value=this.value"/>
+                  <input type="text" id="s3_tag_color_hex" placeholder="#111111" style="width:80px;" oninput="document.getElementById('s3_tag_color').value=this.value"/>
+                  <input type="text" id="s3_tag_edit" placeholder="e.g. Summer Collection 2026" style="flex:1;"/>
+                </div>
               </div>
-              <div class="field">
-                <label>Subtitle</label>
-                <input type="text" id="s3_sub_edit" placeholder="e.g. Crafted with Heritage"/>
-              </div>
+
               <div class="field" style="grid-column:1/-1">
                 <label>Title (bada heading — use &lt;em&gt; italic k liye)</label>
-                <input type="text" id="s3_title_edit" placeholder="e.g. Festive &lt;em&gt;Lawn&lt;/em&gt;&lt;br&gt;Unstitched"/>
+                <div style="display:flex;gap:8px;align-items:center;">
+                  <input type="color" id="s3_title_color" value="#FAF7F2" style="width:44px;height:34px;padding:2px;border:1px solid var(--border);border-radius:4px;cursor:pointer;flex-shrink:0;" oninput="document.getElementById('s3_title_color_hex').value=this.value"/>
+                  <input type="text" id="s3_title_color_hex" placeholder="#FAF7F2" style="width:80px;" oninput="document.getElementById('s3_title_color').value=this.value"/>
+                  <input type="text" id="s3_title_edit" placeholder="e.g. Festive &lt;em&gt;Lawn&lt;/em&gt;&lt;br&gt;Unstitched" style="flex:1;"/>
+                </div>
               </div>
+
+              <div class="field" style="grid-column:1/-1">
+                <label>Subtitle</label>
+                <div style="display:flex;gap:8px;align-items:center;">
+                  <input type="color" id="s3_sub_color" value="#FAF7F2" style="width:44px;height:34px;padding:2px;border:1px solid var(--border);border-radius:4px;cursor:pointer;flex-shrink:0;" oninput="document.getElementById('s3_sub_color_hex').value=this.value"/>
+                  <input type="text" id="s3_sub_color_hex" placeholder="#FAF7F2" style="width:80px;" oninput="document.getElementById('s3_sub_color').value=this.value"/>
+                  <input type="text" id="s3_sub_edit" placeholder="e.g. Crafted with Heritage" style="flex:1;"/>
+                </div>
+              </div>
+
               <div class="field" style="grid-column:1/-1">
                 <label>Description</label>
-                <textarea id="s3_desc_edit" rows="2" placeholder="Product description..."></textarea>
-              </div>
-              <div class="field">
-                <label>Title Color</label>
-                <div style="display:flex;gap:8px;align-items:center;">
-                  <input type="color" id="s3_title_color" value="#FAF7F2" style="width:48px;height:36px;padding:2px;border:1px solid var(--border);border-radius:4px;cursor:pointer;"/>
-                  <input type="text" id="s3_title_color_hex" placeholder="#FAF7F2" style="flex:1;" oninput="document.getElementById('s3_title_color').value=this.value"/>
+                <div style="display:flex;gap:8px;align-items:flex-start;">
+                  <div style="display:flex;flex-direction:column;gap:4px;flex-shrink:0;">
+                    <input type="color" id="s3_desc_color" value="#FAF7F2" style="width:44px;height:34px;padding:2px;border:1px solid var(--border);border-radius:4px;cursor:pointer;" oninput="document.getElementById('s3_desc_color_hex').value=this.value"/>
+                    <input type="text" id="s3_desc_color_hex" placeholder="#FAF7F2" style="width:80px;font-size:11px;" oninput="document.getElementById('s3_desc_color').value=this.value"/>
+                  </div>
+                  <textarea id="s3_desc_edit" rows="2" placeholder="Product description..." style="flex:1;"></textarea>
                 </div>
               </div>
-              <div class="field">
-                <label>Description Color</label>
-                <div style="display:flex;gap:8px;align-items:center;">
-                  <input type="color" id="s3_desc_color" value="#FAF7F2" style="width:48px;height:36px;padding:2px;border:1px solid var(--border);border-radius:4px;cursor:pointer;"/>
-                  <input type="text" id="s3_desc_color_hex" placeholder="#FAF7F2" style="flex:1;" oninput="document.getElementById('s3_desc_color').value=this.value"/>
-                </div>
-              </div>
+
               <div class="field" style="grid-column:1/-1">
-                <label>Font Style</label>
+                <label>Font Style (sab text pe apply hoga)</label>
                 <select id="s3_font">
                   <option value="">Default (Cormorant Garamond)</option>
                   <option value="'Playfair Display', serif">Playfair Display</option>
@@ -519,9 +548,9 @@ tr:hover td{background:#FAFAFA;}
                   <option value="Arial, sans-serif">Arial</option>
                 </select>
               </div>
+
             </div>
           </div>
-
           <!-- Sale Banner -->
           <div class="chart-card" style="margin-bottom:16px;border-left:3px solid #E53935;margin-top:4px;">
             <div class="chart-title" style="color:#E53935;">🏷️ Sale Banner Section</div>
@@ -1509,8 +1538,11 @@ async function loadHeroTextEditor() {
       document.getElementById(`s${i}_title_edit`).value = s.title || '';
       document.getElementById(`s${i}_sub_edit`).value = s.sub || '';
       document.getElementById(`s${i}_desc_edit`).value = s.desc || '';
-      if (s.titleColor) { document.getElementById(`s${i}_title_color`).value = s.titleColor; document.getElementById(`s${i}_title_color_hex`).value = s.titleColor; }
-      if (s.descColor) { document.getElementById(`s${i}_desc_color`).value = s.descColor; document.getElementById(`s${i}_desc_color_hex`).value = s.descColor; }
+      const setColor = (id, val, def) => { const v = val || def; const el = document.getElementById(id); const hex = document.getElementById(id+'_hex'); if(el) el.value = v; if(hex) hex.value = v; };
+      setColor(`s${i}_tag_color`, s.tagColor, '#111111');
+      setColor(`s${i}_title_color`, s.titleColor, '#FAF7F2');
+      setColor(`s${i}_sub_color`, s.subColor, '#FAF7F2');
+      setColor(`s${i}_desc_color`, s.descColor, '#FAF7F2');
       if (s.font) { document.getElementById(`s${i}_font`).value = s.font; }
     });
     // Announcement bar
@@ -1550,13 +1582,15 @@ async function loadHeroTextEditor() {
 
 async function saveHeroText() {
   const slides = [1,2,3].map(i => ({
-    tag:   document.getElementById(`s${i}_tag_edit`).value.trim(),
-    title: document.getElementById(`s${i}_title_edit`).value.trim(),
-    sub:   document.getElementById(`s${i}_sub_edit`).value.trim(),
-    desc:  document.getElementById(`s${i}_desc_edit`).value.trim(),
-    titleColor: document.getElementById(`s${i}_title_color`).value || '#FAF7F2',
-    descColor:  document.getElementById(`s${i}_desc_color`).value || '#FAF7F2',
-    font:  document.getElementById(`s${i}_font`).value || '',
+    tag:        document.getElementById(`s${i}_tag_edit`).value.trim(),
+    title:      document.getElementById(`s${i}_title_edit`).value.trim(),
+    sub:        document.getElementById(`s${i}_sub_edit`).value.trim(),
+    desc:       document.getElementById(`s${i}_desc_edit`).value.trim(),
+    tagColor:   document.getElementById(`s${i}_tag_color`)?.value || '#111111',
+    titleColor: document.getElementById(`s${i}_title_color`)?.value || '#FAF7F2',
+    subColor:   document.getElementById(`s${i}_sub_color`)?.value || '#FAF7F2',
+    descColor:  document.getElementById(`s${i}_desc_color`)?.value || '#FAF7F2',
+    font:       document.getElementById(`s${i}_font`)?.value || '',
   }));
   // Announcement bar
   slides.push({
