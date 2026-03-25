@@ -2190,6 +2190,25 @@
       #whatsappBtn span { display: none; }
     }
 
+    /* ── iPhone footer text fix ── */
+    @media (max-width: 480px) {
+      footer {
+        padding: 40px 16px 24px;
+        overflow-x: hidden;
+        width: 100%;
+      }
+      .footer-grid {
+        grid-template-columns: 1fr !important;
+        gap: 20px !important;
+        width: 100%;
+      }
+      .footer-brand { grid-column: span 1 !important; }
+      .footer-col h4 { font-size: 0.75rem; }
+      .footer-col ul li a { font-size: 0.75rem; }
+      .footer-brand p { font-size: 0.75rem; max-width: 100%; }
+      .footer-bottom { flex-direction: column; gap: 8px; font-size: 0.7rem; text-align: center; }
+    }
+
     /* ── Very Small Phones (< 380px — iPhone SE, old Androids) ── */
     @media (max-width: 379px) {
       html { font-size: 14px; }
