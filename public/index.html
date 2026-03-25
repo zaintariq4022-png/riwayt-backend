@@ -2280,6 +2280,7 @@
     .featured-dot { width: 5px; height: 5px; border-radius: 50%; background: #ccc; cursor: pointer; transition: all 0.3s; }
     .featured-dot.active { background: var(--charcoal); width: 14px; border-radius: 3px; }
   </style>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;1,400&family=Montserrat:wght@300;400;600&family=Lato:wght@300;400&family=Raleway:wght@300;400;600&family=Dancing+Script:wght@400;600&family=Merriweather:ital,wght@0,300;0,400;1,300&display=swap" rel="stylesheet">
 </head>
 <body>
 
@@ -4742,29 +4743,20 @@ async function loadHeroText() {
     if (!data.success || !data.value) return;
     const slides = data.value;
 
-    // Slide 1
-    if (slides[0]) {
-      if (slides[0].tag)   { const el = document.getElementById('s1_tag'); if(el) el.textContent = slides[0].tag; }
-      if (slides[0].title) { const el = document.getElementById('s1_title'); if(el) el.innerHTML = slides[0].title; }
-      if (slides[0].sub)   { const el = document.getElementById('s1_sub'); if(el) el.textContent = slides[0].sub; }
-      if (slides[0].desc)  { const el = document.getElementById('s1_desc'); if(el) el.textContent = slides[0].desc; }
-      if (slides[0].badge_pct) { const el = document.getElementById('s1_badge_pct'); if(el) el.textContent = slides[0].badge_pct; }
-      if (slides[0].badge_off) { const el = document.getElementById('s1_badge_off'); if(el) el.textContent = slides[0].badge_off; }
-    }
-    // Slide 2
-    if (slides[1]) {
-      if (slides[1].tag)   { const el = document.getElementById('s2_tag'); if(el) el.textContent = slides[1].tag; }
-      if (slides[1].title) { const el = document.getElementById('s2_title'); if(el) el.innerHTML = slides[1].title; }
-      if (slides[1].sub)   { const el = document.getElementById('s2_sub'); if(el) el.textContent = slides[1].sub; }
-      if (slides[1].desc)  { const el = document.getElementById('s2_desc'); if(el) el.textContent = slides[1].desc; }
-    }
-    // Slide 3
-    if (slides[2]) {
-      if (slides[2].tag)   { const el = document.getElementById('s3_tag'); if(el) el.textContent = slides[2].tag; }
-      if (slides[2].title) { const el = document.getElementById('s3_title'); if(el) el.innerHTML = slides[2].title; }
-      if (slides[2].sub)   { const el = document.getElementById('s3_sub'); if(el) el.textContent = slides[2].sub; }
-      if (slides[2].desc)  { const el = document.getElementById('s3_desc'); if(el) el.textContent = slides[2].desc; }
-    }
+    // Apply slides with color and font
+    [0,1,2].forEach((idx) => {
+      const s = slides[idx];
+      const n = idx + 1;
+      if (!s) return;
+      if (s.tag)   { const el = document.getElementById(`s${n}_tag`); if(el) el.textContent = s.tag; }
+      if (s.title) { const el = document.getElementById(`s${n}_title`); if(el) { el.innerHTML = s.title; if(s.titleColor) el.style.color = s.titleColor; if(s.font) el.style.fontFamily = s.font; } }
+      if (s.sub)   { const el = document.getElementById(`s${n}_sub`); if(el) { el.textContent = s.sub; if(s.titleColor) el.style.color = s.titleColor; } }
+      if (s.desc)  { const el = document.getElementById(`s${n}_desc`); if(el) { el.textContent = s.desc; if(s.descColor) el.style.color = s.descColor; if(s.font) el.style.fontFamily = s.font; } }
+      if (idx === 0) {
+        if (s.badge_pct) { const el = document.getElementById('s1_badge_pct'); if(el) el.textContent = s.badge_pct; }
+        if (s.badge_off) { const el = document.getElementById('s1_badge_off'); if(el) el.textContent = s.badge_off; }
+      }
+    });
     // Announcement Bar
     if (slides[4]) {
       if (slides[4].text1) { const el = document.getElementById('announce_text1'); if(el) el.innerHTML = slides[4].text1; }
