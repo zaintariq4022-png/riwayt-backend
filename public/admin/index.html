@@ -375,7 +375,6 @@ tr:hover td{background:#FAFAFA;}
               <div class="chart-title" style="color:var(--gold);">Slide 1</div>
               <button id="s1_toggle_btn" onclick="toggleSlide(1)" style="padding:5px 14px;border-radius:20px;border:1px solid #12B76A;background:rgba(18,183,106,0.1);color:#12B76A;font-size:12px;font-weight:600;cursor:pointer;">✓ Visible</button>
             </div>
-              <button id="s1_toggle_btn" onclick="toggleSlideVisibility(1)" style="padding:4px 14px;border-radius:20px;font-size:12px;font-weight:600;border:none;cursor:pointer;background:#12B76A;color:white;" title="Show/Hide this slide">● Visible</button>
             </div>
             <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:14px;">
 
@@ -442,7 +441,6 @@ tr:hover td{background:#FAFAFA;}
               <div class="chart-title" style="color:#3B82F6;">Slide 2</div>
               <button id="s2_toggle_btn" onclick="toggleSlide(2)" style="padding:5px 14px;border-radius:20px;border:1px solid #12B76A;background:rgba(18,183,106,0.1);color:#12B76A;font-size:12px;font-weight:600;cursor:pointer;">✓ Visible</button>
             </div>
-              <button id="s2_toggle_btn" onclick="toggleSlideVisibility(2)" style="padding:4px 14px;border-radius:20px;font-size:12px;font-weight:600;border:none;cursor:pointer;background:#12B76A;color:white;" title="Show/Hide this slide">● Visible</button>
             </div>
             <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:14px;">
 
@@ -509,7 +507,6 @@ tr:hover td{background:#FAFAFA;}
               <div class="chart-title" style="color:#A855F7;">Slide 3</div>
               <button id="s3_toggle_btn" onclick="toggleSlide(3)" style="padding:5px 14px;border-radius:20px;border:1px solid #12B76A;background:rgba(18,183,106,0.1);color:#12B76A;font-size:12px;font-weight:600;cursor:pointer;">✓ Visible</button>
             </div>
-              <button id="s3_toggle_btn" onclick="toggleSlideVisibility(3)" style="padding:4px 14px;border-radius:20px;font-size:12px;font-weight:600;border:none;cursor:pointer;background:#12B76A;color:white;" title="Show/Hide this slide">● Visible</button>
             </div>
             <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:14px;">
 
@@ -1758,7 +1755,6 @@ async function loadHeroTextEditor() {
       if (s.font) { document.getElementById(`s${i}_font`).value = s.font; }
     });
     // Announcement bar
-    loadSlideVisibility(slides);
     loadSlideVisibility(slides);
     const ann = slides[4] || defaultSlides[4];
     document.getElementById('ann_text1').value = ann.text1 || '';
