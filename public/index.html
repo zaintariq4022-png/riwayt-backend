@@ -2659,41 +2659,41 @@
           <!-- Custom Measurements Panel -->
           <div id="customMeasurementsPanel" style="display:none;margin-top:14px;background:#faf7f2;border:1px solid var(--border);border-radius:6px;padding:16px;">
             <div style="font-size:0.78rem;font-weight:600;letter-spacing:0.1em;text-transform:uppercase;margin-bottom:12px;color:var(--charcoal);">📐 Apni Measurements Likhein (inches mein)</div>
-            <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;">
-              <div>
-                <label style="font-size:0.72rem;color:#888;letter-spacing:0.05em;text-transform:uppercase;">Length</label>
-                <input type="number" id="cm_length" placeholder="e.g. 42" min="0" step="0.5"
-                  style="width:100%;padding:8px;border:1px solid var(--border);font-size:0.85rem;margin-top:4px;outline:none;"
+            <div style="display:flex;flex-wrap:wrap;gap:8px;">
+              <div style="flex:1;min-width:120px;">
+                <label style="font-size:0.68rem;color:#888;letter-spacing:0.05em;text-transform:uppercase;">Length</label>
+                <input type="number" id="cm_length" placeholder="e.g. 42"" min="0" step="0.5"
+                  style="width:100%;padding:7px 8px;border:1px solid var(--border);font-size:0.82rem;margin-top:3px;outline:none;box-sizing:border-box;"
                   onfocus="this.style.borderColor='var(--charcoal)'" onblur="this.style.borderColor='var(--border)'" oninput="updateCustomSize()"/>
               </div>
-              <div>
-                <label style="font-size:0.72rem;color:#888;letter-spacing:0.05em;text-transform:uppercase;">Waist / Kamar</label>
-                <input type="number" id="cm_waist" placeholder="e.g. 34" min="0" step="0.5"
-                  style="width:100%;padding:8px;border:1px solid var(--border);font-size:0.85rem;margin-top:4px;outline:none;"
+              <div style="flex:1;min-width:120px;">
+                <label style="font-size:0.68rem;color:#888;letter-spacing:0.05em;text-transform:uppercase;">Waist / Kamar</label>
+                <input type="number" id="cm_waist" placeholder="e.g. 34"" min="0" step="0.5"
+                  style="width:100%;padding:7px 8px;border:1px solid var(--border);font-size:0.82rem;margin-top:3px;outline:none;box-sizing:border-box;"
                   onfocus="this.style.borderColor='var(--charcoal)'" onblur="this.style.borderColor='var(--border)'" oninput="updateCustomSize()"/>
               </div>
-              <div>
-                <label style="font-size:0.72rem;color:#888;letter-spacing:0.05em;text-transform:uppercase;">Chest / Seena</label>
-                <input type="number" id="cm_chest" placeholder="e.g. 38" min="0" step="0.5"
-                  style="width:100%;padding:8px;border:1px solid var(--border);font-size:0.85rem;margin-top:4px;outline:none;"
+              <div style="flex:1;min-width:120px;">
+                <label style="font-size:0.68rem;color:#888;letter-spacing:0.05em;text-transform:uppercase;">Chest / Seena</label>
+                <input type="number" id="cm_chest" placeholder="e.g. 38"" min="0" step="0.5"
+                  style="width:100%;padding:7px 8px;border:1px solid var(--border);font-size:0.82rem;margin-top:3px;outline:none;box-sizing:border-box;"
                   onfocus="this.style.borderColor='var(--charcoal)'" onblur="this.style.borderColor='var(--border)'" oninput="updateCustomSize()"/>
               </div>
-              <div>
-                <label style="font-size:0.72rem;color:#888;letter-spacing:0.05em;text-transform:uppercase;">Hip / Kaul</label>
-                <input type="number" id="cm_hip" placeholder="e.g. 40" min="0" step="0.5"
-                  style="width:100%;padding:8px;border:1px solid var(--border);font-size:0.85rem;margin-top:4px;outline:none;"
+              <div style="flex:1;min-width:120px;">
+                <label style="font-size:0.68rem;color:#888;letter-spacing:0.05em;text-transform:uppercase;">Shoulder / Kandha</label>
+                <input type="number" id="cm_shoulder" placeholder="e.g. 15"" min="0" step="0.5"
+                  style="width:100%;padding:7px 8px;border:1px solid var(--border);font-size:0.82rem;margin-top:3px;outline:none;box-sizing:border-box;"
                   onfocus="this.style.borderColor='var(--charcoal)'" onblur="this.style.borderColor='var(--border)'" oninput="updateCustomSize()"/>
               </div>
-              <div>
-                <label style="font-size:0.72rem;color:#888;letter-spacing:0.05em;text-transform:uppercase;">Shoulder / Kandha</label>
-                <input type="number" id="cm_shoulder" placeholder="e.g. 15" min="0" step="0.5"
-                  style="width:100%;padding:8px;border:1px solid var(--border);font-size:0.85rem;margin-top:4px;outline:none;"
+              <div style="flex:1;min-width:120px;">
+                <label style="font-size:0.68rem;color:#888;letter-spacing:0.05em;text-transform:uppercase;">Sleeve / Baazu</label>
+                <input type="number" id="cm_sleeve" placeholder="e.g. 23"" min="0" step="0.5"
+                  style="width:100%;padding:7px 8px;border:1px solid var(--border);font-size:0.82rem;margin-top:3px;outline:none;box-sizing:border-box;"
                   onfocus="this.style.borderColor='var(--charcoal)'" onblur="this.style.borderColor='var(--border)'" oninput="updateCustomSize()"/>
               </div>
-              <div>
-                <label style="font-size:0.72rem;color:#888;letter-spacing:0.05em;text-transform:uppercase;">Sleeve / Baazu</label>
-                <input type="number" id="cm_sleeve" placeholder="e.g. 23" min="0" step="0.5"
-                  style="width:100%;padding:8px;border:1px solid var(--border);font-size:0.85rem;margin-top:4px;outline:none;"
+              <div style="flex:1;min-width:120px;">
+                <label style="font-size:0.68rem;color:#888;letter-spacing:0.05em;text-transform:uppercase;">Trouser Length</label>
+                <input type="number" id="cm_trouser" placeholder="e.g. 40"" min="0" step="0.5"
+                  style="width:100%;padding:7px 8px;border:1px solid var(--border);font-size:0.82rem;margin-top:3px;outline:none;box-sizing:border-box;"
                   onfocus="this.style.borderColor='var(--charcoal)'" onblur="this.style.borderColor='var(--border)'" oninput="updateCustomSize()"/>
               </div>
             </div>
@@ -3822,7 +3822,7 @@ function openProduct(id) {
   if (cmPanel) cmPanel.style.display = 'none';
   const cmBtn = document.getElementById('customSizeBtn');
   if (cmBtn) { cmBtn.classList.remove('selected'); cmBtn.style.background=''; cmBtn.style.color='var(--terracotta)'; }
-  ['cm_length','cm_waist','cm_chest','cm_hip','cm_shoulder','cm_sleeve'].forEach(id => {
+  ['cm_length','cm_waist','cm_chest','cm_shoulder','cm_sleeve','cm_trouser'].forEach(id => {
     const el = document.getElementById(id); if(el) el.value = '';
   });
   const preview = document.getElementById('customSizePreview');
@@ -3969,9 +3969,9 @@ function updateCustomSize() {
     {id:'cm_length', label:'Length'},
     {id:'cm_waist', label:'Waist'},
     {id:'cm_chest', label:'Chest'},
-    {id:'cm_hip', label:'Hip'},
     {id:'cm_shoulder', label:'Shoulder'},
     {id:'cm_sleeve', label:'Sleeve'},
+    {id:'cm_trouser', label:'Trouser'},
   ];
   const parts = fields
     .map(f => { const v = document.getElementById(f.id)?.value; return v ? `${f.label}:${v}"` : null; })
