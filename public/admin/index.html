@@ -1110,10 +1110,22 @@ tr:hover td{background:#FAFAFA;}
   </div>
 </div>
 
-<div class="toast" id="toast"></div>
+<div class="toast" id="toast"><span id="toastMsg"></span></div>
 
 <script>
 const API='/api';
+
+function showToast(msg, type='success') {
+  const toast = document.getElementById('toast');
+  const toastMsg = document.getElementById('toastMsg');
+  if (!toast || !toastMsg) return;
+  toastMsg.textContent = msg;
+  toast.className = 'toast show ' + (type === 'error' ? 'toast-error' : 'toast-success');
+  clearTimeout(window._toastTimer);
+  window._toastTimer = setTimeout(() => toast.classList.remove('show'), 3500);
+}
+
+
 let TOKEN=localStorage.getItem('riwayat_token')||'';
 let currentAdmin=JSON.parse(localStorage.getItem('riwayat_admin')||'null');
 let currentOrderFilter='all';
