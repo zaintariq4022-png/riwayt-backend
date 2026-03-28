@@ -2722,6 +2722,16 @@
       </div>
     </div>
   </div>
+
+  <!-- YOU MAY ALSO LIKE -->
+  <div class="fs-section" id="youMayLikeSection" style="margin-top:40px;">
+    <div class="section-header" style="padding:0 16px;margin-bottom:14px;">
+      <span class="section-label">Explore More</span>
+      <h2 class="section-title">You May <em>Also Like</em></h2>
+    </div>
+    <div class="fs-scroll" id="youMayLikeTrack"></div>
+  </div>
+
 </div>
 
 <!-- =============================================
@@ -3800,6 +3810,42 @@ function openProduct(id) {
   }
 
   showPage('detail');
+  loadYouMayLike();
+}
+
+function loadYouMayLike() {
+  const track = document.getElementById('youMayLikeTrack');
+  if (!track || !currentProduct) return;
+
+  // Get related products — same category, exclude current
+  let related = PRODUCTS.filter(p => p.id !== currentProduct.id && p.category === currentProduct.category);
+
+  // If less than 4, fill with other products
+  if (related.length < 4) {
+    const others = PRODUCTS.filter(p => p.id !== currentProduct.id && p.category !== currentProduct.category);
+    related = [...related, ...others].slice(0, 8);
+  } else {
+    related = related.slice(0, 8);
+  }
+
+  if (!related.length) {
+    document.getElementById('youMayLikeSection').style.display = 'none';
+    return;
+  }
+
+  document.getElementById('youMayLikeSection').style.display = '';
+  track.innerHTML = related.map(p => {
+    const src = imgUrl(p.images && p.images[0] ? p.images[0] : '');
+    const badge = p.discount > 0 ? `<span class="badge badge-sale">${p.discount}% OFF</span>` : (p.isNew ? `<span class="badge badge-new">New</span>` : '');
+    return `<div class="fs-card" onclick="openProduct('${p.id}')">
+      <div class="product-img-wrap">
+        ${badge}
+        ${src ? `<img src="${src}" alt="${p.name}" style="width:100%;height:100%;object-fit:cover;">` : `<div style="width:100%;height:100%;background:${p.bg||'#f0e8d8'};display:flex;align-items:center;justify-content:center;font-size:2rem;">${p.emoji||'👗'}</div>`}
+      </div>
+      <div class="fs-name">${p.name}</div>
+      <div class="fs-price">PKR ${p.price.toLocaleString()}</div>
+    </div>`;
+  }).join('');
 }
 
 function selectThumb(el, idx) {
@@ -4758,11 +4804,18 @@ async function loadHeroText() {
     if (!data.success || !data.value) return;
     const slides = data.value;
 
-    // Apply slides with color and font
+    // Apply slides with color and font — hide/show based on admin setting
+    const heroSlideEls = document.querySelectorAll('.hero-slide');
+    const heroDotEls = document.querySelectorAll('.hero-dot');
     [0,1,2].forEach((idx) => {
       const s = slides[idx];
       const n = idx + 1;
       if (!s) return;
+      // Hide/show slide
+      const isHidden = s.visible === false || s.hidden === true;
+      if (heroSlideEls[idx]) heroSlideEls[idx].style.display = isHidden ? 'none' : '';
+      if (heroDotEls[idx]) heroDotEls[idx].style.display = isHidden ? 'none' : '';
+      if (isHidden) return;
       const applyStyle = (el, color, font) => {
         if (!el) return;
         if (color) el.style.color = color;
