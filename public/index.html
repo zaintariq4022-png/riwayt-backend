@@ -2646,13 +2646,15 @@
           <div class="selector-label">
             Size <span id="selectedSize">Select a size</span>
           </div>
-          <div class="size-selector">
-            <button class="size-btn oos" disabled>XS</button>
-            <button class="size-btn" onclick="selectSize(this,'S')">S</button>
-            <button class="size-btn" onclick="selectSize(this,'M')">M</button>
-            <button class="size-btn" onclick="selectSize(this,'L')">L</button>
-            <button class="size-btn" onclick="selectSize(this,'XL')">XL</button>
-            <button class="size-btn" onclick="selectSize(this,'XXL')">XXL</button>
+          <div class="size-selector" id="detailSizeSelector">
+            <!-- Sizes loaded dynamically from product -->
+          </div>
+          <div style="display:flex;align-items:center;gap:8px;margin-top:10px;">
+            <input type="text" id="customSizeInput" placeholder="Ya apna custom size likhein..." 
+              style="flex:1;padding:8px 12px;border:1px solid var(--border);font-family:var(--font-body);font-size:0.82rem;outline:none;border-radius:2px;"
+              onfocus="this.style.borderColor='var(--charcoal)'" 
+              onblur="this.style.borderColor='var(--border)'"
+              oninput="if(this.value.trim()){selectCustomSize(this.value.trim());} else {selectedSize=null;document.getElementById('selectedSize').textContent='Select a size';}"/>
           </div>
         </div>
 
@@ -3771,6 +3773,19 @@ function openProduct(id) {
   document.getElementById('detailDiscount').textContent = currentProduct.discount ? currentProduct.discount + '% OFF' : '';
   document.getElementById('qtyDisplay').value = 1;
   document.getElementById('selectedSize').textContent = 'Select a size';
+  document.getElementById('customSizeInput').value = '';
+
+  // Load product sizes dynamically
+  const sizeSelector = document.getElementById('detailSizeSelector');
+  if (sizeSelector) {
+    if (currentProduct.sizes && currentProduct.sizes.length > 0) {
+      sizeSelector.innerHTML = currentProduct.sizes.map(s =>
+        `<button class="size-btn" onclick="selectSize(this,'${s}')">${s}</button>`
+      ).join('');
+    } else {
+      sizeSelector.innerHTML = '<button class="size-btn" onclick="selectSize(this,'Free Size')">Free Size</button>';
+    }
+  }
 
   // Main image — backend image ya emoji
   const mainImgEl = document.getElementById('detailMainImg');
@@ -3865,7 +3880,15 @@ function selectColor(el, name) {
   document.getElementById('selectedColor').textContent = name;
 }
 
+function selectCustomSize(size) {
+  document.querySelectorAll('.size-btn').forEach(b => b.classList.remove('selected'));
+  selectedSize = size;
+  document.getElementById('selectedSize').textContent = size;
+}
+
 function selectSize(el, size) {
+  const customInput = document.getElementById('customSizeInput');
+  if (customInput) customInput.value = '';
   document.querySelectorAll('.size-btn:not(.oos)').forEach(b => b.classList.remove('selected'));
   el.classList.add('selected');
   selectedSize = size;
