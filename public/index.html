@@ -2649,12 +2649,56 @@
           <div class="size-selector" id="detailSizeSelector">
             <!-- Sizes loaded dynamically from product -->
           </div>
-          <div style="display:flex;align-items:center;gap:8px;margin-top:10px;">
-            <input type="text" id="customSizeInput" placeholder="Ya apna custom size likhein..." 
-              style="flex:1;padding:8px 12px;border:1px solid var(--border);font-family:var(--font-body);font-size:0.82rem;outline:none;border-radius:2px;"
-              onfocus="this.style.borderColor='var(--charcoal)'" 
-              onblur="this.style.borderColor='var(--border)'"
-              oninput="if(this.value.trim()){selectCustomSize(this.value.trim());} else {selectedSize=null;document.getElementById('selectedSize').textContent='Select a size';}"/>
+          <!-- Custom Size Button -->
+          <div style="margin-top:10px;">
+            <button class="size-btn" id="customSizeBtn" onclick="toggleCustomMeasurements()" style="border-style:dashed;color:var(--terracotta);border-color:var(--terracotta);">
+              ✂️ Custom Size
+            </button>
+          </div>
+
+          <!-- Custom Measurements Panel -->
+          <div id="customMeasurementsPanel" style="display:none;margin-top:14px;background:#faf7f2;border:1px solid var(--border);border-radius:6px;padding:16px;">
+            <div style="font-size:0.78rem;font-weight:600;letter-spacing:0.1em;text-transform:uppercase;margin-bottom:12px;color:var(--charcoal);">📐 Apni Measurements Likhein (inches mein)</div>
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;">
+              <div>
+                <label style="font-size:0.72rem;color:#888;letter-spacing:0.05em;text-transform:uppercase;">Length</label>
+                <input type="number" id="cm_length" placeholder="e.g. 42" min="0" step="0.5"
+                  style="width:100%;padding:8px;border:1px solid var(--border);font-size:0.85rem;margin-top:4px;outline:none;"
+                  onfocus="this.style.borderColor='var(--charcoal)'" onblur="this.style.borderColor='var(--border)'" oninput="updateCustomSize()"/>
+              </div>
+              <div>
+                <label style="font-size:0.72rem;color:#888;letter-spacing:0.05em;text-transform:uppercase;">Waist / Kamar</label>
+                <input type="number" id="cm_waist" placeholder="e.g. 34" min="0" step="0.5"
+                  style="width:100%;padding:8px;border:1px solid var(--border);font-size:0.85rem;margin-top:4px;outline:none;"
+                  onfocus="this.style.borderColor='var(--charcoal)'" onblur="this.style.borderColor='var(--border)'" oninput="updateCustomSize()"/>
+              </div>
+              <div>
+                <label style="font-size:0.72rem;color:#888;letter-spacing:0.05em;text-transform:uppercase;">Chest / Seena</label>
+                <input type="number" id="cm_chest" placeholder="e.g. 38" min="0" step="0.5"
+                  style="width:100%;padding:8px;border:1px solid var(--border);font-size:0.85rem;margin-top:4px;outline:none;"
+                  onfocus="this.style.borderColor='var(--charcoal)'" onblur="this.style.borderColor='var(--border)'" oninput="updateCustomSize()"/>
+              </div>
+              <div>
+                <label style="font-size:0.72rem;color:#888;letter-spacing:0.05em;text-transform:uppercase;">Hip / Kaul</label>
+                <input type="number" id="cm_hip" placeholder="e.g. 40" min="0" step="0.5"
+                  style="width:100%;padding:8px;border:1px solid var(--border);font-size:0.85rem;margin-top:4px;outline:none;"
+                  onfocus="this.style.borderColor='var(--charcoal)'" onblur="this.style.borderColor='var(--border)'" oninput="updateCustomSize()"/>
+              </div>
+              <div>
+                <label style="font-size:0.72rem;color:#888;letter-spacing:0.05em;text-transform:uppercase;">Shoulder / Kandha</label>
+                <input type="number" id="cm_shoulder" placeholder="e.g. 15" min="0" step="0.5"
+                  style="width:100%;padding:8px;border:1px solid var(--border);font-size:0.85rem;margin-top:4px;outline:none;"
+                  onfocus="this.style.borderColor='var(--charcoal)'" onblur="this.style.borderColor='var(--border)'" oninput="updateCustomSize()"/>
+              </div>
+              <div>
+                <label style="font-size:0.72rem;color:#888;letter-spacing:0.05em;text-transform:uppercase;">Sleeve / Baazu</label>
+                <input type="number" id="cm_sleeve" placeholder="e.g. 23" min="0" step="0.5"
+                  style="width:100%;padding:8px;border:1px solid var(--border);font-size:0.85rem;margin-top:4px;outline:none;"
+                  onfocus="this.style.borderColor='var(--charcoal)'" onblur="this.style.borderColor='var(--border)'" oninput="updateCustomSize()"/>
+              </div>
+            </div>
+            <div style="margin-top:10px;font-size:0.75rem;color:#999;">* Sirf woh fields bharein jo apply hon</div>
+            <div id="customSizePreview" style="margin-top:10px;font-size:0.78rem;color:var(--terracotta);font-weight:600;display:none;"></div>
           </div>
         </div>
 
@@ -3773,7 +3817,16 @@ function openProduct(id) {
   document.getElementById('detailDiscount').textContent = currentProduct.discount ? currentProduct.discount + '% OFF' : '';
   document.getElementById('qtyDisplay').value = 1;
   document.getElementById('selectedSize').textContent = 'Select a size';
-  document.getElementById('customSizeInput').value = '';
+  // Clear custom measurements
+  const cmPanel = document.getElementById('customMeasurementsPanel');
+  if (cmPanel) cmPanel.style.display = 'none';
+  const cmBtn = document.getElementById('customSizeBtn');
+  if (cmBtn) { cmBtn.classList.remove('selected'); cmBtn.style.background=''; cmBtn.style.color='var(--terracotta)'; }
+  ['cm_length','cm_waist','cm_chest','cm_hip','cm_shoulder','cm_sleeve'].forEach(id => {
+    const el = document.getElementById(id); if(el) el.value = '';
+  });
+  const preview = document.getElementById('customSizePreview');
+  if (preview) preview.style.display = 'none';
 
   // Load product sizes dynamically
   const sizeSelector = document.getElementById('detailSizeSelector');
@@ -3884,6 +3937,58 @@ function selectCustomSize(size) {
   document.querySelectorAll('.size-btn').forEach(b => b.classList.remove('selected'));
   selectedSize = size;
   document.getElementById('selectedSize').textContent = size;
+}
+
+function toggleCustomMeasurements() {
+  const panel = document.getElementById('customMeasurementsPanel');
+  const btn = document.getElementById('customSizeBtn');
+  const isOpen = panel.style.display !== 'none';
+  if (isOpen) {
+    panel.style.display = 'none';
+    btn.classList.remove('selected');
+    btn.style.background = '';
+    btn.style.color = 'var(--terracotta)';
+    // Clear custom size if closed without filling
+    if (selectedSize && selectedSize.includes('Custom:')) {
+      selectedSize = null;
+      document.getElementById('selectedSize').textContent = 'Select a size';
+    }
+  } else {
+    panel.style.display = 'block';
+    btn.classList.add('selected');
+    btn.style.background = 'var(--terracotta)';
+    btn.style.color = 'white';
+    btn.style.borderColor = 'var(--terracotta)';
+    // Deselect other size buttons
+    document.querySelectorAll('.size-btn:not(#customSizeBtn)').forEach(b => b.classList.remove('selected'));
+  }
+}
+
+function updateCustomSize() {
+  const fields = [
+    {id:'cm_length', label:'Length'},
+    {id:'cm_waist', label:'Waist'},
+    {id:'cm_chest', label:'Chest'},
+    {id:'cm_hip', label:'Hip'},
+    {id:'cm_shoulder', label:'Shoulder'},
+    {id:'cm_sleeve', label:'Sleeve'},
+  ];
+  const parts = fields
+    .map(f => { const v = document.getElementById(f.id)?.value; return v ? `${f.label}:${v}"` : null; })
+    .filter(Boolean);
+
+  const preview = document.getElementById('customSizePreview');
+  if (parts.length > 0) {
+    const sizeStr = 'Custom: ' + parts.join(', ');
+    selectedSize = sizeStr;
+    document.getElementById('selectedSize').textContent = '✂️ Custom';
+    preview.textContent = sizeStr;
+    preview.style.display = 'block';
+  } else {
+    selectedSize = null;
+    document.getElementById('selectedSize').textContent = 'Select a size';
+    preview.style.display = 'none';
+  }
 }
 
 function selectSize(el, size) {
