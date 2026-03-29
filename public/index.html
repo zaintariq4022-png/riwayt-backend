@@ -3552,6 +3552,16 @@ async function fetchGlobalDiscount() {
   } catch(e) {}
 }
 
+let categoryDiscounts = {};
+
+async function loadCategoryDiscountsData() {
+  try {
+    const res = await fetch(`${API_URL}/settings/category-discounts`);
+    const data = await res.json();
+    if (data.success && data.value) categoryDiscounts = data.value;
+  } catch(e) {}
+}
+
 async function fetchProducts() {
   await fetchGlobalDiscount();
   try {
@@ -4857,7 +4867,7 @@ function featuredSlide(dir) {
 function featuredGoTo(i) { featuredScrollTo(i); }
 
 // Products backend se load karo
-fetchProducts();
+loadCategoryDiscountsData().then(() => fetchProducts());
 loadHeroVideo();
 loadHeroText();
 loadCategories();
