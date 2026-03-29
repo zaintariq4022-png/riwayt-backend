@@ -2729,6 +2729,9 @@
           </button>
         </div>
 
+        <!-- Short Description -->
+        <div id="detailShortDesc" style="margin:16px 0 20px;font-size:0.88rem;color:#666;line-height:1.8;letter-spacing:0.03em;display:none;"></div>
+
         <!-- Accordion Details -->
         <div class="accordion">
           <div class="accordion-item">
@@ -3573,6 +3576,8 @@ async function fetchProducts() {
         stock: p.stock || 0,
         sizes: p.sizes || [],
         sizeQtys: p.sizeQtys || {},
+        shortDesc: p.shortDesc || '',
+        description: p.description || '',
         };
       });
     } else {
@@ -3814,6 +3819,16 @@ function openProduct(id) {
   document.getElementById('detailBreadcrumb').textContent = currentProduct.name;
   document.getElementById('detailName').textContent = currentProduct.name;
   document.getElementById('detailFabric').textContent = currentProduct.fabric_detail;
+  // Short description below order buttons
+  const sdEl = document.getElementById('detailShortDesc');
+  if (sdEl) {
+    const sd = currentProduct.description || currentProduct.fabric_detail || '';
+    if (sd) { sdEl.textContent = sd; sdEl.style.display = 'block'; }
+    else sdEl.style.display = 'none';
+  }
+  // Accordion description
+  const descEl = document.getElementById('detailDescription');
+  if (descEl) descEl.textContent = currentProduct.description || currentProduct.fabric_detail || '';
   document.getElementById('detailPrice').textContent = 'PKR ' + currentProduct.price.toLocaleString();
   document.getElementById('detailOrigPrice').textContent = currentProduct.original ? 'PKR ' + currentProduct.original.toLocaleString() : '';
   document.getElementById('detailDiscount').textContent = currentProduct.discount ? currentProduct.discount + '% OFF' : '';

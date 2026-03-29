@@ -1053,7 +1053,8 @@ tr:hover td{background:#FAFAFA;}
           </select>
         </div>
       </div>
-      <div class="form-row full"><div class="field"><label>Description *</label><textarea id="pDesc" placeholder="Product details…"></textarea></div></div>
+      <div class="form-row full"><div class="field"><label>Description * (Product Details accordion mein dikhega)</label><textarea id="pDesc" placeholder="Product details…"></textarea></div></div>
+      <div class="form-row full"><div class="field"><label>Short Description (Order Now k neachy dikhega)</label><textarea id="pShortDesc" rows="2" placeholder="e.g. Premium lawn fabric, perfect for summer occasions..."></textarea></div></div>
       <div class="form-row three">
         <div class="field"><label>Price (PKR) *</label><input type="number" id="pPrice" placeholder="3499"/></div>
         <div class="field"><label>Original Price</label><input type="number" id="pOriginalPrice" placeholder="4500"/></div>
@@ -1354,7 +1355,7 @@ function openProductModal(id=null){
   document.getElementById('imgPreviewGrid').innerHTML='';
   document.getElementById('pImages').value='';
   if(!id){
-    ['pName','pDesc','pFabric','pEmoji','pTags'].forEach(f=>document.getElementById(f).value='');
+    ['pName','pDesc','pShortDesc','pFabric','pEmoji','pTags'].forEach(f=>document.getElementById(f).value='');
     initSizeQtyList([]);
     ['pPrice','pOriginalPrice','pStock'].forEach(f=>document.getElementById(f).value='');
     document.getElementById('pCategory').value='';
@@ -1367,6 +1368,7 @@ function openProductModal(id=null){
     const p=data.product;
     document.getElementById('pName').value=p.name;
     document.getElementById('pDesc').value=p.description;
+    document.getElementById('pShortDesc').value=p.shortDesc||'';
     document.getElementById('pCategory').value=p.category;
     document.getElementById('pPrice').value=p.price;
     document.getElementById('pOriginalPrice').value=p.originalPrice||'';
@@ -1498,6 +1500,7 @@ async function saveProduct(){
   btn.textContent='Saving…'; btn.disabled=true;
   const fd=new FormData();
   fd.append('name',document.getElementById('pName').value.trim());
+  fd.append('shortDesc',document.getElementById('pShortDesc')?.value.trim()||'');
   fd.append('description',document.getElementById('pDesc').value.trim());
   fd.append('category',document.getElementById('pCategory').value);
   fd.append('price',document.getElementById('pPrice').value);
