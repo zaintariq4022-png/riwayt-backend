@@ -1045,7 +1045,15 @@ tr:hover td{background:#FAFAFA;}
         <div class="field"><label>Emoji</label><input type="text" id="pEmoji" placeholder="👗" maxlength="2"/></div>
       </div>
       <div class="form-row">
-        <div class="field"><label>Sizes (comma-separated)</label><input type="text" id="pSizes" placeholder="S, M, L, XL"/></div>
+        <div class="field" style="grid-column:1/-1">
+          <label>Sizes & Stock Per Size</label>
+          <div style="display:flex;flex-wrap:wrap;gap:8px;margin-bottom:10px;" id="sizeQtyList"></div>
+          <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;">
+            <input type="text" id="newSizeInput" placeholder="e.g. S, M, L, XL, Free Size" style="flex:1;min-width:120px;" onkeydown="if(event.key==='Enter'){event.preventDefault();addSizeQty();}"/>
+            <button type="button" onclick="addSizeQty()" style="padding:8px 16px;background:var(--gold);color:#111;border:none;border-radius:4px;cursor:pointer;font-weight:600;">+ Add Size</button>
+            <button type="button" onclick="addDefaultSizes()" style="padding:8px 14px;background:#f5f5f5;border:1px solid var(--border);border-radius:4px;cursor:pointer;font-size:12px;">S M L XL</button>
+          </div>
+        </div>
         <div class="field"><label>Tags (comma-separated)</label><input type="text" id="pTags" placeholder="summer, floral"/></div>
       </div>
       <div class="form-row full">
@@ -1115,8 +1123,22 @@ tr:hover td{background:#FAFAFA;}
 <script>
 const API='/api';
 
-const cap = s => s ? s.charAt(0).toUpperCase() + s.slice(1) : '';
-const fmtDate = d => d ? new Date(d).toLocaleDateString('en-PK', {day:'2-digit',month:'short',year:'numeric'}) : '—';
+function renderPagination(id, page, pages, cb) {
+  const el = document.getElementById(id);
+  if (!el || pages <= 1) { if (el) el.innerHTML = ''; return; }
+  let h = '<div style="display:flex;gap:6px;padding:12px 0;justify-content:center;">';
+  if (page > 1) h += `<button onclick="(${cb})(${page-1})" style="padding:6px 12px;border:1px solid #ddd;border-radius:4px;cursor:pointer;">← Prev</button>`;
+  for (let i = Math.max(1, page-2); i <= Math.min(pages, page+2); i++) {
+    h += `<button onclick="(${cb})(${i})" style="padding:6px 12px;border:1px solid ${i===page?'#C9A84C':'#ddd'};background:${i===page?'#C9A84C':'white'};border-radius:4px;cursor:pointer;">${i}</button>`;
+  }
+  if (page < pages) h += `<button onclick="(${cb})(${page+1})" style="padding:6px 12px;border:1px solid #ddd;border-radius:4px;cursor:pointer;">Next →</button>`;
+  h += '</div>';
+  el.innerHTML = h;
+}
+
+function closeModal(id) { const el = document.getElementById(id); if(el) el.classList.remove('open'); }
+function openModal(id) { const el = document.getElementById(id); if(el) el.classList.add('open'); }
+
 
 
 
@@ -1298,7 +1320,7 @@ async function loadProducts(){
           </button>
         </div></td>
       </tr>`).join('');
-    renderPagination('productsPagination',data.page,data.pages,p=>{currentProductPage=p;loadProducts();});
+    renderPagination('productsPagination',data.page,data.pages,'p=>{currentProductPage=p;loadProducts();}');
   }catch(e){showToast('Error loading products: '+e.message,'error');}
 }
 
@@ -1308,7 +1330,8 @@ function openProductModal(id=null){
   document.getElementById('imgPreviewGrid').innerHTML='';
   document.getElementById('pImages').value='';
   if(!id){
-    ['pName','pDesc','pFabric','pEmoji','pSizes','pTags'].forEach(f=>document.getElementById(f).value='');
+    ['pName','pDesc','pFabric','pEmoji','pTags'].forEach(f=>document.getElementById(f).value='');
+    initSizeQtyList([]);
     ['pPrice','pOriginalPrice','pStock'].forEach(f=>document.getElementById(f).value='');
     document.getElementById('pCategory').value='';
     ['pFeatured','pIsNew','pSale','pHot'].forEach(f=>document.getElementById(f).checked=false);
@@ -1326,7 +1349,7 @@ function openProductModal(id=null){
     document.getElementById('pStock').value=p.stock;
     document.getElementById('pFabric').value=p.fabric||'';
     document.getElementById('pEmoji').value=p.emoji||'';
-    document.getElementById('pSizes').value=(p.sizes||[]).join(', ');
+    initSizeQtyList(p.sizes||[]);
     document.getElementById('pTags').value=(p.tags||[]).join(', ');
     document.getElementById('pFeatured').checked=p.isFeatured;
     document.getElementById('pIsNew').checked=p.isNew;
@@ -1366,6 +1389,60 @@ async function removeExistingImage(productId,imageUrl,idx){
   }catch(e){showToast('Error: '+e.message,'error');}
 }
 
+
+
+/* ── Size + Qty Builder ─────────────────────── */
+function addSizeQty(size='', qty=0) {
+  const input = document.getElementById('newSizeInput');
+  const sizeName = size || (input ? input.value.trim() : '');
+  if (!sizeName) return;
+  if (input && !size) input.value = '';
+
+  const list = document.getElementById('sizeQtyList');
+  const id = 'sq_' + sizeName.replace(/\s/g,'_') + '_' + Date.now();
+  const div = document.createElement('div');
+  div.id = id;
+  div.style.cssText = 'display:flex;align-items:center;gap:6px;background:#f9f6f2;border:1px solid var(--border);border-radius:6px;padding:6px 10px;';
+  div.innerHTML = `
+    <span style="font-weight:600;font-size:13px;min-width:32px;">${sizeName}</span>
+    <input type="number" value="${qty}" min="0" placeholder="Qty" data-size="${sizeName}"
+      style="width:64px;padding:4px 8px;border:1px solid var(--border);border-radius:4px;font-size:13px;" class="size-qty-input"/>
+    <button onclick="document.getElementById('${id}').remove()" style="background:none;border:none;color:#999;cursor:pointer;font-size:16px;line-height:1;">✕</button>
+  `;
+  list.appendChild(div);
+}
+
+function addDefaultSizes() {
+  ['S','M','L','XL'].forEach(s => {
+    // Don't add if already exists
+    const existing = document.querySelector(`[data-size="${s}"]`);
+    if (!existing) addSizeQty(s, 10);
+  });
+}
+
+function initSizeQtyList(sizes=[], stock=0) {
+  const list = document.getElementById('sizeQtyList');
+  list.innerHTML = '';
+  if (sizes && sizes.length > 0) {
+    sizes.forEach(s => {
+      const qty = typeof s === 'object' ? (s.qty || 0) : 0;
+      const name = typeof s === 'object' ? s.name : s;
+      addSizeQty(name, qty);
+    });
+  }
+}
+
+function getSizeQtyData() {
+  const inputs = document.querySelectorAll('.size-qty-input');
+  const sizes = [];
+  const qtys = {};
+  inputs.forEach(inp => {
+    const size = inp.getAttribute('data-size');
+    sizes.push(size);
+    qtys[size] = parseInt(inp.value) || 0;
+  });
+  return { sizes, qtys };
+}
 
 /* ── Product Color Picker ─────────────────────── */
 function addColorPicker(value='#C9A84C') {
@@ -1407,7 +1484,9 @@ async function saveProduct(){
   fd.append('isNew',document.getElementById('pIsNew').checked);
   fd.append('isSale',document.getElementById('pSale').checked);
   fd.append('isHot',document.getElementById('pHot').checked);
-  document.getElementById('pSizes').value.split(',').map(s=>s.trim()).filter(Boolean).forEach(s=>fd.append('sizes[]',s));
+  const {sizes: sizeList, qtys: sizeQtys} = getSizeQtyData();
+  sizeList.forEach(s => fd.append('sizes[]', s));
+  fd.append('sizeQtys', JSON.stringify(sizeQtys));
   document.getElementById('pTags').value.split(',').map(t=>t.trim()).filter(Boolean).forEach(t=>fd.append('tags[]',t));
   document.querySelectorAll('#colorPickerList input[type="color"]').forEach(c=>fd.append('colors[]',c.value));
   Array.from(document.getElementById('pImages').files).forEach(f=>fd.append('images',f));
@@ -1433,7 +1512,7 @@ async function loadOrders(){
   try{
     const data=await apiFetch(`/orders/admin?${params}`);
     renderOrderRows(data.orders||[],'ordersTable',false);
-    renderPagination('ordersPagination',data.page,data.pages,p=>{currentOrderPage=p;loadOrders();});
+    renderPagination('ordersPagination',data.page,data.pages,'p=>{currentOrderPage=p;loadOrders();}');
   }catch(e){showToast('Error loading orders: '+e.message,'error');}
 }
 
