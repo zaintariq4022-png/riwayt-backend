@@ -1,6 +1,14 @@
 const Product = require('../models/Product');
+const cloudinary = require('cloudinary').v2;
+const { CloudinaryStorage } = require('multer-storage-cloudinary');
 const path = require('path');
 const fs = require('fs');
+
+cloudinary.config({
+  cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
+  api_key: process.env.CLOUDINARY_API_KEY,
+  api_secret: process.env.CLOUDINARY_API_SECRET,
+});
 
 exports.getProducts = async (req, res) => {
   const { category, search, sort, page = 1, limit = 20 } = req.query;
@@ -26,27 +34,61 @@ exports.getProduct = async (req, res) => {
 };
 
 exports.createProduct = async (req, res) => {
-  // Cloudinary: req.files mein path (URL) hoga
-  const images = req.files ? req.files.map(f => f.path || `/uploads/${f.filename}`) : [];
-  const product = await Product.create({ ...req.body, images });
-  res.status(201).json({ success:true, product });
+  try {
+    const images = req.files ? req.files.map(f => f.path || `/uploads/${f.filename}`) : [];
+    
+    // Parse sizeQtys
+    let sizeQtys = {};
+    if (req.body.sizeQtys) {
+      try { sizeQtys = JSON.parse(req.body.sizeQtys); } catch(e) {}
+    }
+    
+    // Calculate total stock from sizeQtys
+    const totalStock = Object.values(sizeQtys).reduce((a, b) => a + Number(b), 0);
+    const stock = totalStock > 0 ? totalStock : (Number(req.body.stock) || 0);
+    
+    const product = await Product.create({ 
+      ...req.body, 
+      images,
+      sizeQtys,
+      stock,
+    });
+    res.status(201).json({ success:true, product });
+  } catch(err) {
+    res.status(400).json({ success:false, message: err.message });
+  }
 };
 
 exports.updateProduct = async (req, res) => {
-  const product = await Product.findById(req.params.id);
-  if (!product) return res.status(404).json({ success:false, message:'Product not found' });
-  if (req.files && req.files.length > 0) {
-    req.body.images = [...(product.images||[]), ...req.files.map(f => f.path || `/uploads/${f.filename}`)];
+  try {
+    const product = await Product.findById(req.params.id);
+    if (!product) return res.status(404).json({ success:false, message:'Product not found' });
+    
+    if (req.files && req.files.length > 0) {
+      req.body.images = [...(product.images||[]), ...req.files.map(f => f.path || `/uploads/${f.filename}`)];
+    }
+    
+    // Parse sizeQtys
+    if (req.body.sizeQtys) {
+      try { 
+        req.body.sizeQtys = JSON.parse(req.body.sizeQtys);
+        // Calculate total stock
+        const totalStock = Object.values(req.body.sizeQtys).reduce((a, b) => a + Number(b), 0);
+        if (totalStock > 0) req.body.stock = totalStock;
+      } catch(e) {}
+    }
+    
+    Object.assign(product, req.body);
+    await product.save();
+    res.json({ success:true, product });
+  } catch(err) {
+    res.status(400).json({ success:false, message: err.message });
   }
-  Object.assign(product, req.body);
-  await product.save();
-  res.json({ success:true, product });
 };
 
 exports.deleteProduct = async (req, res) => {
   const product = await Product.findById(req.params.id);
   if (!product) return res.status(404).json({ success:false, message:'Product not found' });
-  // Local files delete karo agar hain
   product.images.forEach(img => {
     if (img.startsWith('/uploads/')) {
       const fp = path.join(__dirname, '../../', img);

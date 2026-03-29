@@ -1373,7 +1373,7 @@ function openProductModal(id=null){
     document.getElementById('pStock').value=p.stock;
     document.getElementById('pFabric').value=p.fabric||'';
     document.getElementById('pEmoji').value=p.emoji||'';
-    initSizeQtyList(p.sizes||[]);
+    initSizeQtyList(p.sizes||[], p.sizeQtys||{});
     document.getElementById('pTags').value=(p.tags||[]).join(', ');
     document.getElementById('pFeatured').checked=p.isFeatured;
     document.getElementById('pIsNew').checked=p.isNew;
@@ -1444,14 +1444,15 @@ function addDefaultSizes() {
   });
 }
 
-function initSizeQtyList(sizes=[], stock=0) {
+function initSizeQtyList(sizes=[], qtys={}) {
   const list = document.getElementById('sizeQtyList');
   list.innerHTML = '';
   if (sizes && sizes.length > 0) {
     sizes.forEach(s => {
       const qty = typeof s === 'object' ? (s.qty || 0) : 0;
       const name = typeof s === 'object' ? s.name : s;
-      addSizeQty(name, qty);
+      const q = typeof s === 'object' ? (s.qty||0) : (qtys[name]||0);
+      addSizeQty(name, q);
     });
   }
 }
@@ -1511,6 +1512,9 @@ async function saveProduct(){
   const {sizes: sizeList, qtys: sizeQtys} = getSizeQtyData();
   sizeList.forEach(s => fd.append('sizes[]', s));
   fd.append('sizeQtys', JSON.stringify(sizeQtys));
+  // Total stock from size quantities
+  const totalStock = Object.values(sizeQtys).reduce((a,b)=>a+Number(b),0);
+  if(totalStock>0) fd.set('stock', totalStock);
   document.getElementById('pTags').value.split(',').map(t=>t.trim()).filter(Boolean).forEach(t=>fd.append('tags[]',t));
   document.querySelectorAll('#colorPickerList input[type="color"]').forEach(c=>fd.append('colors[]',c.value));
   Array.from(document.getElementById('pImages').files).forEach(f=>fd.append('images',f));

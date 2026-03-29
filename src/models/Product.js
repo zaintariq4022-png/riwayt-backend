@@ -15,7 +15,8 @@ const productSchema = new mongoose.Schema(
     },
     subcategory: { type: String, default: '' },
     fabric: { type: String, default: '' },
-    sizes: [{ type: String, enum: ['XS', 'S', 'M', 'L', 'XL', 'XXL', 'Free Size'] }],
+    sizes: [{ type: String }],
+    sizeQtys: { type: Map, of: Number, default: {} },
     colors: [{ type: String }],
     images: [{ type: String }],           // URLs (Cloudinary or local path)
     emoji: { type: String, default: '👗' },
