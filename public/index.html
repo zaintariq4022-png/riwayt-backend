@@ -2751,7 +2751,7 @@
               <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.5v15m7.5-7.5h-15"/></svg>
             </div>
             <div class="accordion-body">
-              <div class="accordion-body-inner">
+              <div class="accordion-body-inner" id="detailFabricCare">
                 Fabric: Premium Lawn Cotton (100%). Wash Care: Gentle cold wash separately. Do not bleach. Low iron on reverse. Dry in shade. The rich colors are best preserved with dark-color detergents.
               </div>
             </div>
@@ -3577,6 +3577,7 @@ async function fetchProducts() {
         sizes: p.sizes || [],
         sizeQtys: p.sizeQtys || {},
         shortDesc: p.shortDesc || '',
+        fabricCare: p.fabricCare || '',
         description: p.description || '',
         };
       });
@@ -3829,6 +3830,8 @@ function openProduct(id) {
   // Accordion description
   const descEl = document.getElementById('detailDescription');
   if (descEl) descEl.textContent = currentProduct.description || currentProduct.fabric_detail || '';
+  const fcEl = document.getElementById('detailFabricCare');
+  if (fcEl && currentProduct.fabricCare) fcEl.textContent = currentProduct.fabricCare;
   document.getElementById('detailPrice').textContent = 'PKR ' + currentProduct.price.toLocaleString();
   document.getElementById('detailOrigPrice').textContent = currentProduct.original ? 'PKR ' + currentProduct.original.toLocaleString() : '';
   document.getElementById('detailDiscount').textContent = currentProduct.discount ? currentProduct.discount + '% OFF' : '';

@@ -16,6 +16,7 @@ const productSchema = new mongoose.Schema(
     subcategory: { type: String, default: '' },
     fabric: { type: String, default: '' },
     shortDesc: { type: String, default: '' },
+    fabricCare: { type: String, default: '' },
     sizes: [{ type: String }],
     sizeQtys: { type: Map, of: Number, default: {} },
     colors: [{ type: String }],
