@@ -3836,7 +3836,9 @@ function openProduct(id) {
         `<button class="size-btn" onclick="selectSize(this,'${s}')">${s}</button>`
       ).join('');
     } else {
-      sizeSelector.innerHTML = '<button class="size-btn" onclick="selectSize(this,&quot;Free Size&quot;)">Free Size</button>';
+      sizeSelector.innerHTML = '<span style="font-size:0.8rem;color:var(--text-muted);">Koi size set nahi — Custom Size use karein</span>';
+      selectedSize = null;
+      document.getElementById('selectedSize').textContent = 'Select a size';
     }
   }
 
