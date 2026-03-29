@@ -1756,6 +1756,31 @@ function exportOrders(){
 
 
 /* ── Social & Contact Management ──────────────── */
+
+async function loadDiscountSettings() {
+  try {
+    const data = await apiFetch('/settings/hero_text', 'GET', null, false);
+  } catch(e) {}
+}
+
+async function loadVideoSettings() {
+  try {
+    const res = await fetch(API + '/video');
+    const data = await res.json();
+    if (!data.success) return;
+    const v = data.video;
+    currentVideoData = v;
+    const player = document.getElementById('heroVideoPlayer');
+    if (player && v.url) { player.src = v.url; player.style.display = ''; }
+    const statusEl = document.getElementById('videoStatus');
+    if (statusEl) statusEl.textContent = v.active ? 'ACTIVE' : 'HIDDEN';
+    const opacitySlider = document.getElementById('videoOpacity');
+    const opacityVal = document.getElementById('opacityVal');
+    if (opacitySlider) opacitySlider.value = v.opacity || 0.5;
+    if (opacityVal) opacityVal.textContent = v.opacity || 0.5;
+  } catch(e) {}
+}
+
 async function loadSocialSettings() {
   try {
     const data = await apiFetch('/settings/social', 'GET', null, false);
