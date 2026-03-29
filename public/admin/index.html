@@ -351,6 +351,25 @@ tr:hover td{background:#FAFAFA;}
           <div class="tab" onclick="filterOrders('delivered',this)">Delivered</div>
           <div class="tab" onclick="filterOrders('cancelled',this)">Cancelled</div>
         </div>
+        <!-- BULK STATUS UPDATE -->
+        <div style="background:#f9f6f2;border:1px solid var(--border);border-radius:8px;padding:14px 16px;margin-bottom:16px;">
+          <div style="font-size:12px;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;color:var(--text-muted);margin-bottom:10px;">⚡ Bulk Status Update</div>
+          <div style="display:flex;flex-wrap:wrap;gap:8px;align-items:center;">
+            <select id="bulkStatusSelect" style="padding:8px 12px;border:1px solid var(--border);border-radius:4px;font-size:13px;background:white;">
+              <option value="">-- Status Select Karo --</option>
+              <option value="confirmed">✅ Confirmed</option>
+              <option value="processing">🔧 Processing</option>
+              <option value="shipped">🚚 Shipped</option>
+              <option value="delivered">🎉 Delivered</option>
+              <option value="cancelled">❌ Cancelled</option>
+            </select>
+            <button onclick="bulkUpdateAll()" style="padding:8px 16px;background:#1565C0;color:white;border:none;border-radius:4px;cursor:pointer;font-weight:600;font-size:13px;">📋 Sab Visible Orders</button>
+            <button onclick="bulkUpdatePending()" style="padding:8px 16px;background:#F9A825;color:#111;border:none;border-radius:4px;cursor:pointer;font-weight:600;font-size:13px;">⏳ Sirf Pending</button>
+            <button onclick="bulkUpdateRandom()" style="padding:8px 16px;background:#6A1B9A;color:white;border:none;border-radius:4px;cursor:pointer;font-weight:600;font-size:13px;">🎲 Random Select</button>
+            <span id="bulkProgress" style="font-size:13px;color:var(--text-muted);"></span>
+          </div>
+        </div>
+
         <div class="table-wrap">
           <div class="table-toolbar">
             <input type="text" placeholder="Search by name, phone, order #…" id="orderSearch" oninput="loadOrders()" style="flex:1;min-width:220px;"/>
@@ -1615,6 +1634,67 @@ async function openOrderModal(id){
   }catch(e){document.getElementById('orderModalBody').innerHTML=`<p style="color:var(--danger);">Error: ${e.message}</p>`;}
 }
 
+
+
+/* ── Bulk Order Status Update ─────────────────── */
+let allOrderIds = [];
+
+async function fetchAllOrderIds(filter='') {
+  const params = new URLSearchParams({limit: 200, page: 1});
+  if (filter && filter !== 'all') params.set('status', filter);
+  const data = await apiFetch(`/orders/admin?${params}`);
+  return (data.orders || []).map(o => o._id);
+}
+
+async function bulkUpdate(ids, status) {
+  if (!status) { showToast('Status select karo pehle!', 'error'); return; }
+  if (!ids.length) { showToast('Koi order nahi mila!', 'error'); return; }
+  
+  const prog = document.getElementById('bulkProgress');
+  prog.textContent = `0/${ids.length} update ho rahe hain...`;
+  
+  let done = 0;
+  for (const id of ids) {
+    try {
+      await apiFetch(`/orders/admin/${id}/status`, 'PUT', {status});
+      done++;
+      prog.textContent = `${done}/${ids.length} done ✓`;
+    } catch(e) {}
+  }
+  
+  prog.textContent = `✅ ${done} orders update ho gaye!`;
+  setTimeout(() => { prog.textContent = ''; }, 4000);
+  loadOrders();
+  loadDashboard();
+}
+
+async function bulkUpdateAll() {
+  const status = document.getElementById('bulkStatusSelect').value;
+  if (!status) { showToast('Status select karo!', 'error'); return; }
+  if (!confirm(`Sab visible orders ko "${status}" karna chahte hain?`)) return;
+  const ids = await fetchAllOrderIds(currentOrderFilter);
+  await bulkUpdate(ids, status);
+}
+
+async function bulkUpdatePending() {
+  const status = document.getElementById('bulkStatusSelect').value;
+  if (!status) { showToast('Status select karo!', 'error'); return; }
+  if (!confirm(`Sab pending orders ko "${status}" karna chahte hain?`)) return;
+  const ids = await fetchAllOrderIds('pending');
+  await bulkUpdate(ids, status);
+}
+
+async function bulkUpdateRandom() {
+  const status = document.getElementById('bulkStatusSelect').value;
+  if (!status) { showToast('Status select karo!', 'error'); return; }
+  const ids = await fetchAllOrderIds(currentOrderFilter);
+  // Random 30-70% select karo
+  const pct = Math.floor(Math.random() * 40 + 30);
+  const count = Math.max(1, Math.floor(ids.length * pct / 100));
+  const shuffled = ids.sort(() => Math.random() - 0.5).slice(0, count);
+  if (!confirm(`${shuffled.length} random orders ko "${status}" karna chahte hain?`)) return;
+  await bulkUpdate(shuffled, status);
+}
 
 /* ── Order Status Quick Update ─────────────────── */
 function setOrderStatus(status) {
