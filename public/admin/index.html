@@ -1586,16 +1586,58 @@ async function openOrderModal(id){
         ${o.discount?`<div class="total-line"><span>Discount</span><span style="color:var(--success);">− PKR ${o.discount.toLocaleString()}</span></div>`:''}
         <div class="total-line grand"><span>Grand Total</span><span>PKR ${o.total.toLocaleString()}</span></div>
       </div>
-      <div style="margin-top:20px;display:grid;grid-template-columns:1fr 1fr 1fr;gap:14px;">
-        <div class="field"><label>Order Status</label>
-          <select id="editStatus">${['pending','confirmed','processing','shipped','delivered','cancelled'].map(s=>`<option value="${s}"${o.status===s?' selected':''}>${cap(s)}</option>`).join('')}</select>
+      <div style="margin-top:20px;">
+        <div style="font-size:12px;font-weight:600;letter-spacing:0.08em;text-transform:uppercase;color:var(--text-muted);margin-bottom:10px;">Order Status</div>
+        <div style="display:flex;flex-wrap:wrap;gap:8px;margin-bottom:16px;" id="statusBtns">
+          ${['pending','confirmed','processing','shipped','delivered','cancelled'].map(s=>{
+            const colors={pending:'#F9A825',confirmed:'#2E7D32',processing:'#1565C0',shipped:'#6A1B9A',delivered:'#00695C',cancelled:'#C62828'};
+            const icons={pending:'⏳',confirmed:'✅',processing:'🔧',shipped:'🚚',delivered:'🎉',cancelled:'❌'};
+            const isActive=o.status===s;
+            return `<button id="sb_${s}" onclick="setOrderStatus('${s}')" style="padding:8px 16px;border-radius:20px;border:2px solid ${colors[s]};background:${isActive?colors[s]:'transparent'};color:${isActive?'white':colors[s]};font-weight:600;font-size:12px;cursor:pointer;transition:all 0.2s;">${icons[s]} ${cap(s)}</button>`;
+          }).join('')}
         </div>
-        <div class="field"><label>Payment Status</label>
-          <select id="editPayStatus">${['pending','paid','failed','refunded'].map(s=>`<option value="${s}"${o.paymentStatus===s?' selected':''}>${cap(s)}</option>`).join('')}</select>
+
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px;">
+          <div class="field">
+            <label>Payment Status</label>
+            <select id="editPayStatus">${['pending','paid','failed','refunded'].map(s=>`<option value="${s}"${o.paymentStatus===s?' selected':''}>${cap(s)}</option>`).join('')}</select>
+          </div>
+          <div class="field">
+            <label>Tracking Number</label>
+            <div style="display:flex;gap:6px;">
+              <input type="text" id="editTracking" value="${o.trackingNumber||''}" placeholder="TCS-XXXXXXX" style="flex:1;"/>
+              <button onclick="generateTracking()" style="padding:0 12px;background:var(--gold);color:#111;border:none;border-radius:4px;cursor:pointer;font-weight:600;font-size:12px;white-space:nowrap;">🎲 Auto</button>
+            </div>
+          </div>
         </div>
-        <div class="field"><label>Tracking #</label><input type="text" id="editTracking" value="${o.trackingNumber||''}" placeholder="TCS-12345"/></div>
+        <input type="hidden" id="editStatus" value="${o.status}"/>
       </div>`;
   }catch(e){document.getElementById('orderModalBody').innerHTML=`<p style="color:var(--danger);">Error: ${e.message}</p>`;}
+}
+
+
+/* ── Order Status Quick Update ─────────────────── */
+function setOrderStatus(status) {
+  document.getElementById('editStatus').value = status;
+  const colors = {pending:'#F9A825',confirmed:'#2E7D32',processing:'#1565C0',shipped:'#6A1B9A',delivered:'#00695C',cancelled:'#C62828'};
+  ['pending','confirmed','processing','shipped','delivered','cancelled'].forEach(s => {
+    const btn = document.getElementById('sb_' + s);
+    if (!btn) return;
+    const isActive = s === status;
+    btn.style.background = isActive ? colors[s] : 'transparent';
+    btn.style.color = isActive ? 'white' : colors[s];
+  });
+  // Auto generate tracking when shipped
+  if (status === 'shipped' && !document.getElementById('editTracking').value) {
+    generateTracking();
+  }
+}
+
+function generateTracking() {
+  const carriers = ['TCS', 'LEOPARD', 'POST', 'TRAX', 'RIDER'];
+  const carrier = carriers[Math.floor(Math.random() * carriers.length)];
+  const num = Math.floor(Math.random() * 9000000 + 1000000);
+  document.getElementById('editTracking').value = carrier + '-' + num;
 }
 
 async function saveOrderStatus(){
