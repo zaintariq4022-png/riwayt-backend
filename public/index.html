@@ -3566,6 +3566,11 @@ async function fetchProducts() {
           original = p.price;
           price = Math.round(p.price * (1 - globalDiscount.percent / 100));
           discountPct = globalDiscount.percent;
+        } else if (categoryDiscounts[p.category] > 0) {
+          const catDisc = categoryDiscounts[p.category];
+          original = p.price;
+          price = Math.round(p.price * (1 - catDisc / 100));
+          discountPct = catDisc;
         }
 
         return {

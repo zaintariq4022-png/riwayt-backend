@@ -1002,6 +1002,24 @@ tr:hover td{background:#FAFAFA;}
           <div id="discountInfo" style="margin-top:14px;padding:10px 14px;background:rgba(201,168,76,0.08);border-radius:6px;font-size:13px;display:none;"></div>
         </div>
 
+
+        <!-- CATEGORY DISCOUNT CARD -->
+        <div class="chart-card" style="max-width:800px;margin-bottom:20px;border:2px solid #3B82F6;background:rgba(59,130,246,0.04);">
+          <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px;">
+            <div>
+              <div class="chart-title" style="color:#3B82F6;font-size:16px;">🗂️ Category Discount</div>
+              <div style="color:var(--text-muted);font-size:12px;margin-top:4px;">Kisi bhi category pe alag discount lagao</div>
+            </div>
+          </div>
+          <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:12px;margin-top:16px;" id="catDiscountGrid">
+            <!-- Loaded dynamically -->
+          </div>
+          <button class="btn btn-primary" onclick="saveCategoryDiscounts()" style="margin-top:16px;background:#3B82F6;border-color:#3B82F6;">
+            💾 Save Category Discounts
+          </button>
+          <div id="catDiscountMsg" style="margin-top:8px;font-size:13px;color:#12B76A;display:none;">✓ Saved!</div>
+        </div>
+
         <div style="display:grid;grid-template-columns:1fr 1fr;gap:20px;max-width:800px;">
           <div class="chart-card">
             <div class="chart-title">Change Password</div>
@@ -1247,7 +1265,7 @@ function showPanel(name){
   document.getElementById('pageTitle').textContent=titles[name]||name;
   if(name==='products') loadProducts();
   if(name==='orders') loadOrders();
-  if(name==='settings') loadDiscountSettings();
+  if(name==='settings') { loadDiscountSettings(); loadCategoryDiscounts(); }
   if(name==='video') loadVideoSettings();
   if(name==='herotext') loadHeroTextEditor();
   if(name==='categories') loadCategories();
@@ -1762,6 +1780,65 @@ function exportOrders(){
 
 
 /* ── Social & Contact Management ──────────────── */
+
+
+/* ── Category Discounts ─────────────────────── */
+const CATEGORIES = [
+  {id:'women', label:'👗 Women'},
+  {id:'kids', label:'👶 Kids'},
+  {id:'sale', label:'🏷️ Sale'},
+  {id:'new', label:'✨ New Arrivals'},
+  {id:'stitching', label:'🧵 Stitching'},
+  {id:'fancy', label:'💫 Fancy'},
+  {id:'bridal', label:'👰 Bridal'},
+  {id:'accessories', label:'👜 Accessories'},
+];
+
+async function loadCategoryDiscounts() {
+  try {
+    const data = await apiFetch('/settings/category-discounts', 'GET', null, false);
+    const discounts = (data.success && data.value) ? data.value : {};
+    renderCatDiscountGrid(discounts);
+  } catch(e) {
+    renderCatDiscountGrid({});
+  }
+}
+
+function renderCatDiscountGrid(discounts) {
+  const grid = document.getElementById('catDiscountGrid');
+  if (!grid) return;
+  grid.innerHTML = CATEGORIES.map(cat => {
+    const val = discounts[cat.id] || 0;
+    const active = val > 0;
+    return `<div style="background:white;border:1px solid ${active?'#3B82F6':'var(--border)'};border-radius:8px;padding:12px;">
+      <div style="font-weight:600;font-size:13px;margin-bottom:8px;">${cat.label}</div>
+      <div style="display:flex;align-items:center;gap:8px;">
+        <input type="number" id="cat_disc_${cat.id}" value="${val}" min="0" max="90" placeholder="0"
+          style="width:70px;padding:6px 8px;border:1px solid var(--border);border-radius:4px;font-size:1rem;font-weight:700;color:#3B82F6;"
+          oninput="this.closest('div').parentElement.style.borderColor=this.value>0?'#3B82F6':'var(--border)'"/>
+        <span style="font-size:13px;color:var(--text-muted);">% OFF</span>
+        ${active ? `<span style="font-size:11px;background:#3B82F6;color:white;padding:2px 8px;border-radius:10px;font-weight:600;">ON</span>` : ''}
+      </div>
+    </div>`;
+  }).join('');
+}
+
+async function saveCategoryDiscounts() {
+  const discounts = {};
+  CATEGORIES.forEach(cat => {
+    const val = parseInt(document.getElementById('cat_disc_' + cat.id)?.value) || 0;
+    discounts[cat.id] = val;
+  });
+  try {
+    await apiFetch('/settings/category-discounts', 'PUT', { discounts });
+    const msg = document.getElementById('catDiscountMsg');
+    msg.style.display = 'block';
+    setTimeout(() => msg.style.display = 'none', 3000);
+    loadCategoryDiscounts();
+  } catch(e) {
+    showToast('Error: ' + e.message, 'error');
+  }
+}
 
 async function loadDiscountSettings() {
   try {

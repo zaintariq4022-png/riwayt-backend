@@ -92,6 +92,28 @@ router.put('/featured-heading', protect, async (req, res) => {
   res.json({ success: true, message: 'Featured heading updated!' });
 });
 
+
+// GET /api/settings/category-discounts
+router.get('/category-discounts', async (req, res) => {
+  try {
+    const setting = await Settings.findOne({ key: 'category_discounts' });
+    res.json({ success: true, value: setting ? setting.value : {} });
+  } catch(err) {
+    res.json({ success: true, value: {} });
+  }
+});
+
+// PUT /api/settings/category-discounts
+router.put('/category-discounts', protect, async (req, res) => {
+  const { discounts } = req.body;
+  await Settings.findOneAndUpdate(
+    { key: 'category_discounts' },
+    { key: 'category_discounts', value: discounts },
+    { upsert: true, new: true }
+  );
+  res.json({ success: true, message: 'Category discounts saved!' });
+});
+
 module.exports = router;
 
 // GET /api/settings/social — public
