@@ -2349,10 +2349,7 @@
         <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M15.75 6a3.75 3.75 0 11-7.5 0 3.75 3.75 0 017.5 0zM4.501 20.118a7.5 7.5 0 0114.998 0A17.933 17.933 0 0112 21.75c-2.676 0-5.216-.584-7.499-1.632z"/></svg>
         <span>Account</span>
       </button>
-      <!-- Install App Button -->
-      <button id="installAppBtn" onclick="installApp()" style="display:none;align-items:center;gap:6px;padding:6px 14px;background:var(--gold);color:#111;border:none;border-radius:20px;font-size:0.72rem;font-weight:700;cursor:pointer;letter-spacing:0.05em;">
-        📲 Install App
-      </button>
+
       <button class="icon-btn" onclick="showPage('track')">
         <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M15 10.5a3 3 0 11-6 0 3 3 0 016 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M19.5 10.5c0 7.142-7.5 11.25-7.5 11.25S4.5 17.642 4.5 10.5a7.5 7.5 0 1115 0z"/></svg>
         <span>Track Order</span>
@@ -3414,6 +3411,12 @@
 
   <div class="footer-bottom">
     <p>© 2026 RIWAYAT Fashion House. All rights reserved. Made in Pakistan 🇵🇰</p>
+    <button id="installAppBtn" onclick="installApp()" style="display:none;align-items:center;gap:6px;padding:8px 20px;background:var(--gold);color:#111;border:none;border-radius:20px;font-size:0.78rem;font-weight:700;cursor:pointer;letter-spacing:0.05em;margin:8px auto;">
+      📲 App Install Karein
+    </button>
+    <div id="iosInstallHint" style="display:none;font-size:0.72rem;color:rgba(250,247,242,0.5);text-align:center;margin:6px 0;letter-spacing:0.04em;">
+      iPhone users: Safari → Share → Add to Home Screen
+    </div>
     <div class="footer-payment">
       <span style="font-size:0.65rem;color:rgba(250,247,242,0.3);letter-spacing:0.1em;text-transform:uppercase">Secure Payments:</span>
       <span class="payment-badge">VISA</span>
@@ -5237,6 +5240,14 @@ updateCartBadge();
 
   <!-- PWA Service Worker -->
   <script>
+    // Show iOS hint
+    const isIOS = /iphone|ipad|ipod/i.test(navigator.userAgent);
+    const isStandalone = window.navigator.standalone;
+    if (isIOS && !isStandalone) {
+      const hint = document.getElementById('iosInstallHint');
+      if (hint) hint.style.display = 'block';
+    }
+
     if ('serviceWorker' in navigator) {
       window.addEventListener('load', () => {
         navigator.serviceWorker.register('/sw.js')
