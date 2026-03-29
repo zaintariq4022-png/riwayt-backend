@@ -1,4 +1,4 @@
-const CACHE_NAME = 'riwayat-v1';
+const CACHE_NAME = 'riwayat-v3';
 const STATIC_ASSETS = [
   '/',
   '/index.html',

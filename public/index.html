@@ -5261,8 +5261,14 @@ updateCartBadge();
     if ('serviceWorker' in navigator) {
       window.addEventListener('load', () => {
         navigator.serviceWorker.register('/sw.js')
-          .then(reg => console.log('SW registered:', reg.scope))
+          .then(reg => {
+            console.log('SW registered:', reg.scope);
+            // Force update on new deploy
+            reg.update();
+          })
           .catch(err => console.log('SW error:', err));
+        // Clear old caches
+        caches.keys().then(keys => keys.forEach(k => { if(!k.includes('riwayat-v3')) caches.delete(k); }));
       });
     }
 
