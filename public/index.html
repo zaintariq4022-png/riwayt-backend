@@ -3621,7 +3621,7 @@ function showPage(page, pushHistory = true) {
   if (page === 'cart') renderCart();
   if (page === 'checkout') renderCheckout();
   const footer = document.querySelector('footer');
-  if (footer) footer.style.display = (page === 'home') ? '' : 'none';
+  if (footer) footer.style.display = '';
   if (pushHistory) {
     history.pushState({ page }, '', '#' + page);
   }
