@@ -229,6 +229,10 @@ tr:hover td{background:#FAFAFA;}
           <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" width="18" height="18"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 10l4.553-2.276A1 1 0 0121 8.723v6.554a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z"/></svg>
           <span class="label">Hero Video</span>
         </div>
+      <div class="nav-item" onclick="showPanel('stock')" data-panel="stock">
+        <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" width="18" height="18"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"/></svg>
+        <span class="label">Stock</span>
+      </div>
       <div class="nav-item" onclick="showPanel('settings')" data-panel="settings">
         <svg fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
         <span class="label">Settings</span>
@@ -377,6 +381,56 @@ tr:hover td{background:#FAFAFA;}
           <table><thead><tr><th>Order #</th><th>Customer</th><th>Items</th><th>Total</th><th>Payment</th><th>Status</th><th>Date</th><th></th></tr></thead>
           <tbody id="ordersTable"><tr><td colspan="8" style="text-align:center;padding:28px;color:var(--text-muted);">Loading…</td></tr></tbody></table>
           <div style="padding:12px 16px;" id="ordersPagination"></div>
+        </div>
+      </div>
+
+
+      <!-- STOCK MANAGEMENT PANEL -->
+      <div class="panel" id="panel-stock">
+        <div class="section-header">
+          <div class="section-title">Stock Management</div>
+          <button class="btn btn-secondary btn-sm" onclick="loadStockPanel()">
+            🔄 Refresh
+          </button>
+        </div>
+
+        <!-- Stock Stats -->
+        <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:16px;margin-bottom:24px;" id="stockStats">
+          <div class="stat-card"><div class="stat-icon" style="background:rgba(201,168,76,0.12);">📦</div><div class="stat-info"><div class="stat-value" id="st_total">—</div><div class="stat-label">Total Products</div></div></div>
+          <div class="stat-card"><div class="stat-icon" style="background:rgba(18,183,106,0.12);">✅</div><div class="stat-info"><div class="stat-value" id="st_instock">—</div><div class="stat-label">In Stock</div></div></div>
+          <div class="stat-card"><div class="stat-icon" style="background:rgba(240,68,56,0.12);">❌</div><div class="stat-info"><div class="stat-value" id="st_outstock">—</div><div class="stat-label">Out of Stock</div></div></div>
+          <div class="stat-card"><div class="stat-icon" style="background:rgba(249,168,37,0.12);">⚠️</div><div class="stat-info"><div class="stat-value" id="st_lowstock">—</div><div class="stat-label">Low Stock (≤5)</div></div></div>
+          <div class="stat-card"><div class="stat-icon" style="background:rgba(59,130,246,0.12);">🛍️</div><div class="stat-info"><div class="stat-value" id="st_sold">—</div><div class="stat-label">Total Sold</div></div></div>
+        </div>
+
+        <!-- Filter -->
+        <div style="display:flex;gap:10px;margin-bottom:16px;flex-wrap:wrap;">
+          <select id="stockFilter" onchange="filterStockTable()" style="padding:8px 12px;border:1px solid var(--border);border-radius:4px;font-size:13px;">
+            <option value="all">All Products</option>
+            <option value="out">Out of Stock</option>
+            <option value="low">Low Stock (≤5)</option>
+            <option value="in">In Stock</option>
+          </select>
+          <input type="text" id="stockSearch" placeholder="Search product..." oninput="filterStockTable()" style="padding:8px 12px;border:1px solid var(--border);border-radius:4px;font-size:13px;flex:1;min-width:200px;"/>
+        </div>
+
+        <!-- Stock Table -->
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th>Product</th>
+                <th>Category</th>
+                <th style="text-align:center;">Current Stock</th>
+                <th style="text-align:center;">Sold</th>
+                <th style="text-align:center;">Status</th>
+                <th>Update Stock</th>
+              </tr>
+            </thead>
+            <tbody id="stockTable">
+              <tr><td colspan="6" style="text-align:center;padding:28px;color:var(--text-muted);">Loading...</td></tr>
+            </tbody>
+          </table>
         </div>
       </div>
 
@@ -1291,11 +1345,12 @@ function showPanel(name){
   document.querySelectorAll('.nav-item').forEach(n=>n.classList.remove('active'));
   document.getElementById(`panel-${name}`).classList.add('active');
   document.querySelector(`[data-panel="${name}"]`).classList.add('active');
-  const titles={dashboard:'Dashboard',products:'Products',orders:'Orders',settings:'Settings',video:'Hero Video',herotext:'Hero Text',categories:'Categories',social:'Social & Contact'};
+  const titles={dashboard:'Dashboard',products:'Products',orders:'Orders',settings:'Settings',video:'Hero Video',herotext:'Hero Text',categories:'Categories',social:'Social & Contact',stock:'Stock Management'};
   document.getElementById('pageTitle').textContent=titles[name]||name;
   if(name==='products') loadProducts();
   if(name==='orders') loadOrders();
   if(name==='settings') { loadDiscountSettings(); loadCategoryDiscounts(); loadEmailTemplate(); }
+  if(name==='stock') loadStockPanel();
   if(name==='video') loadVideoSettings();
   if(name==='herotext') loadHeroTextEditor();
   if(name==='categories') loadCategories();
@@ -1812,6 +1867,137 @@ function exportOrders(){
 /* ── Social & Contact Management ──────────────── */
 
 
+
+
+/* ── Stock Management ─────────────────────────── */
+let allStockData = [];
+
+async function loadStockPanel() {
+  try {
+    // Load products
+    const pData = await apiFetch('/products/admin?limit=200');
+    const products = pData.products || [];
+
+    // Load order stats for sold count
+    const oData = await apiFetch('/orders/admin?limit=500');
+    const orders = oData.orders || [];
+
+    // Calculate sold per product
+    const soldMap = {};
+    orders.forEach(o => {
+      if (o.status === 'cancelled') return;
+      (o.items || []).forEach(item => {
+        soldMap[item.productId] = (soldMap[item.productId] || 0) + (item.qty || 1);
+      });
+    });
+
+    // Build stock data
+    allStockData = products.map(p => ({
+      id: p._id,
+      name: p.name,
+      category: p.category,
+      stock: p.stock || 0,
+      sold: soldMap[p._id] || 0,
+      sizes: p.sizes || [],
+      sizeQtys: p.sizeQtys || {},
+    }));
+
+    // Update stats
+    const total = allStockData.length;
+    const inStock = allStockData.filter(p => p.stock > 5).length;
+    const outStock = allStockData.filter(p => p.stock === 0).length;
+    const lowStock = allStockData.filter(p => p.stock > 0 && p.stock <= 5).length;
+    const totalSold = allStockData.reduce((a, p) => a + p.sold, 0);
+
+    document.getElementById('st_total').textContent = total;
+    document.getElementById('st_instock').textContent = inStock;
+    document.getElementById('st_outstock').textContent = outStock;
+    document.getElementById('st_lowstock').textContent = lowStock;
+    document.getElementById('st_sold').textContent = totalSold;
+
+    renderStockTable(allStockData);
+  } catch(e) {
+    showToast('Error loading stock: ' + e.message, 'error');
+  }
+}
+
+function filterStockTable() {
+  const filter = document.getElementById('stockFilter').value;
+  const search = document.getElementById('stockSearch').value.toLowerCase();
+
+  let filtered = allStockData.filter(p => {
+    const matchSearch = p.name.toLowerCase().includes(search) || p.category.includes(search);
+    if (!matchSearch) return false;
+    if (filter === 'out') return p.stock === 0;
+    if (filter === 'low') return p.stock > 0 && p.stock <= 5;
+    if (filter === 'in') return p.stock > 5;
+    return true;
+  });
+
+  renderStockTable(filtered);
+}
+
+function renderStockTable(products) {
+  const tbody = document.getElementById('stockTable');
+  if (!products.length) {
+    tbody.innerHTML = '<tr><td colspan="6" style="text-align:center;padding:28px;color:var(--text-muted);">Koi product nahi mila</td></tr>';
+    return;
+  }
+
+  tbody.innerHTML = products.map(p => {
+    const statusColor = p.stock === 0 ? '#F04438' : p.stock <= 5 ? '#F9A825' : '#12B76A';
+    const statusText = p.stock === 0 ? '❌ Out of Stock' : p.stock <= 5 ? '⚠️ Low Stock' : '✅ In Stock';
+    const sizeInfo = p.sizes && p.sizes.length > 0 ? p.sizes.map(s => {
+      const qty = p.sizeQtys && p.sizeQtys[s] !== undefined ? p.sizeQtys[s] : '—';
+      return `<span style="font-size:11px;background:#f5f5f5;padding:2px 6px;border-radius:4px;margin:2px;">${s}: ${qty}</span>`;
+    }).join('') : '';
+
+    return `<tr>
+      <td>
+        <div style="font-weight:600;">${p.name}</div>
+        ${sizeInfo ? `<div style="margin-top:4px;">${sizeInfo}</div>` : ''}
+      </td>
+      <td><span style="font-size:12px;background:#f0f0f0;padding:3px 8px;border-radius:10px;">${cap(p.category)}</span></td>
+      <td style="text-align:center;font-weight:700;font-size:1.1rem;color:${statusColor};">${p.stock}</td>
+      <td style="text-align:center;color:var(--text-muted);">${p.sold}</td>
+      <td style="text-align:center;"><span style="font-size:12px;color:${statusColor};font-weight:600;">${statusText}</span></td>
+      <td>
+        <div style="display:flex;gap:6px;align-items:center;">
+          <input type="number" id="stock_input_${p.id}" value="${p.stock}" min="0" style="width:70px;padding:6px 8px;border:1px solid var(--border);border-radius:4px;font-size:13px;"/>
+          <button onclick="updateStock('${p.id}')" style="padding:6px 12px;background:var(--gold);color:#111;border:none;border-radius:4px;cursor:pointer;font-weight:600;font-size:12px;">Save</button>
+        </div>
+      </td>
+    </tr>`;
+  }).join('');
+}
+
+async function updateStock(productId) {
+  const input = document.getElementById('stock_input_' + productId);
+  const newStock = parseInt(input.value);
+  if (isNaN(newStock) || newStock < 0) { showToast('Valid stock likhein!', 'error'); return; }
+
+  try {
+    const fd = new FormData();
+    fd.append('stock', newStock);
+    const res = await fetch(API + '/products/' + productId, {
+      method: 'PUT',
+      headers: { 'Authorization': `Bearer ${TOKEN}` },
+      body: fd,
+    });
+    const data = await res.json();
+    if (data.success) {
+      showToast('✅ Stock update ho gaya!');
+      // Update local data
+      const p = allStockData.find(x => x.id === productId);
+      if (p) p.stock = newStock;
+      filterStockTable();
+    } else {
+      showToast('Error: ' + data.message, 'error');
+    }
+  } catch(e) {
+    showToast('Error: ' + e.message, 'error');
+  }
+}
 
 /* ── Email Template Editor ─────────────────────── */
 async function loadEmailTemplate() {
