@@ -4345,7 +4345,14 @@ async function submitDirectOrder() {
     const data = await res.json();
 
     if (data.success) {
+      // Reset button first
+      btn.textContent = 'Confirm Order';
+      btn.disabled = false;
       closeOrderModal();
+      // Reset order form fields
+      ['orderName','orderPhone','orderEmail','orderCity','orderAddress','orderNotes'].forEach(id => {
+        const el = document.getElementById(id); if(el) el.value = '';
+      });
       showToast(`🎉 Order placed! #${data.order.orderNumber}`);
       document.getElementById('trackInput').value = data.order.orderNumber;
       setTimeout(() => showPage('home'), 2500);
