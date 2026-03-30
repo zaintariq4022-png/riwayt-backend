@@ -3975,7 +3975,6 @@ function loadYouMayLike() {
         <div class="fs-price">PKR ${p.price.toLocaleString()}</div>
         ${p.original && p.discount > 0 ? `<div class="fs-orig-price">PKR ${p.original.toLocaleString()}</div>` : ''}
       </div>
-      ${p.discount > 0 ? `<div class="fs-discount-badge">${p.discount}% OFF</div>` : ''}
     </div>`;
   }).join('');
 }
@@ -4844,7 +4843,6 @@ function buildFeaturedSlider() {
         <div class="fs-price">PKR ${p.price.toLocaleString()}</div>
         ${p.original && p.discount > 0 ? `<div class="fs-orig-price">PKR ${p.original.toLocaleString()}</div>` : ''}
       </div>
-      ${p.discount > 0 ? `<div class="fs-discount-badge">${p.discount}% OFF</div>` : ''}
     </div>`;
   }).join('');
 
