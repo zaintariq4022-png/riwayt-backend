@@ -233,6 +233,10 @@ tr:hover td{background:#FAFAFA;}
         <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" width="18" height="18"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"/></svg>
         <span class="label">Stock</span>
       </div>
+      <div class="nav-item" onclick="showPanel('billing')" data-panel="billing">
+        <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" width="18" height="18"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 14l6-6m-5.5.5h.01m4.99 5h.01M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16l3.5-2 3.5 2 3.5-2 3.5 2z"/></svg>
+        <span class="label">Billing</span>
+      </div>
       <div class="nav-item" onclick="showPanel('settings')" data-panel="settings">
         <svg fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
         <span class="label">Settings</span>
@@ -431,6 +435,128 @@ tr:hover td{background:#FAFAFA;}
               <tr><td colspan="6" style="text-align:center;padding:28px;color:var(--text-muted);">Loading...</td></tr>
             </tbody>
           </table>
+        </div>
+      </div>
+
+
+      <!-- BILLING PANEL -->
+      <div class="panel" id="panel-billing">
+        <div class="section-header">
+          <div class="section-title">Billing System</div>
+          <div style="display:flex;gap:8px;">
+            <button class="btn btn-secondary btn-sm" onclick="clearBill()">🗑️ Clear</button>
+            <button class="btn btn-primary btn-sm" onclick="printBill()">🖨️ Print Bill</button>
+          </div>
+        </div>
+
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:20px;max-width:1100px;">
+
+          <!-- LEFT: Bill Builder -->
+          <div>
+            <!-- Customer Info -->
+            <div class="chart-card" style="margin-bottom:16px;">
+              <div class="chart-title">👤 Customer Info</div>
+              <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:14px;">
+                <div class="field"><label>Customer Name</label><input type="text" id="bill_name" placeholder="e.g. Ahmed Ali"/></div>
+                <div class="field"><label>Phone</label><input type="text" id="bill_phone" placeholder="e.g. 0300-1234567"/></div>
+                <div class="field"><label>City</label><input type="text" id="bill_city" placeholder="e.g. Lahore"/></div>
+                <div class="field"><label>Bill # (auto)</label><input type="text" id="bill_number" placeholder="RW-BILL-001" readonly style="background:#f5f5f5;"/></div>
+              </div>
+            </div>
+
+            <!-- Add Items -->
+            <div class="chart-card" style="margin-bottom:16px;">
+              <div class="chart-title">➕ Items Add Karein</div>
+              <div style="display:grid;grid-template-columns:2fr 1fr 1fr auto;gap:8px;margin-top:14px;align-items:flex-end;">
+                <div class="field" style="margin:0;">
+                  <label>Product</label>
+                  <select id="bill_product" onchange="fillBillProduct()" style="width:100%;">
+                    <option value="">-- Select Product --</option>
+                  </select>
+                </div>
+                <div class="field" style="margin:0;">
+                  <label>Price (PKR)</label>
+                  <input type="number" id="bill_price" placeholder="0" min="0"/>
+                </div>
+                <div class="field" style="margin:0;">
+                  <label>Qty</label>
+                  <input type="number" id="bill_qty" value="1" min="1"/>
+                </div>
+                <button onclick="addBillItem()" style="padding:8px 14px;background:var(--gold);color:#111;border:none;border-radius:4px;cursor:pointer;font-weight:700;height:38px;">+</button>
+              </div>
+              <div style="display:grid;grid-template-columns:2fr 1fr 1fr auto;gap:8px;margin-top:8px;align-items:flex-end;">
+                <div class="field" style="margin:0;">
+                  <label>Ya Custom Item</label>
+                  <input type="text" id="bill_custom_item" placeholder="Custom item name..."/>
+                </div>
+                <div class="field" style="margin:0;">
+                  <label>Price</label>
+                  <input type="number" id="bill_custom_price" placeholder="0" min="0"/>
+                </div>
+                <div class="field" style="margin:0;">
+                  <label>Qty</label>
+                  <input type="number" id="bill_custom_qty" value="1" min="1"/>
+                </div>
+                <button onclick="addCustomBillItem()" style="padding:8px 14px;background:#3B82F6;color:white;border:none;border-radius:4px;cursor:pointer;font-weight:700;height:38px;">+</button>
+              </div>
+            </div>
+
+            <!-- Bill Items List -->
+            <div class="chart-card" style="margin-bottom:16px;">
+              <div class="chart-title">🧾 Bill Items</div>
+              <div id="billItemsList" style="margin-top:12px;min-height:60px;">
+                <p style="color:var(--text-muted);font-size:13px;text-align:center;padding:20px;">Koi item nahi — upar se add karein</p>
+              </div>
+              <div style="border-top:2px solid var(--border);margin-top:12px;padding-top:12px;">
+                <div style="display:flex;justify-content:space-between;margin-bottom:6px;font-size:14px;">
+                  <span style="color:var(--text-muted);">Subtotal</span>
+                  <span id="bill_subtotal">PKR 0</span>
+                </div>
+                <div style="display:flex;justify-content:space-between;margin-bottom:6px;align-items:center;">
+                  <span style="color:var(--text-muted);">Discount</span>
+                  <div style="display:flex;gap:6px;align-items:center;">
+                    <input type="number" id="bill_discount" value="0" min="0" style="width:70px;padding:4px 8px;border:1px solid var(--border);border-radius:4px;font-size:13px;" oninput="updateBillTotals()"/>
+                    <span style="font-size:13px;">PKR</span>
+                  </div>
+                </div>
+                <div style="display:flex;justify-content:space-between;margin-bottom:6px;align-items:center;">
+                  <span style="color:var(--text-muted);">Delivery</span>
+                  <div style="display:flex;gap:6px;align-items:center;">
+                    <input type="number" id="bill_delivery" value="0" min="0" style="width:70px;padding:4px 8px;border:1px solid var(--border);border-radius:4px;font-size:13px;" oninput="updateBillTotals()"/>
+                    <span style="font-size:13px;">PKR</span>
+                  </div>
+                </div>
+                <div style="display:flex;justify-content:space-between;font-weight:700;font-size:1.1rem;padding-top:8px;border-top:1px solid var(--border);">
+                  <span>Total</span>
+                  <span id="bill_total" style="color:var(--gold);">PKR 0</span>
+                </div>
+              </div>
+              <div class="field" style="margin-top:12px;">
+                <label>Notes</label>
+                <textarea id="bill_notes" rows="2" placeholder="e.g. Payment received, COD, Special instructions..."></textarea>
+              </div>
+            </div>
+          </div>
+
+          <!-- RIGHT: Bill Preview -->
+          <div>
+            <div class="chart-card" style="position:sticky;top:20px;">
+              <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;">
+                <div class="chart-title">👁️ Bill Preview</div>
+                <button onclick="printBill()" style="padding:6px 14px;background:var(--gold);color:#111;border:none;border-radius:4px;cursor:pointer;font-weight:600;font-size:12px;">🖨️ Print</button>
+              </div>
+              <div id="billPreview" style="border:1px solid var(--border);border-radius:4px;padding:20px;background:white;font-family:serif;">
+                <div style="text-align:center;border-bottom:2px solid #1C1C1C;padding-bottom:12px;margin-bottom:12px;">
+                  <div style="font-size:22px;font-weight:700;letter-spacing:4px;color:#1C1C1C;">RIWAYAT</div>
+                  <div style="font-size:11px;color:#888;margin-top:2px;">Luxury Pakistani Fashion</div>
+                  <div style="font-size:10px;color:#888;">riwayat-pakistan.online | 0348-5393402</div>
+                </div>
+                <div id="preview_content" style="font-size:13px;">
+                  <p style="color:#aaa;text-align:center;">Items add karein — preview yahan dikhega</p>
+                </div>
+              </div>
+            </div>
+          </div>
         </div>
       </div>
 
@@ -1345,12 +1471,13 @@ function showPanel(name){
   document.querySelectorAll('.nav-item').forEach(n=>n.classList.remove('active'));
   document.getElementById(`panel-${name}`).classList.add('active');
   document.querySelector(`[data-panel="${name}"]`).classList.add('active');
-  const titles={dashboard:'Dashboard',products:'Products',orders:'Orders',settings:'Settings',video:'Hero Video',herotext:'Hero Text',categories:'Categories',social:'Social & Contact',stock:'Stock Management'};
+  const titles={dashboard:'Dashboard',products:'Products',orders:'Orders',settings:'Settings',video:'Hero Video',herotext:'Hero Text',categories:'Categories',social:'Social & Contact',stock:'Stock Management',billing:'Billing System'};
   document.getElementById('pageTitle').textContent=titles[name]||name;
   if(name==='products') loadProducts();
   if(name==='orders') loadOrders();
   if(name==='settings') { loadDiscountSettings(); loadCategoryDiscounts(); loadEmailTemplate(); }
   if(name==='stock') loadStockPanel();
+  if(name==='billing') initBilling();
   if(name==='video') loadVideoSettings();
   if(name==='herotext') loadHeroTextEditor();
   if(name==='categories') loadCategories();
@@ -1868,6 +1995,261 @@ function exportOrders(){
 
 
 
+
+
+/* ── Billing System ───────────────────────────── */
+let billItems = [];
+let billCounter = 1;
+
+async function initBilling() {
+  // Generate bill number
+  const today = new Date();
+  const billNo = `RW-${today.getFullYear()}${String(today.getMonth()+1).padStart(2,'0')}${String(today.getDate()).padStart(2,'0')}-${String(billCounter).padStart(3,'0')}`;
+  document.getElementById('bill_number').value = billNo;
+
+  // Load products for dropdown
+  try {
+    const data = await apiFetch('/products/admin?limit=200');
+    const select = document.getElementById('bill_product');
+    select.innerHTML = '<option value="">-- Select Product --</option>' +
+      (data.products || []).map(p => `<option value="${p._id}" data-price="${p.price}" data-name="${p.name}">${p.name} — PKR ${p.price.toLocaleString()}</option>`).join('');
+  } catch(e) {}
+
+  billItems = [];
+  renderBillItems();
+  updateBillPreview();
+}
+
+function fillBillProduct() {
+  const select = document.getElementById('bill_product');
+  const opt = select.options[select.selectedIndex];
+  if (opt && opt.dataset.price) {
+    document.getElementById('bill_price').value = opt.dataset.price;
+  }
+}
+
+function addBillItem() {
+  const select = document.getElementById('bill_product');
+  const opt = select.options[select.selectedIndex];
+  const price = parseFloat(document.getElementById('bill_price').value) || 0;
+  const qty = parseInt(document.getElementById('bill_qty').value) || 1;
+  if (!opt || !opt.value) { showToast('Product select karein!', 'error'); return; }
+
+  billItems.push({ name: opt.dataset.name || opt.text, price, qty });
+  document.getElementById('bill_product').value = '';
+  document.getElementById('bill_price').value = '';
+  document.getElementById('bill_qty').value = '1';
+  renderBillItems();
+  updateBillTotals();
+  updateBillPreview();
+}
+
+function addCustomBillItem() {
+  const name = document.getElementById('bill_custom_item').value.trim();
+  const price = parseFloat(document.getElementById('bill_custom_price').value) || 0;
+  const qty = parseInt(document.getElementById('bill_custom_qty').value) || 1;
+  if (!name) { showToast('Item ka naam likhein!', 'error'); return; }
+
+  billItems.push({ name, price, qty });
+  document.getElementById('bill_custom_item').value = '';
+  document.getElementById('bill_custom_price').value = '';
+  document.getElementById('bill_custom_qty').value = '1';
+  renderBillItems();
+  updateBillTotals();
+  updateBillPreview();
+}
+
+function removeBillItem(idx) {
+  billItems.splice(idx, 1);
+  renderBillItems();
+  updateBillTotals();
+  updateBillPreview();
+}
+
+function renderBillItems() {
+  const el = document.getElementById('billItemsList');
+  if (!billItems.length) {
+    el.innerHTML = '<p style="color:var(--text-muted);font-size:13px;text-align:center;padding:20px;">Koi item nahi — upar se add karein</p>';
+    return;
+  }
+  el.innerHTML = billItems.map((item, i) => `
+    <div style="display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-bottom:1px solid #f0f0f0;">
+      <div>
+        <div style="font-weight:600;font-size:13px;">${item.name}</div>
+        <div style="font-size:12px;color:var(--text-muted);">PKR ${item.price.toLocaleString()} × ${item.qty}</div>
+      </div>
+      <div style="display:flex;align-items:center;gap:10px;">
+        <span style="font-weight:600;">PKR ${(item.price * item.qty).toLocaleString()}</span>
+        <button onclick="removeBillItem(${i})" style="background:none;border:none;color:#F04438;cursor:pointer;font-size:16px;">✕</button>
+      </div>
+    </div>`).join('');
+}
+
+function updateBillTotals() {
+  const subtotal = billItems.reduce((a, b) => a + b.price * b.qty, 0);
+  const discount = parseFloat(document.getElementById('bill_discount').value) || 0;
+  const delivery = parseFloat(document.getElementById('bill_delivery').value) || 0;
+  const total = subtotal - discount + delivery;
+
+  document.getElementById('bill_subtotal').textContent = `PKR ${subtotal.toLocaleString()}`;
+  document.getElementById('bill_total').textContent = `PKR ${total.toLocaleString()}`;
+  updateBillPreview();
+}
+
+function updateBillPreview() {
+  const name = document.getElementById('bill_name').value || 'Customer';
+  const phone = document.getElementById('bill_phone').value || '';
+  const city = document.getElementById('bill_city').value || '';
+  const billNo = document.getElementById('bill_number').value || '';
+  const discount = parseFloat(document.getElementById('bill_discount').value) || 0;
+  const delivery = parseFloat(document.getElementById('bill_delivery').value) || 0;
+  const notes = document.getElementById('bill_notes')?.value || '';
+  const subtotal = billItems.reduce((a, b) => a + b.price * b.qty, 0);
+  const total = subtotal - discount + delivery;
+  const date = new Date().toLocaleDateString('en-PK', {day:'2-digit', month:'short', year:'numeric'});
+
+  const preview = document.getElementById('preview_content');
+  if (!preview) return;
+
+  preview.innerHTML = `
+    <div style="display:flex;justify-content:space-between;margin-bottom:12px;font-size:12px;">
+      <div><strong>Bill #:</strong> ${billNo}<br/><strong>Date:</strong> ${date}</div>
+      <div style="text-align:right;"><strong>${name}</strong>${phone?'<br/>'+phone:''}${city?'<br/>'+city:''}</div>
+    </div>
+    <table style="width:100%;border-collapse:collapse;font-size:12px;margin-bottom:12px;">
+      <thead><tr style="border-bottom:1px solid #ddd;">
+        <th style="text-align:left;padding:4px 0;">Item</th>
+        <th style="text-align:center;padding:4px;">Qty</th>
+        <th style="text-align:right;padding:4px 0;">Price</th>
+        <th style="text-align:right;padding:4px 0;">Total</th>
+      </tr></thead>
+      <tbody>
+        ${billItems.map(item => `<tr style="border-bottom:1px solid #f0f0f0;">
+          <td style="padding:5px 0;">${item.name}</td>
+          <td style="text-align:center;padding:5px;">${item.qty}</td>
+          <td style="text-align:right;padding:5px 0;">PKR ${item.price.toLocaleString()}</td>
+          <td style="text-align:right;padding:5px 0;">PKR ${(item.price*item.qty).toLocaleString()}</td>
+        </tr>`).join('')}
+      </tbody>
+    </table>
+    <div style="text-align:right;font-size:12px;">
+      <div style="margin-bottom:3px;">Subtotal: <strong>PKR ${subtotal.toLocaleString()}</strong></div>
+      ${discount > 0 ? `<div style="margin-bottom:3px;color:green;">Discount: - PKR ${discount.toLocaleString()}</div>` : ''}
+      ${delivery > 0 ? `<div style="margin-bottom:3px;">Delivery: PKR ${delivery.toLocaleString()}</div>` : ''}
+      <div style="font-size:15px;font-weight:700;border-top:2px solid #1C1C1C;padding-top:6px;margin-top:6px;">
+        Total: PKR ${total.toLocaleString()}
+      </div>
+    </div>
+    ${notes ? `<div style="margin-top:10px;font-size:11px;color:#666;border-top:1px solid #eee;padding-top:8px;">Note: ${notes}</div>` : ''}
+    <div style="text-align:center;margin-top:14px;border-top:1px solid #eee;padding-top:8px;">
+      <img src="https://api.qrserver.com/v1/create-qr-code/?size=80x80&data=https://riwayat-pakistan.online&color=1C1C1C" style="width:60px;height:60px;"/>
+      <div style="font-size:10px;color:#aaa;margin-top:4px;">Thank you for shopping at RIWAYAT 🙏<br/>riwayat-pakistan.online</div>
+    </div>`;
+}
+
+function printBill() {
+  if (!billItems.length) { showToast('Pehle items add karein!', 'error'); return; }
+  updateBillPreview();
+
+  const name = document.getElementById('bill_name').value || 'Customer';
+  const phone = document.getElementById('bill_phone').value || '';
+  const city = document.getElementById('bill_city').value || '';
+  const billNo = document.getElementById('bill_number').value || '';
+  const discount = parseFloat(document.getElementById('bill_discount').value) || 0;
+  const delivery = parseFloat(document.getElementById('bill_delivery').value) || 0;
+  const notes = document.getElementById('bill_notes')?.value || '';
+  const subtotal = billItems.reduce((a, b) => a + b.price * b.qty, 0);
+  const total = subtotal - discount + delivery;
+  const date = new Date().toLocaleDateString('en-PK', {day:'2-digit', month:'short', year:'numeric'});
+
+  const printWin = window.open('', '_blank', 'width=400,height=600');
+  printWin.document.write(`<!DOCTYPE html><html><head>
+    <meta charset="UTF-8"/>
+    <title>Bill ${billNo} — RIWAYAT</title>
+    <style>
+      * { margin:0; padding:0; box-sizing:border-box; }
+      body { font-family: 'Courier New', monospace; font-size:13px; padding:20px; max-width:350px; margin:0 auto; }
+      .center { text-align:center; }
+      .logo { font-size:20px; font-weight:700; letter-spacing:4px; }
+      .divider { border-top:1px dashed #000; margin:8px 0; }
+      .divider-solid { border-top:2px solid #000; margin:8px 0; }
+      table { width:100%; border-collapse:collapse; }
+      th { text-align:left; font-size:11px; text-transform:uppercase; border-bottom:1px solid #000; padding-bottom:4px; }
+      td { padding:4px 0; font-size:12px; }
+      .right { text-align:right; }
+      .center-td { text-align:center; }
+      .total { font-size:16px; font-weight:700; }
+      @media print { body { padding:5px; } button { display:none; } }
+    </style>
+  </head><body>
+    <div class="center">
+      <div class="logo">RIWAYAT</div>
+      <div style="font-size:10px;color:#555;margin-top:2px;">Luxury Pakistani Fashion</div>
+      <div style="font-size:10px;color:#555;">0348-5393402 | riwayat-pakistan.online</div>
+    </div>
+    <div class="divider-solid"></div>
+    <div style="font-size:11px;display:flex;justify-content:space-between;">
+      <span>Bill #: ${billNo}</span>
+      <span>${date}</span>
+    </div>
+    <div style="font-size:11px;margin-top:4px;">Customer: <strong>${name}</strong>${phone?' | '+phone:''}${city?' | '+city:''}</div>
+    <div class="divider"></div>
+    <table>
+      <thead><tr><th>Item</th><th class="center-td">Qty</th><th class="right">Amount</th></tr></thead>
+      <tbody>
+        ${billItems.map(item => `<tr>
+          <td>${item.name}</td>
+          <td class="center-td">${item.qty}</td>
+          <td class="right">PKR ${(item.price*item.qty).toLocaleString()}</td>
+        </tr>`).join('')}
+      </tbody>
+    </table>
+    <div class="divider"></div>
+    <table>
+      <tr><td>Subtotal</td><td class="right">PKR ${subtotal.toLocaleString()}</td></tr>
+      ${discount>0?`<tr><td>Discount</td><td class="right">- PKR ${discount.toLocaleString()}</td></tr>`:''}
+      ${delivery>0?`<tr><td>Delivery</td><td class="right">PKR ${delivery.toLocaleString()}</td></tr>`:''}
+    </table>
+    <div class="divider-solid"></div>
+    <div style="display:flex;justify-content:space-between;" class="total">
+      <span>TOTAL</span>
+      <span>PKR ${total.toLocaleString()}</span>
+    </div>
+    ${notes?`<div class="divider"></div><div style="font-size:11px;">Note: ${notes}</div>`:''}
+    <div class="divider"></div>
+    <div class="center" style="font-size:11px;color:#555;">
+      Shukriya! Dobara tashreef lain 🙏<br/>
+      Thank you for shopping at RIWAYAT
+    </div>
+    <div class="divider"></div>
+    <div style="text-align:center;margin-top:8px;">
+      <img src="https://api.qrserver.com/v1/create-qr-code/?size=100x100&data=https://riwayat-pakistan.online&color=1C1C1C&bgcolor=FFFFFF" 
+           alt="QR Code" style="width:80px;height:80px;margin:0 auto;display:block;"/>
+      <div style="font-size:10px;color:#888;margin-top:4px;">Scan to visit our store</div>
+      <div style="font-size:10px;color:#555;font-weight:600;">riwayat-pakistan.online</div>
+    </div>
+    <div style="text-align:center;margin-top:16px;">
+      <button onclick="window.print()" style="padding:8px 24px;background:#1C1C1C;color:white;border:none;border-radius:4px;cursor:pointer;font-size:14px;">🖨️ Print</button>
+    </div>
+  </body></html>`);
+  printWin.document.close();
+  setTimeout(() => printWin.print(), 500);
+  billCounter++;
+}
+
+function clearBill() {
+  if (!confirm('Bill clear karna chahte hain?')) return;
+  billItems = [];
+  ['bill_name','bill_phone','bill_city','bill_discount','bill_delivery','bill_notes'].forEach(id => {
+    const el = document.getElementById(id);
+    if(el) el.value = id.includes('discount')||id.includes('delivery') ? '0' : '';
+  });
+  renderBillItems();
+  updateBillTotals();
+  updateBillPreview();
+  billCounter++;
+  initBilling();
+}
 
 /* ── Stock Management ─────────────────────────── */
 let allStockData = [];
