@@ -2009,7 +2009,7 @@ async function initBilling() {
 
   // Load products for dropdown
   try {
-    const data = await apiFetch('/products/admin?limit=200');
+    const data = await apiFetch('/products?limit=200');
     const select = document.getElementById('bill_product');
     select.innerHTML = '<option value="">-- Select Product --</option>' +
       (data.products || []).map(p => `<option value="${p._id}" data-price="${p.price}" data-name="${p.name}">${p.name} — PKR ${p.price.toLocaleString()}</option>`).join('');
@@ -2257,7 +2257,7 @@ let allStockData = [];
 async function loadStockPanel() {
   try {
     // Load products
-    const pData = await apiFetch('/products/admin?limit=200');
+    const pData = await apiFetch('/products?limit=200');
     const products = pData.products || [];
 
     // Load order stats for sold count
