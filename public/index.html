@@ -2280,7 +2280,8 @@
     /* ── Featured Slider ─────────────────────────── */
     .fs-section { padding: 28px 0 20px; background: var(--warm-white); }
     .fs-section .section-header { padding: 0 16px; margin-bottom: 14px; }
-    .fs-scroll { display: flex; gap: 14px; overflow-x: auto; scroll-snap-type: x mandatory; -webkit-overflow-scrolling: touch; scrollbar-width: none; padding: 0 20px 8px; }
+    .fs-scroll { display: flex; gap: 14px; overflow-x: auto; scroll-snap-type: x mandatory; -webkit-overflow-scrolling: touch; scrollbar-width: none; padding: 0 20px 8px; scroll-padding-left: 20px; }
+    .fs-scroll::after { content: ''; flex: 0 0 6px; }
     .fs-scroll::-webkit-scrollbar { display: none; }
     .fs-card { flex: 0 0 160px; width: 160px; scroll-snap-align: start; cursor: pointer; scroll-snap-stop: always; }
     .fs-card .product-img-wrap { aspect-ratio: 3/4; margin-bottom: 6px; overflow: hidden; }
