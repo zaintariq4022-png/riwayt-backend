@@ -5,7 +5,7 @@ const Category = require('../models/Category');
 
 router.get('/', async (req, res) => {
   try {
-    const baseUrl = 'https://www.riwayat-pakistan.online';
+    const baseUrl = 'https://riwayat-pakistan.online';
 
     const products = await Product.find({}, 'slug updatedAt');
     const categories = await Category.find({}, 'slug updatedAt');
