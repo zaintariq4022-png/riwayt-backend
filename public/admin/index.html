@@ -1003,6 +1003,36 @@ tr:hover td{background:#FAFAFA;}
         </div>
 
 
+
+        <!-- EMAIL TEMPLATE EDITOR -->
+        <div class="chart-card" style="max-width:800px;margin-bottom:20px;border:2px solid #12B76A;background:rgba(18,183,106,0.03);">
+          <div class="chart-title" style="color:#12B76A;font-size:16px;">📧 Customer Email Template Editor</div>
+          <p style="color:var(--text-muted);font-size:13px;margin:8px 0 16px;">Order confirmation email ka HTML yahan edit karein. Variables use karein: <code>{{customerName}}</code> <code>{{orderNumber}}</code> <code>{{total}}</code> <code>{{city}}</code> <code>{{paymentMethod}}</code> <code>{{items}}</code></p>
+
+          <div class="field" style="margin-bottom:12px;">
+            <label>Email Subject</label>
+            <input type="text" id="emailSubject" placeholder="e.g. ✅ Order Confirmed — {{orderNumber}} | RIWAYAT"/>
+          </div>
+
+          <div class="field">
+            <label>Email HTML Template</label>
+            <textarea id="emailTemplate" rows="16" style="font-family:monospace;font-size:12px;" placeholder="HTML template yahan likhein..."></textarea>
+          </div>
+
+          <div style="display:flex;gap:10px;margin-top:12px;flex-wrap:wrap;">
+            <button class="btn btn-primary" onclick="saveEmailTemplate()" style="background:#12B76A;border-color:#12B76A;">
+              💾 Save Template
+            </button>
+            <button onclick="resetEmailTemplate()" style="padding:8px 16px;border:1px solid var(--border);background:white;border-radius:4px;cursor:pointer;font-size:13px;">
+              🔄 Default Pe Reset
+            </button>
+            <button onclick="previewEmail()" style="padding:8px 16px;border:1px solid #3B82F6;background:white;color:#3B82F6;border-radius:4px;cursor:pointer;font-size:13px;">
+              👁 Preview
+            </button>
+          </div>
+          <div id="emailSaveMsg" style="margin-top:8px;font-size:13px;color:#12B76A;display:none;">✓ Template save ho gaya!</div>
+        </div>
+
         <!-- CATEGORY DISCOUNT CARD -->
         <div class="chart-card" style="max-width:800px;margin-bottom:20px;border:2px solid #3B82F6;background:rgba(59,130,246,0.04);">
           <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px;">
@@ -1265,7 +1295,7 @@ function showPanel(name){
   document.getElementById('pageTitle').textContent=titles[name]||name;
   if(name==='products') loadProducts();
   if(name==='orders') loadOrders();
-  if(name==='settings') { loadDiscountSettings(); loadCategoryDiscounts(); }
+  if(name==='settings') { loadDiscountSettings(); loadCategoryDiscounts(); loadEmailTemplate(); }
   if(name==='video') loadVideoSettings();
   if(name==='herotext') loadHeroTextEditor();
   if(name==='categories') loadCategories();
@@ -1781,6 +1811,44 @@ function exportOrders(){
 
 /* ── Social & Contact Management ──────────────── */
 
+
+
+/* ── Email Template Editor ─────────────────────── */
+async function loadEmailTemplate() {
+  try {
+    const data = await apiFetch('/settings/email-template', 'GET', null, false);
+    if (data.success && data.value) {
+      document.getElementById('emailSubject').value = data.value.subject || '';
+      document.getElementById('emailTemplate').value = data.value.html || '';
+    }
+  } catch(e) {}
+}
+
+async function saveEmailTemplate() {
+  const subject = document.getElementById('emailSubject').value.trim();
+  const html = document.getElementById('emailTemplate').value.trim();
+  try {
+    await apiFetch('/settings/email-template', 'PUT', { subject, html });
+    const msg = document.getElementById('emailSaveMsg');
+    msg.style.display = 'block';
+    setTimeout(() => msg.style.display = 'none', 3000);
+  } catch(e) { showToast('Error: ' + e.message, 'error'); }
+}
+
+function resetEmailTemplate() {
+  if (!confirm('Default template pe reset karna chahte hain?')) return;
+  document.getElementById('emailSubject').value = '✅ Order Confirmed — {{orderNumber}} | RIWAYAT';
+  document.getElementById('emailTemplate').value = '';
+  saveEmailTemplate();
+}
+
+function previewEmail() {
+  const html = document.getElementById('emailTemplate').value;
+  if (!html) { showToast('Pehle template likhein!', 'error'); return; }
+  const preview = window.open('', '_blank');
+  preview.document.write(html.replace('{{customerName}}','Ahmed').replace('{{orderNumber}}','RW-1234').replace('{{total}}','PKR 5,500').replace('{{city}}','Lahore').replace('{{paymentMethod}}','COD').replace('{{items}}','<tr><td>Test Product — M</td><td style="text-align:center;">1</td><td style="text-align:right;">PKR 5,500</td></tr>'));
+  preview.document.close();
+}
 
 /* ── Category Discounts ─────────────────────── */
 const CATEGORIES = [

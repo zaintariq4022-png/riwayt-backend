@@ -114,6 +114,28 @@ router.put('/category-discounts', protect, async (req, res) => {
   res.json({ success: true, message: 'Category discounts saved!' });
 });
 
+
+// GET /api/settings/email-template
+router.get('/email-template', protect, async (req, res) => {
+  try {
+    const setting = await Settings.findOne({ key: 'email_order_template' });
+    res.json({ success: true, value: setting ? setting.value : null });
+  } catch(err) {
+    res.json({ success: true, value: null });
+  }
+});
+
+// PUT /api/settings/email-template
+router.put('/email-template', protect, async (req, res) => {
+  const { subject, html } = req.body;
+  await Settings.findOneAndUpdate(
+    { key: 'email_order_template' },
+    { key: 'email_order_template', value: { subject, html } },
+    { upsert: true, new: true }
+  );
+  res.json({ success: true, message: 'Email template saved!' });
+});
+
 module.exports = router;
 
 // GET /api/settings/social — public
