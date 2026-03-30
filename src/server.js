@@ -16,6 +16,7 @@ const customerRoutes  = require('./routes/customers');
 const settingsRoutes  = require('./routes/settings');
 const videoRoutes     = require('./routes/video');
 const categoryRoutes  = require('./routes/categories');
+const sitemapRoutes   = require('./routes/sitemap');
 
 connectDB();
 
@@ -42,6 +43,13 @@ app.use('/api/customers',  customerRoutes);
 app.use('/api/settings',   settingsRoutes);
 app.use('/api/video',      videoRoutes);
 app.use('/api/categories', categoryRoutes);
+
+// Sitemap & robots
+app.use('/sitemap.xml', sitemapRoutes);
+app.get('/robots.txt', (req, res) => {
+  res.type('text/plain');
+  res.send('User-agent: *\nAllow: /\nDisallow: /admin\nSitemap: https://riwayat-pakistan.online/sitemap.xml');
+});
 
 // Pages
 app.get('/admin', (req, res) => res.sendFile(path.join(__dirname, '../public/admin/index.html')));
