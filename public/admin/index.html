@@ -24,12 +24,12 @@ input,select,textarea{font-family:'Inter',sans-serif;}
 .btn-login:hover{background:#b8943f;}
 .login-error{color:var(--danger);font-size:12px;text-align:center;margin-top:12px;display:none;}
 #app{display:none;width:100%;min-height:100vh;}
-.sidebar{width:240px;background:var(--sidebar);min-height:100vh;display:flex;flex-direction:column;position:fixed;top:0;left:0;z-index:100;}
+.sidebar{width:240px;background:var(--sidebar);height:100vh;display:flex;flex-direction:column;position:fixed;top:0;left:0;z-index:100;overflow:hidden;}
 .sidebar-logo{padding:28px 24px 20px;border-bottom:1px solid #2A2A2A;}
 .sidebar-logo .brand{font-family:'Cormorant Garamond',serif;font-size:1.5rem;letter-spacing:5px;color:var(--white);}
 .sidebar-logo .brand span{color:var(--gold);}
 .sidebar-logo .role{font-size:10px;color:#666;letter-spacing:2px;text-transform:uppercase;margin-top:4px;}
-.sidebar-nav{flex:1;padding:16px 0;overflow-y:auto;}
+.sidebar-nav{flex:1;padding:16px 0;overflow-y:auto;scrollbar-width:thin;scrollbar-color:#333 transparent;}
 .nav-section{padding:8px 16px 4px;font-size:10px;font-weight:600;letter-spacing:2px;text-transform:uppercase;color:#555;}
 .nav-item{display:flex;align-items:center;gap:12px;padding:11px 20px;color:#AAA;cursor:pointer;transition:all var(--transition);border-left:3px solid transparent;}
 .nav-item:hover{background:var(--sidebar-hover);color:var(--white);}
