@@ -442,121 +442,151 @@ tr:hover td{background:#FAFAFA;}
       <!-- BILLING PANEL -->
       <div class="panel" id="panel-billing">
         <div class="section-header">
-          <div class="section-title">Billing System</div>
+          <div class="section-title">🧾 Billing System</div>
           <div style="display:flex;gap:8px;">
-            <button class="btn btn-secondary btn-sm" onclick="clearBill()">🗑️ Clear</button>
-            <button class="btn btn-primary btn-sm" onclick="printBill()">🖨️ Print Bill</button>
+            <button class="btn btn-secondary btn-sm" onclick="clearBill()">🗑️ New Bill</button>
+            <button class="btn btn-primary btn-sm" onclick="printBill()" style="background:var(--gold);color:#111;">🖨️ Print Bill</button>
           </div>
         </div>
 
-        <div style="display:grid;grid-template-columns:1fr 1fr;gap:20px;max-width:1100px;">
+        <div style="display:grid;grid-template-columns:55% 43%;gap:24px;max-width:1200px;">
 
-          <!-- LEFT: Bill Builder -->
-          <div>
-            <!-- Customer Info -->
-            <div class="chart-card" style="margin-bottom:16px;">
-              <div class="chart-title">👤 Customer Info</div>
-              <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:14px;">
-                <div class="field"><label>Customer Name</label><input type="text" id="bill_name" placeholder="e.g. Ahmed Ali"/></div>
-                <div class="field"><label>Phone</label><input type="text" id="bill_phone" placeholder="e.g. 0300-1234567"/></div>
-                <div class="field"><label>City</label><input type="text" id="bill_city" placeholder="e.g. Lahore"/></div>
-                <div class="field"><label>Bill # (auto)</label><input type="text" id="bill_number" placeholder="RW-BILL-001" readonly style="background:#f5f5f5;"/></div>
+          <!-- LEFT COLUMN -->
+          <div style="display:flex;flex-direction:column;gap:16px;">
+
+            <!-- Customer Info Card -->
+            <div class="chart-card">
+              <div style="display:flex;align-items:center;gap:10px;margin-bottom:16px;">
+                <div style="width:36px;height:36px;background:rgba(201,168,76,0.15);border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:18px;">👤</div>
+                <div class="chart-title" style="margin:0;">Customer Information</div>
+              </div>
+              <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;">
+                <div class="field"><label>Customer Name *</label><input type="text" id="bill_name" placeholder="Ahmed Ali" oninput="updateBillPreview()"/></div>
+                <div class="field"><label>Phone Number</label><input type="text" id="bill_phone" placeholder="0300-1234567" oninput="updateBillPreview()"/></div>
+                <div class="field"><label>City</label><input type="text" id="bill_city" placeholder="Lahore" oninput="updateBillPreview()"/></div>
+                <div class="field"><label>Bill Number</label><input type="text" id="bill_number" readonly style="background:#f9f9f9;color:var(--gold);font-weight:700;"/></div>
               </div>
             </div>
 
-            <!-- Add Items -->
-            <div class="chart-card" style="margin-bottom:16px;">
-              <div class="chart-title">➕ Items Add Karein</div>
-              <div style="display:grid;grid-template-columns:2fr 1fr 1fr auto;gap:8px;margin-top:14px;align-items:flex-end;">
-                <div class="field" style="margin:0;">
-                  <label>Product</label>
-                  <select id="bill_product" onchange="fillBillProduct()" style="width:100%;">
-                    <option value="">-- Select Product --</option>
-                  </select>
-                </div>
-                <div class="field" style="margin:0;">
-                  <label>Price (PKR)</label>
-                  <input type="number" id="bill_price" placeholder="0" min="0"/>
-                </div>
-                <div class="field" style="margin:0;">
-                  <label>Qty</label>
-                  <input type="number" id="bill_qty" value="1" min="1"/>
-                </div>
-                <button onclick="addBillItem()" style="padding:8px 14px;background:var(--gold);color:#111;border:none;border-radius:4px;cursor:pointer;font-weight:700;height:38px;">+</button>
+            <!-- Add Products Card -->
+            <div class="chart-card">
+              <div style="display:flex;align-items:center;gap:10px;margin-bottom:16px;">
+                <div style="width:36px;height:36px;background:rgba(59,130,246,0.12);border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:18px;">🛍️</div>
+                <div class="chart-title" style="margin:0;">Add Products</div>
               </div>
-              <div style="display:grid;grid-template-columns:2fr 1fr 1fr auto;gap:8px;margin-top:8px;align-items:flex-end;">
-                <div class="field" style="margin:0;">
-                  <label>Ya Custom Item</label>
-                  <input type="text" id="bill_custom_item" placeholder="Custom item name..."/>
-                </div>
-                <div class="field" style="margin:0;">
-                  <label>Price</label>
-                  <input type="number" id="bill_custom_price" placeholder="0" min="0"/>
-                </div>
-                <div class="field" style="margin:0;">
-                  <label>Qty</label>
-                  <input type="number" id="bill_custom_qty" value="1" min="1"/>
-                </div>
-                <button onclick="addCustomBillItem()" style="padding:8px 14px;background:#3B82F6;color:white;border:none;border-radius:4px;cursor:pointer;font-weight:700;height:38px;">+</button>
-              </div>
-            </div>
 
-            <!-- Bill Items List -->
-            <div class="chart-card" style="margin-bottom:16px;">
-              <div class="chart-title">🧾 Bill Items</div>
-              <div id="billItemsList" style="margin-top:12px;min-height:60px;">
-                <p style="color:var(--text-muted);font-size:13px;text-align:center;padding:20px;">Koi item nahi — upar se add karein</p>
-              </div>
-              <div style="border-top:2px solid var(--border);margin-top:12px;padding-top:12px;">
-                <div style="display:flex;justify-content:space-between;margin-bottom:6px;font-size:14px;">
-                  <span style="color:var(--text-muted);">Subtotal</span>
-                  <span id="bill_subtotal">PKR 0</span>
-                </div>
-                <div style="display:flex;justify-content:space-between;margin-bottom:6px;align-items:center;">
-                  <span style="color:var(--text-muted);">Discount</span>
-                  <div style="display:flex;gap:6px;align-items:center;">
-                    <input type="number" id="bill_discount" value="0" min="0" style="width:70px;padding:4px 8px;border:1px solid var(--border);border-radius:4px;font-size:13px;" oninput="updateBillTotals()"/>
-                    <span style="font-size:13px;">PKR</span>
+              <!-- From product list -->
+              <div style="background:#f9f8f6;border-radius:8px;padding:14px;margin-bottom:12px;">
+                <div style="font-size:11px;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;color:var(--text-muted);margin-bottom:10px;">Product se add karein</div>
+                <div style="display:grid;grid-template-columns:1fr auto auto auto;gap:8px;align-items:flex-end;">
+                  <div class="field" style="margin:0;">
+                    <select id="bill_product" onchange="fillBillProduct()" style="width:100%;">
+                      <option value="">-- Product select karein --</option>
+                    </select>
                   </div>
-                </div>
-                <div style="display:flex;justify-content:space-between;margin-bottom:6px;align-items:center;">
-                  <span style="color:var(--text-muted);">Delivery</span>
-                  <div style="display:flex;gap:6px;align-items:center;">
-                    <input type="number" id="bill_delivery" value="0" min="0" style="width:70px;padding:4px 8px;border:1px solid var(--border);border-radius:4px;font-size:13px;" oninput="updateBillTotals()"/>
-                    <span style="font-size:13px;">PKR</span>
+                  <div class="field" style="margin:0;width:90px;">
+                    <label style="font-size:11px;">Price</label>
+                    <input type="number" id="bill_price" placeholder="0" min="0" style="width:90px;"/>
                   </div>
-                </div>
-                <div style="display:flex;justify-content:space-between;font-weight:700;font-size:1.1rem;padding-top:8px;border-top:1px solid var(--border);">
-                  <span>Total</span>
-                  <span id="bill_total" style="color:var(--gold);">PKR 0</span>
+                  <div class="field" style="margin:0;width:60px;">
+                    <label style="font-size:11px;">Qty</label>
+                    <input type="number" id="bill_qty" value="1" min="1" style="width:60px;"/>
+                  </div>
+                  <button onclick="addBillItem()" style="padding:9px 16px;background:var(--gold);color:#111;border:none;border-radius:6px;cursor:pointer;font-weight:700;font-size:16px;height:38px;align-self:flex-end;">+</button>
                 </div>
               </div>
-              <div class="field" style="margin-top:12px;">
-                <label>Notes</label>
-                <textarea id="bill_notes" rows="2" placeholder="e.g. Payment received, COD, Special instructions..."></textarea>
+
+              <!-- Custom item -->
+              <div style="background:#f0f7ff;border-radius:8px;padding:14px;">
+                <div style="font-size:11px;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;color:var(--text-muted);margin-bottom:10px;">Custom item add karein</div>
+                <div style="display:grid;grid-template-columns:1fr auto auto auto;gap:8px;align-items:flex-end;">
+                  <div class="field" style="margin:0;">
+                    <input type="text" id="bill_custom_item" placeholder="Item ka naam..." style="width:100%;"/>
+                  </div>
+                  <div class="field" style="margin:0;width:90px;">
+                    <label style="font-size:11px;">Price</label>
+                    <input type="number" id="bill_custom_price" placeholder="0" min="0" style="width:90px;"/>
+                  </div>
+                  <div class="field" style="margin:0;width:60px;">
+                    <label style="font-size:11px;">Qty</label>
+                    <input type="number" id="bill_custom_qty" value="1" min="1" style="width:60px;"/>
+                  </div>
+                  <button onclick="addCustomBillItem()" style="padding:9px 16px;background:#3B82F6;color:white;border:none;border-radius:6px;cursor:pointer;font-weight:700;font-size:16px;height:38px;align-self:flex-end;">+</button>
+                </div>
               </div>
             </div>
+
+            <!-- Bill Items + Totals Card -->
+            <div class="chart-card">
+              <div style="display:flex;align-items:center;gap:10px;margin-bottom:16px;">
+                <div style="width:36px;height:36px;background:rgba(18,183,106,0.12);border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:18px;">📋</div>
+                <div class="chart-title" style="margin:0;">Bill Items</div>
+                <span id="bill_item_count" style="margin-left:auto;background:#f0f0f0;padding:2px 10px;border-radius:10px;font-size:12px;font-weight:600;">0 items</span>
+              </div>
+
+              <div id="billItemsList" style="min-height:80px;margin-bottom:16px;">
+                <div style="text-align:center;padding:24px;color:var(--text-muted);font-size:13px;background:#fafafa;border-radius:8px;border:2px dashed var(--border);">
+                  Koi item nahi — upar se add karein
+                </div>
+              </div>
+
+              <!-- Totals -->
+              <div style="background:#f9f8f6;border-radius:8px;padding:16px;">
+                <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;">
+                  <span style="color:var(--text-muted);font-size:13px;">Subtotal</span>
+                  <span id="bill_subtotal" style="font-weight:600;">PKR 0</span>
+                </div>
+                <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;">
+                  <span style="color:var(--text-muted);font-size:13px;">Discount (PKR)</span>
+                  <input type="number" id="bill_discount" value="0" min="0" style="width:100px;padding:5px 8px;border:1px solid var(--border);border-radius:4px;font-size:13px;text-align:right;" oninput="updateBillTotals()"/>
+                </div>
+                <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px;">
+                  <span style="color:var(--text-muted);font-size:13px;">Delivery (PKR)</span>
+                  <input type="number" id="bill_delivery" value="0" min="0" style="width:100px;padding:5px 8px;border:1px solid var(--border);border-radius:4px;font-size:13px;text-align:right;" oninput="updateBillTotals()"/>
+                </div>
+                <div style="display:flex;justify-content:space-between;align-items:center;background:var(--gold);padding:12px 16px;border-radius:8px;">
+                  <span style="font-weight:700;font-size:15px;color:#111;">TOTAL</span>
+                  <span id="bill_total" style="font-weight:700;font-size:18px;color:#111;">PKR 0</span>
+                </div>
+              </div>
+
+              <div class="field" style="margin-top:14px;">
+                <label>Notes / Payment Info</label>
+                <textarea id="bill_notes" rows="2" placeholder="e.g. COD payment received, Special instructions..." oninput="updateBillPreview()"></textarea>
+              </div>
+            </div>
+
           </div>
 
-          <!-- RIGHT: Bill Preview -->
+          <!-- RIGHT COLUMN: Preview -->
           <div>
             <div class="chart-card" style="position:sticky;top:20px;">
               <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;">
-                <div class="chart-title">👁️ Bill Preview</div>
-                <button onclick="printBill()" style="padding:6px 14px;background:var(--gold);color:#111;border:none;border-radius:4px;cursor:pointer;font-weight:600;font-size:12px;">🖨️ Print</button>
-              </div>
-              <div id="billPreview" style="border:1px solid var(--border);border-radius:4px;padding:20px;background:white;font-family:serif;">
-                <div style="text-align:center;border-bottom:2px solid #1C1C1C;padding-bottom:12px;margin-bottom:12px;">
-                  <div style="font-size:22px;font-weight:700;letter-spacing:4px;color:#1C1C1C;">RIWAYAT</div>
-                  <div style="font-size:11px;color:#888;margin-top:2px;">Luxury Pakistani Fashion</div>
-                  <div style="font-size:10px;color:#888;">riwayat-pakistan.online | 0348-5393402</div>
+                <div style="display:flex;align-items:center;gap:10px;">
+                  <div style="width:36px;height:36px;background:rgba(240,68,56,0.1);border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:18px;">👁️</div>
+                  <div class="chart-title" style="margin:0;">Bill Preview</div>
                 </div>
-                <div id="preview_content" style="font-size:13px;">
-                  <p style="color:#aaa;text-align:center;">Items add karein — preview yahan dikhega</p>
+                <button onclick="printBill()" style="padding:8px 20px;background:var(--gold);color:#111;border:none;border-radius:6px;cursor:pointer;font-weight:700;font-size:13px;">
+                  🖨️ Print / Download
+                </button>
+              </div>
+
+              <!-- Bill preview box -->
+              <div style="border:1px solid var(--border);border-radius:8px;padding:24px;background:white;max-height:70vh;overflow-y:auto;">
+                <!-- Header -->
+                <div style="text-align:center;padding-bottom:14px;border-bottom:2px solid #1C1C1C;margin-bottom:14px;">
+                  <div style="font-family:'Cormorant Garamond',serif;font-size:26px;font-weight:700;letter-spacing:5px;color:#1C1C1C;">RIWAYAT</div>
+                  <div style="font-size:11px;color:#888;margin-top:3px;">Luxury Pakistani Fashion</div>
+                  <div style="font-size:10px;color:#aaa;margin-top:2px;">riwayat-pakistan.online &nbsp;|&nbsp; 0348-5393402</div>
+                </div>
+                <!-- Dynamic content -->
+                <div id="preview_content">
+                  <p style="color:#ccc;text-align:center;font-size:13px;padding:20px 0;">Items add karein — preview yahan dikhega</p>
                 </div>
               </div>
             </div>
           </div>
+
         </div>
       </div>
 
@@ -2068,19 +2098,21 @@ function removeBillItem(idx) {
 
 function renderBillItems() {
   const el = document.getElementById('billItemsList');
+  const countEl = document.getElementById('bill_item_count');
+  if (countEl) countEl.textContent = billItems.length + ' item' + (billItems.length !== 1 ? 's' : '');
   if (!billItems.length) {
-    el.innerHTML = '<p style="color:var(--text-muted);font-size:13px;text-align:center;padding:20px;">Koi item nahi — upar se add karein</p>';
+    el.innerHTML = '<div style="text-align:center;padding:24px;color:var(--text-muted);font-size:13px;background:#fafafa;border-radius:8px;border:2px dashed var(--border);">Koi item nahi — upar se add karein</div>';
     return;
   }
   el.innerHTML = billItems.map((item, i) => `
-    <div style="display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-bottom:1px solid #f0f0f0;">
+    <div style="display:flex;justify-content:space-between;align-items:center;padding:10px 12px;margin-bottom:6px;background:#f9f8f6;border-radius:8px;border:1px solid var(--border);">
       <div>
         <div style="font-weight:600;font-size:13px;">${item.name}</div>
         <div style="font-size:12px;color:var(--text-muted);">PKR ${item.price.toLocaleString()} × ${item.qty}</div>
       </div>
-      <div style="display:flex;align-items:center;gap:10px;">
-        <span style="font-weight:600;">PKR ${(item.price * item.qty).toLocaleString()}</span>
-        <button onclick="removeBillItem(${i})" style="background:none;border:none;color:#F04438;cursor:pointer;font-size:16px;">✕</button>
+      <div style="display:flex;align-items:center;gap:12px;">
+        <span style="font-weight:700;color:#1C1C1C;">PKR ${(item.price * item.qty).toLocaleString()}</span>
+        <button onclick="removeBillItem(${i})" style="background:#fee2e2;border:none;color:#F04438;cursor:pointer;font-size:14px;width:26px;height:26px;border-radius:50%;display:flex;align-items:center;justify-content:center;">✕</button>
       </div>
     </div>`).join('');
 }
