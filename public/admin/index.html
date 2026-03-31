@@ -1625,11 +1625,12 @@ function renderPagination(id, page, pages, cb) {
   const el = document.getElementById(id);
   if (!el || pages <= 1) { if (el) el.innerHTML = ''; return; }
   let h = '<div style="display:flex;gap:6px;padding:12px 0;justify-content:center;">';
-  if (page > 1) h += `<button onclick="(${cb})(${page-1})" style="padding:6px 12px;border:1px solid #ddd;border-radius:4px;cursor:pointer;">← Prev</button>`;
+  if (page > 1) h += '<button onclick="(' + cb + ')(' + (page-1) + ')" style="padding:6px 12px;border:1px solid #ddd;border-radius:4px;cursor:pointer;">← Prev</button>';
   for (let i = Math.max(1, page-2); i <= Math.min(pages, page+2); i++) {
-    h += `<button onclick="(${cb})(${i})" style="padding:6px 12px;border:1px solid ${i===page?'#C9A84C':'#ddd'};background:${i===page?'#C9A84C':'white'};border-radius:4px;cursor:pointer;">${i}</button>`;
+    const active = i === page;
+    h += '<button onclick="(' + cb + ')(' + i + ')" style="padding:6px 12px;border:1px solid ' + (active?'#C9A84C':'#ddd') + ';background:' + (active?'#C9A84C':'white') + ';border-radius:4px;cursor:pointer;">' + i + '</button>';
   }
-  if (page < pages) h += `<button onclick="(${cb})(${page+1})" style="padding:6px 12px;border:1px solid #ddd;border-radius:4px;cursor:pointer;">Next →</button>`;
+  if (page < pages) h += '<button onclick="(' + cb + ')(' + (page+1) + ')" style="padding:6px 12px;border:1px solid #ddd;border-radius:4px;cursor:pointer;">Next →</button>';
   h += '</div>';
   el.innerHTML = h;
 }
@@ -2308,48 +2309,25 @@ function loadNlTemplate(type) {
     sale: {
       subject: '🏷️ SALE ALERT — Flat Discount on All Products! | RIWAYAT',
       heading: '🏷️ BIG SALE — Ab Nahi Toh Kab!',
-      message: 'Aapke liye khaas offer! RIWAYAT ke sab products pe flat discount. Premium lawn suits, bridal collections, kids wear — sab kuch discounted prices mein.
-
-⏰ Limited time offer — jaldi karein!
-
-Free delivery on orders above PKR 10,000.',
+      message: 'Aapke liye khaas offer! RIWAYAT ke sab products pe flat discount. Premium lawn suits, bridal collections, kids wear — sab kuch discounted prices mein.\n\n⏰ Limited time offer — jaldi karein!\n\nFree delivery on orders above PKR 10,000.',
       btn: 'Shop Sale Now'
     },
     eid: {
       subject: '🌙 Eid Collection 2026 — Naye Designs Aa Gaye! | RIWAYAT',
       heading: '🌙 Eid Mubarak Collection 2026',
-      message: 'Eid ki khushiyon ko aur khaas banayein RIWAYAT ke naye Eid collection ke saath!
-
-✨ Premium lawn suits
-✨ Embroidered kurtas
-✨ Bridal collections
-✨ Kids eid dresses
-
-Aaj hi order karein aur Eid se pehle delivery payein!',
+      message: 'Eid ki khushiyon ko aur khaas banayein RIWAYAT ke naye Eid collection ke saath!\n\n✨ Premium lawn suits\n✨ Embroidered kurtas\n✨ Bridal collections\n✨ Kids eid dresses\n\nAaj hi order karein aur Eid se pehle delivery payein!',
       btn: 'Eid Collection Dekhein'
     },
     new: {
       subject: '✨ New Arrivals — Naye Designs RIWAYAT mein! | RIWAYAT',
       heading: '✨ New Arrivals — Just Landed!',
-      message: 'RIWAYAT mein naye designs aa gaye hain!
-
-🌸 Summer lawn collection
-👗 Fancy wear
-👶 Kids new arrivals
-
-Sabse pehle dekhein aur apni pasand book karein!',
+      message: 'RIWAYAT mein naye designs aa gaye hain!\n\n🌸 Summer lawn collection\n👗 Fancy wear\n👶 Kids new arrivals\n\nSabse pehle dekhein aur apni pasand book karein!',
       btn: 'New Arrivals Dekhein'
     },
     discount: {
       subject: '💰 Special Offer Sirf Aapke Liye! | RIWAYAT',
       heading: '💰 Aapke Liye Khaas Discount!',
-      message: 'Aap hamare khaas customer hain — isliye yeh special offer sirf aapke liye!
-
-RIWAYAT ke sab products pe discount.
-
-Free delivery bhi included!
-
-Offer limited time ke liye hai.',
+      message: 'Aap hamare khaas customer hain — isliye yeh special offer sirf aapke liye!\n\nRIWAYAT ke sab products pe discount.\n\nFree delivery bhi included!\n\nOffer limited time ke liye hai.',
       btn: 'Offer Claim Karein'
     }
   };
