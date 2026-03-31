@@ -1399,10 +1399,29 @@ tr:hover td{background:#FAFAFA;}
       <div class="form-row full"><div class="field"><label>Description * (Product Details accordion mein dikhega)</label><textarea id="pDesc" placeholder="Product details…"></textarea></div></div>
       <div class="form-row full"><div class="field"><label>Short Description (Order Now k neachy dikhega)</label><textarea id="pShortDesc" rows="2" placeholder="e.g. Premium lawn fabric, perfect for summer occasions..."></textarea></div></div>
       <div class="form-row full"><div class="field"><label>Fabric & Care (Product detail mein dikhega)</label><textarea id="pFabricCare" rows="3" placeholder="e.g. Fabric: Premium Lawn Cotton (100%). Wash Care: Gentle cold wash..."></textarea></div></div>
-      <div class="form-row three">
-        <div class="field"><label>Price (PKR) *</label><input type="number" id="pPrice" placeholder="3499"/></div>
-        <div class="field"><label>Original Price</label><input type="number" id="pOriginalPrice" placeholder="4500"/></div>
-        <div class="field"><label>Stock *</label><input type="number" id="pStock" placeholder="50"/></div>
+      <div class="form-row" style="display:grid;grid-template-columns:1fr 1fr 1fr 1fr;gap:12px;">
+        <div class="field">
+          <label>Original Price (PKR) *</label>
+          <input type="number" id="pOriginalPrice" placeholder="e.g. 4500" oninput="calcDiscountedPrice()"/>
+        </div>
+        <div class="field">
+          <label>Discount %</label>
+          <div style="display:flex;gap:6px;align-items:center;">
+            <input type="number" id="pDiscountPct" placeholder="0" min="0" max="90" style="flex:1;" oninput="calcDiscountedPrice()"/>
+            <span style="font-weight:700;color:var(--gold);">%</span>
+          </div>
+        </div>
+        <div class="field">
+          <label>Sale Price (PKR) *</label>
+          <input type="number" id="pPrice" placeholder="3499" oninput="calcDiscountPct()" style="font-weight:700;color:#12B76A;background:#f0fdf4;"/>
+        </div>
+        <div class="field">
+          <label>Stock *</label>
+          <input type="number" id="pStock" placeholder="50"/>
+        </div>
+      </div>
+      <div id="pricePreview" style="display:none;background:#f9f6f2;border-radius:6px;padding:8px 14px;margin-top:-4px;font-size:13px;color:#555;">
+        💰 Website pe dikhega: <strong id="pricePreviewText"></strong>
       </div>
       <div class="form-row">
         <div class="field"><label>Fabric</label><input type="text" id="pFabric" placeholder="Lawn, Cotton…"/></div>
@@ -1705,6 +1724,8 @@ function openProductModal(id=null){
     ['pName','pDesc','pShortDesc','pFabricCare','pFabric','pEmoji','pTags'].forEach(f=>document.getElementById(f).value='');
     initSizeQtyList([]);
     ['pPrice','pOriginalPrice','pStock'].forEach(f=>document.getElementById(f).value='');
+    const dEl = document.getElementById('pDiscountPct'); if(dEl) dEl.value='';
+    const ppEl = document.getElementById('pricePreview'); if(ppEl) ppEl.style.display='none';
     document.getElementById('pCategory').value='';
     ['pFeatured','pIsNew','pSale','pHot'].forEach(f=>document.getElementById(f).checked=false);
     initColorPickers([]);
@@ -1720,6 +1741,12 @@ function openProductModal(id=null){
     document.getElementById('pCategory').value=p.category;
     document.getElementById('pPrice').value=p.price;
     document.getElementById('pOriginalPrice').value=p.originalPrice||'';
+    // Calculate discount %
+    if(p.originalPrice && p.price && p.price < p.originalPrice) {
+      const pct = Math.round(((p.originalPrice - p.price) / p.originalPrice) * 100);
+      const dEl = document.getElementById('pDiscountPct'); if(dEl) dEl.value = pct;
+      showPricePreview(p.originalPrice, p.price, pct);
+    }
     document.getElementById('pStock').value=p.stock;
     document.getElementById('pFabric').value=p.fabric||'';
     document.getElementById('pEmoji').value=p.emoji||'';
@@ -2113,6 +2140,44 @@ function exportOrders(){
 
 
 
+
+
+/* ── Discount Calculator ─────────────────────── */
+function calcDiscountedPrice() {
+  const original = parseFloat(document.getElementById('pOriginalPrice').value) || 0;
+  const pct = parseFloat(document.getElementById('pDiscountPct').value) || 0;
+  
+  if (original > 0 && pct > 0) {
+    const salePrice = Math.round(original * (1 - pct / 100));
+    document.getElementById('pPrice').value = salePrice;
+    showPricePreview(original, salePrice, pct);
+  } else if (original > 0 && pct === 0) {
+    document.getElementById('pPrice').value = original;
+    document.getElementById('pricePreview').style.display = 'none';
+  }
+}
+
+function calcDiscountPct() {
+  const original = parseFloat(document.getElementById('pOriginalPrice').value) || 0;
+  const sale = parseFloat(document.getElementById('pPrice').value) || 0;
+  
+  if (original > 0 && sale > 0 && sale < original) {
+    const pct = Math.round(((original - sale) / original) * 100);
+    document.getElementById('pDiscountPct').value = pct;
+    showPricePreview(original, sale, pct);
+  } else {
+    document.getElementById('pDiscountPct').value = 0;
+    document.getElementById('pricePreview').style.display = 'none';
+  }
+}
+
+function showPricePreview(original, sale, pct) {
+  const preview = document.getElementById('pricePreview');
+  const text = document.getElementById('pricePreviewText');
+  if (!preview || !text) return;
+  preview.style.display = 'block';
+  text.innerHTML = `PKR ${sale.toLocaleString()} <span style="text-decoration:line-through;color:#aaa;font-weight:400;">PKR ${original.toLocaleString()}</span> <span style="background:#E53935;color:white;padding:1px 6px;border-radius:3px;font-size:11px;">${pct}% OFF</span>`;
+}
 
 /* ── Barcode System ───────────────────────────── */
 let barcodeProducts = [];
