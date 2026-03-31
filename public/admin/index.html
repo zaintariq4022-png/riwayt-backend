@@ -234,6 +234,10 @@ tr:hover td{background:#FAFAFA;}
         <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" width="18" height="18"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"/></svg>
         <span class="label">Stock</span>
       </div>
+      <div class="nav-item" onclick="showPanel('newsletter')" data-panel="newsletter">
+        <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" width="18" height="18"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/></svg>
+        <span class="label">Newsletter</span>
+      </div>
       <div class="nav-item" onclick="showPanel('barcode')" data-panel="barcode">
         <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" width="18" height="18"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v1m6 11h2m-6 0h-2v4m0-11v3m0 0h.01M12 12h4.01M16 20h4M4 12h4m12 0h.01M5 8h2a1 1 0 001-1V5a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1zm12 0h2a1 1 0 001-1V5a1 1 0 00-1-1h-2a1 1 0 00-1 1v2a1 1 0 001 1zM5 20h2a1 1 0 001-1v-2a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1z"/></svg>
         <span class="label">Barcode</span>
@@ -444,6 +448,102 @@ tr:hover td{background:#FAFAFA;}
       </div>
 
 
+
+
+      <!-- NEWSLETTER PANEL -->
+      <div class="panel" id="panel-newsletter">
+        <div class="section-header">
+          <div class="section-title">📧 Newsletter & Bulk Email</div>
+        </div>
+
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:20px;max-width:1100px;">
+
+          <!-- LEFT: Compose -->
+          <div style="display:flex;flex-direction:column;gap:16px;">
+
+            <!-- Audience -->
+            <div class="chart-card">
+              <div style="display:flex;align-items:center;gap:10px;margin-bottom:14px;">
+                <div style="width:36px;height:36px;background:rgba(59,130,246,0.12);border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:20px;">👥</div>
+                <div class="chart-title" style="margin:0;">Recipients</div>
+              </div>
+              <div style="display:flex;flex-wrap:wrap;gap:10px;margin-bottom:14px;">
+                <label style="display:flex;align-items:center;gap:6px;cursor:pointer;font-size:13px;">
+                  <input type="checkbox" id="nl_orders" checked onchange="loadRecipients()"/> Order customers
+                </label>
+                <label style="display:flex;align-items:center;gap:6px;cursor:pointer;font-size:13px;">
+                  <input type="checkbox" id="nl_accounts" checked onchange="loadRecipients()"/> Account holders
+                </label>
+              </div>
+              <div style="background:#f9f6f2;border-radius:6px;padding:10px 14px;font-size:13px;">
+                <span id="nl_count" style="font-weight:700;color:var(--gold);font-size:18px;">0</span> recipients
+                <span style="color:var(--text-muted);margin-left:8px;" id="nl_emails_preview"></span>
+              </div>
+            </div>
+
+            <!-- Email Compose -->
+            <div class="chart-card">
+              <div style="display:flex;align-items:center;gap:10px;margin-bottom:14px;">
+                <div style="width:36px;height:36px;background:rgba(201,168,76,0.15);border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:20px;">✍️</div>
+                <div class="chart-title" style="margin:0;">Compose Email</div>
+              </div>
+
+              <div class="field">
+                <label>Subject *</label>
+                <input type="text" id="nl_subject" placeholder="e.g. 🎉 EID SALE — Flat 30% Off Sab Products!" oninput="updateNlPreview()"/>
+              </div>
+
+              <!-- Quick Templates -->
+              <div style="margin-bottom:12px;">
+                <div style="font-size:11px;font-weight:600;letter-spacing:0.08em;text-transform:uppercase;color:var(--text-muted);margin-bottom:8px;">Quick Templates</div>
+                <div style="display:flex;flex-wrap:wrap;gap:6px;">
+                  <button onclick="loadNlTemplate('sale')" style="padding:5px 10px;background:#f5f5f5;border:1px solid var(--border);border-radius:4px;font-size:11px;cursor:pointer;">🏷️ Sale Announcement</button>
+                  <button onclick="loadNlTemplate('eid')" style="padding:5px 10px;background:#f5f5f5;border:1px solid var(--border);border-radius:4px;font-size:11px;cursor:pointer;">🌙 Eid Collection</button>
+                  <button onclick="loadNlTemplate('new')" style="padding:5px 10px;background:#f5f5f5;border:1px solid var(--border);border-radius:4px;font-size:11px;cursor:pointer;">✨ New Arrivals</button>
+                  <button onclick="loadNlTemplate('discount')" style="padding:5px 10px;background:#f5f5f5;border:1px solid var(--border);border-radius:4px;font-size:11px;cursor:pointer;">💰 Special Discount</button>
+                </div>
+              </div>
+
+              <div class="field">
+                <label>Main Heading</label>
+                <input type="text" id="nl_heading" placeholder="e.g. EID SALE — Flat 30% Off!" oninput="updateNlPreview()"/>
+              </div>
+
+              <div class="field">
+                <label>Message *</label>
+                <textarea id="nl_message" rows="5" placeholder="Email ka message yahan likhein..." oninput="updateNlPreview()"></textarea>
+              </div>
+
+              <div class="field">
+                <label>Button Text</label>
+                <input type="text" id="nl_btn_text" placeholder="Shop Now" value="Shop Now" oninput="updateNlPreview()"/>
+              </div>
+
+              <div style="display:flex;gap:10px;margin-top:4px;">
+                <button onclick="sendNewsletter()" id="nl_send_btn"
+                  style="flex:1;padding:12px;background:var(--gold);color:#111;border:none;border-radius:6px;font-weight:700;font-size:14px;cursor:pointer;">
+                  📨 Send to All Recipients
+                </button>
+              </div>
+              <div id="nl_progress" style="display:none;margin-top:10px;font-size:13px;color:var(--text-muted);"></div>
+            </div>
+          </div>
+
+          <!-- RIGHT: Preview -->
+          <div>
+            <div class="chart-card" style="position:sticky;top:20px;">
+              <div style="display:flex;align-items:center;gap:10px;margin-bottom:16px;">
+                <div style="width:36px;height:36px;background:rgba(240,68,56,0.1);border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:20px;">👁️</div>
+                <div class="chart-title" style="margin:0;">Email Preview</div>
+              </div>
+              <div id="nl_preview" style="border:1px solid var(--border);border-radius:8px;overflow:hidden;max-height:600px;overflow-y:auto;">
+                <p style="text-align:center;color:#ccc;padding:40px;font-size:13px;">Email likhein — preview yahan dikhega</p>
+              </div>
+            </div>
+          </div>
+
+        </div>
+      </div>
 
       <!-- BARCODE PANEL -->
       <div class="panel" id="panel-barcode">
@@ -1605,7 +1705,7 @@ function showPanel(name){
   document.querySelectorAll('.nav-item').forEach(n=>n.classList.remove('active'));
   document.getElementById(`panel-${name}`).classList.add('active');
   document.querySelector(`[data-panel="${name}"]`).classList.add('active');
-  const titles={dashboard:'Dashboard',products:'Products',orders:'Orders',settings:'Settings',video:'Hero Video',herotext:'Hero Text',categories:'Categories',social:'Social & Contact',stock:'Stock Management',billing:'Billing System',barcode:'Barcode System'};
+  const titles={dashboard:'Dashboard',products:'Products',orders:'Orders',settings:'Settings',video:'Hero Video',herotext:'Hero Text',categories:'Categories',social:'Social & Contact',stock:'Stock Management',billing:'Billing System',barcode:'Barcode System',newsletter:'Newsletter & Bulk Email'};
   document.getElementById('pageTitle').textContent=titles[name]||name;
   if(name==='products') loadProducts();
   if(name==='orders') loadOrders();
@@ -1613,6 +1713,7 @@ function showPanel(name){
   if(name==='stock') loadStockPanel();
   if(name==='billing') initBilling();
   if(name==='barcode') initBarcodePanel();
+  if(name==='newsletter') initNewsletterPanel();
   if(name==='video') loadVideoSettings();
   if(name==='herotext') loadHeroTextEditor();
   if(name==='categories') loadCategories();
@@ -2141,6 +2242,186 @@ function exportOrders(){
 
 
 
+
+
+/* ── Newsletter / Bulk Email ─────────────────── */
+let nlRecipients = [];
+
+async function initNewsletterPanel() {
+  await loadRecipients();
+}
+
+async function loadRecipients() {
+  const includeOrders = document.getElementById('nl_orders')?.checked;
+  const includeAccounts = document.getElementById('nl_accounts')?.checked;
+  const emailSet = new Set();
+
+  try {
+    // Get order emails
+    if (includeOrders) {
+      const data = await apiFetch('/orders/admin?limit=500');
+      (data.orders || []).forEach(o => {
+        if (o.customer?.email && o.customer.email !== 'guest@riwayat.pk') {
+          emailSet.add(JSON.stringify({ email: o.customer.email, name: o.customer.fullName || 'Customer' }));
+        }
+      });
+    }
+
+    // Get account emails
+    if (includeAccounts) {
+      try {
+        const data = await apiFetch('/customers/admin/list');
+        (data.customers || []).forEach(c => {
+          if (c.email) emailSet.add(JSON.stringify({ email: c.email, name: c.name || 'Customer' }));
+        });
+      } catch(e) {}
+    }
+
+    nlRecipients = Array.from(emailSet).map(s => JSON.parse(s));
+    
+    const countEl = document.getElementById('nl_count');
+    const previewEl = document.getElementById('nl_emails_preview');
+    if (countEl) countEl.textContent = nlRecipients.length;
+    if (previewEl) {
+      const preview = nlRecipients.slice(0, 3).map(r => r.email).join(', ');
+      previewEl.textContent = nlRecipients.length > 3 ? preview + '...' : preview;
+    }
+  } catch(e) {
+    showToast('Error loading recipients: ' + e.message, 'error');
+  }
+}
+
+function loadNlTemplate(type) {
+  const templates = {
+    sale: {
+      subject: '🏷️ SALE ALERT — Flat Discount on All Products! | RIWAYAT',
+      heading: '🏷️ BIG SALE — Ab Nahi Toh Kab!',
+      message: 'Aapke liye khaas offer! RIWAYAT ke sab products pe flat discount. Premium lawn suits, bridal collections, kids wear — sab kuch discounted prices mein.
+
+⏰ Limited time offer — jaldi karein!
+
+Free delivery on orders above PKR 10,000.',
+      btn: 'Shop Sale Now'
+    },
+    eid: {
+      subject: '🌙 Eid Collection 2026 — Naye Designs Aa Gaye! | RIWAYAT',
+      heading: '🌙 Eid Mubarak Collection 2026',
+      message: 'Eid ki khushiyon ko aur khaas banayein RIWAYAT ke naye Eid collection ke saath!
+
+✨ Premium lawn suits
+✨ Embroidered kurtas
+✨ Bridal collections
+✨ Kids eid dresses
+
+Aaj hi order karein aur Eid se pehle delivery payein!',
+      btn: 'Eid Collection Dekhein'
+    },
+    new: {
+      subject: '✨ New Arrivals — Naye Designs RIWAYAT mein! | RIWAYAT',
+      heading: '✨ New Arrivals — Just Landed!',
+      message: 'RIWAYAT mein naye designs aa gaye hain!
+
+🌸 Summer lawn collection
+👗 Fancy wear
+👶 Kids new arrivals
+
+Sabse pehle dekhein aur apni pasand book karein!',
+      btn: 'New Arrivals Dekhein'
+    },
+    discount: {
+      subject: '💰 Special Offer Sirf Aapke Liye! | RIWAYAT',
+      heading: '💰 Aapke Liye Khaas Discount!',
+      message: 'Aap hamare khaas customer hain — isliye yeh special offer sirf aapke liye!
+
+RIWAYAT ke sab products pe discount.
+
+Free delivery bhi included!
+
+Offer limited time ke liye hai.',
+      btn: 'Offer Claim Karein'
+    }
+  };
+
+  const t = templates[type];
+  if (!t) return;
+  document.getElementById('nl_subject').value = t.subject;
+  document.getElementById('nl_heading').value = t.heading;
+  document.getElementById('nl_message').value = t.message;
+  document.getElementById('nl_btn_text').value = t.btn;
+  updateNlPreview();
+}
+
+function updateNlPreview() {
+  const heading = document.getElementById('nl_heading')?.value || 'RIWAYAT Newsletter';
+  const message = document.getElementById('nl_message')?.value || '';
+  const btnText = document.getElementById('nl_btn_text')?.value || 'Shop Now';
+  const preview = document.getElementById('nl_preview');
+  if (!preview) return;
+
+  preview.innerHTML = `
+    <div style="font-family:'Helvetica Neue',Arial,sans-serif;background:#FAF7F2;">
+      <div style="background:#1C1C1C;padding:24px;text-align:center;">
+        <div style="color:#C9A84C;font-size:24px;letter-spacing:6px;font-weight:300;">RIWAYAT</div>
+        <div style="color:#888;font-size:11px;margin-top:4px;">Luxury Pakistani Fashion</div>
+      </div>
+      <div style="padding:28px 32px;background:white;">
+        <h2 style="color:#1C1C1C;margin:0 0 16px;font-size:20px;">${heading}</h2>
+        <div style="color:#555;font-size:14px;line-height:1.8;white-space:pre-line;">${message}</div>
+        <div style="text-align:center;margin-top:24px;">
+          <a style="display:inline-block;background:#C9A84C;color:#111;padding:12px 32px;border-radius:4px;font-weight:700;font-size:14px;text-decoration:none;">${btnText}</a>
+        </div>
+      </div>
+      <div style="background:#F5EFE6;padding:16px;text-align:center;font-size:11px;color:#888;">
+        © ${new Date().getFullYear()} RIWAYAT Fashion House | riwayat-pakistan.online<br/>
+        <span style="font-size:10px;">Unsubscribe karne ke liye reply karein</span>
+      </div>
+    </div>`;
+}
+
+async function sendNewsletter() {
+  const subject = document.getElementById('nl_subject').value.trim();
+  const heading = document.getElementById('nl_heading').value.trim();
+  const message = document.getElementById('nl_message').value.trim();
+  const btnText = document.getElementById('nl_btn_text').value.trim() || 'Shop Now';
+
+  if (!subject) { showToast('Subject likhein!', 'error'); return; }
+  if (!message) { showToast('Message likhein!', 'error'); return; }
+  if (!nlRecipients.length) { showToast('Koi recipient nahi!', 'error'); return; }
+
+  if (!confirm(`${nlRecipients.length} customers ko email bhejna chahte hain?`)) return;
+
+  const btn = document.getElementById('nl_send_btn');
+  const prog = document.getElementById('nl_progress');
+  btn.disabled = true;
+  btn.textContent = 'Sending...';
+  prog.style.display = 'block';
+
+  let sent = 0, failed = 0;
+
+  for (const recipient of nlRecipients) {
+    try {
+      await apiFetch('/settings/send-newsletter', 'POST', {
+        to: recipient.email,
+        name: recipient.name,
+        subject,
+        heading,
+        message,
+        btnText,
+      });
+      sent++;
+    } catch(e) {
+      failed++;
+    }
+    prog.textContent = `📨 ${sent} bhej diye, ${failed} failed — ${nlRecipients.length - sent - failed} baqi...`;
+    // Small delay to avoid rate limiting
+    await new Promise(r => setTimeout(r, 200));
+  }
+
+  prog.textContent = `✅ ${sent} emails successfully bhej diye! ${failed > 0 ? failed + ' failed.' : ''}`;
+  btn.disabled = false;
+  btn.textContent = '📨 Send to All Recipients';
+  showToast(`✅ ${sent} emails bhej diye!`);
+}
 
 /* ── Discount Calculator ─────────────────────── */
 function calcDiscountedPrice() {

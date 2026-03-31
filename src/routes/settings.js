@@ -136,6 +136,56 @@ router.put('/email-template', protect, async (req, res) => {
   res.json({ success: true, message: 'Email template saved!' });
 });
 
+
+// POST /api/settings/send-newsletter — admin only
+router.post('/send-newsletter', protect, async (req, res) => {
+  const { to, name, subject, heading, message, btnText } = req.body;
+  if (!to || !subject || !message) {
+    return res.status(400).json({ success: false, message: 'Missing fields' });
+  }
+
+  try {
+    const { Resend } = require('resend');
+    const resend = new Resend(process.env.RESEND_API_KEY);
+
+    const html = `
+<!DOCTYPE html>
+<html>
+<head><meta charset="UTF-8"/></head>
+<body style="font-family:'Helvetica Neue',Arial,sans-serif;background:#FAF7F2;margin:0;padding:20px;">
+<div style="max-width:600px;margin:0 auto;background:#fff;border-radius:4px;overflow:hidden;box-shadow:0 4px 20px rgba(0,0,0,0.08);">
+  <div style="background:#1C1C1C;padding:28px;text-align:center;">
+    <div style="color:#C9A84C;font-size:26px;letter-spacing:6px;font-weight:300;">RIWAYAT</div>
+    <div style="color:#888;font-size:11px;margin-top:4px;">Luxury Pakistani Fashion</div>
+  </div>
+  <div style="padding:32px;">
+    <h2 style="color:#1C1C1C;margin:0 0 16px;font-size:20px;">${heading}</h2>
+    <div style="color:#555;font-size:14px;line-height:1.8;white-space:pre-line;">${message}</div>
+    <div style="text-align:center;margin-top:28px;">
+      <a href="https://riwayat-pakistan.online" style="display:inline-block;background:#C9A84C;color:#111;padding:12px 32px;border-radius:4px;font-weight:700;font-size:14px;text-decoration:none;">${btnText || 'Shop Now'}</a>
+    </div>
+  </div>
+  <div style="background:#F5EFE6;padding:16px;text-align:center;font-size:11px;color:#888;">
+    © ${new Date().getFullYear()} RIWAYAT Fashion House | <a href="https://riwayat-pakistan.online" style="color:#C9A84C;">riwayat-pakistan.online</a><br/>
+    <span style="font-size:10px;">Unsubscribe: reply with "unsubscribe"</span>
+  </div>
+</div>
+</body>
+</html>`;
+
+    await resend.emails.send({
+      from: process.env.EMAIL_FROM || 'orders@riwayat-pakistan.online',
+      to: to,
+      subject: subject,
+      html: html,
+    });
+
+    res.json({ success: true });
+  } catch(err) {
+    res.status(500).json({ success: false, message: err.message });
+  }
+});
+
 module.exports = router;
 
 // GET /api/settings/social — public
