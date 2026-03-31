@@ -165,7 +165,7 @@ body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--text);min-h
       <!-- Totals -->
       <div style="background:#f9f8f6;border-radius:8px;padding:16px;margin-top:14px;">
         <div class="total-row"><span style="color:var(--muted);">Subtotal</span><strong id="subtotal_text">PKR 0</strong></div>
-        <div class="total-row"><span style="color:var(--muted);">Discount (PKR)</span><input type="number" id="bill_discount" value="0" min="0" oninput="calcTotals()"/></div>
+        <div class="total-row"><span style="color:var(--muted);">Discount %</span><input type="number" id="bill_discount" value="0" min="0" max="90" oninput="calcTotals()"/></div>
         <div class="total-row"><span style="color:var(--muted);">Delivery (PKR)</span><input type="number" id="bill_delivery" value="0" min="0" oninput="calcTotals()"/></div>
         <div class="grand-total"><span>TOTAL</span><span id="total_text">PKR 0</span></div>
       </div>
@@ -291,7 +291,8 @@ function renderItems() {
 
 function calcTotals() {
   const sub = items.reduce((a, b) => a + b.price * b.qty, 0);
-  const disc = parseFloat(document.getElementById('bill_discount').value) || 0;
+  const discPct = parseFloat(document.getElementById('bill_discount').value) || 0;
+  const disc = Math.round(sub * discPct / 100);
   const del = parseFloat(document.getElementById('bill_delivery').value) || 0;
   const total = sub - disc + del;
   document.getElementById('subtotal_text').textContent = 'PKR ' + sub.toLocaleString();
@@ -304,7 +305,8 @@ function updatePreview() {
   const phone = document.getElementById('bill_phone').value || '';
   const city = document.getElementById('bill_city').value || '';
   const notes = document.getElementById('bill_notes').value || '';
-  const disc = parseFloat(document.getElementById('bill_discount').value) || 0;
+  const discPct = parseFloat(document.getElementById('bill_discount').value) || 0;
+  const disc = Math.round(sub * discPct / 100);
   const del = parseFloat(document.getElementById('bill_delivery').value) || 0;
   const sub = items.reduce((a, b) => a + b.price * b.qty, 0);
   const total = sub - disc + del;
@@ -356,9 +358,10 @@ function printBill() {
   const phone = document.getElementById('bill_phone').value || '';
   const city = document.getElementById('bill_city').value || '';
   const notes = document.getElementById('bill_notes').value || '';
-  const disc = parseFloat(document.getElementById('bill_discount').value) || 0;
+  const discPct = parseFloat(document.getElementById('bill_discount').value) || 0;
   const del = parseFloat(document.getElementById('bill_delivery').value) || 0;
   const sub = items.reduce((a, b) => a + b.price * b.qty, 0);
+  const disc = Math.round(sub * discPct / 100);
   const total = sub - disc + del;
   const date = new Date().toLocaleDateString('en-PK', {day:'2-digit', month:'short', year:'numeric'});
 
