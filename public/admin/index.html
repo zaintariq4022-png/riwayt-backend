@@ -1625,12 +1625,12 @@ function renderPagination(id, page, pages, cb) {
   const el = document.getElementById(id);
   if (!el || pages <= 1) { if (el) el.innerHTML = ''; return; }
   let h = '<div style="display:flex;gap:6px;padding:12px 0;justify-content:center;">';
-  if (page > 1) h += '<button onclick="(' + cb + ')(' + (page-1) + ')" style="padding:6px 12px;border:1px solid #ddd;border-radius:4px;cursor:pointer;">← Prev</button>';
+  if (page > 1) h += '<button onclick="(' + cb + ')(' + (page-1) + ')" style="padding:6px 12px;border:1px solid #ddd;border-radius:4px;cursor:pointer;">&laquo; Prev</button>';
   for (let i = Math.max(1, page-2); i <= Math.min(pages, page+2); i++) {
-    const active = i === page;
-    h += '<button onclick="(' + cb + ')(' + i + ')" style="padding:6px 12px;border:1px solid ' + (active?'#C9A84C':'#ddd') + ';background:' + (active?'#C9A84C':'white') + ';border-radius:4px;cursor:pointer;">' + i + '</button>';
+    const ac = i === page;
+    h += '<button onclick="(' + cb + ')(' + i + ')" style="padding:6px 12px;border:1px solid ' + (ac?'#C9A84C':'#ddd') + ';background:' + (ac?'#C9A84C':'white') + ';border-radius:4px;cursor:pointer;">' + i + '</button>';
   }
-  if (page < pages) h += '<button onclick="(' + cb + ')(' + (page+1) + ')" style="padding:6px 12px;border:1px solid #ddd;border-radius:4px;cursor:pointer;">Next →</button>';
+  if (page < pages) h += '<button onclick="(' + cb + ')(' + (page+1) + ')" style="padding:6px 12px;border:1px solid #ddd;border-radius:4px;cursor:pointer;">Next &raquo;</button>';
   h += '</div>';
   el.innerHTML = h;
 }
