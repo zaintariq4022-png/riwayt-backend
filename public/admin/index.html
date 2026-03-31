@@ -167,6 +167,7 @@ tr:hover td{background:#FAFAFA;}
 ::-webkit-scrollbar-thumb{background:#DDD;border-radius:3px;}::-webkit-scrollbar-thumb:hover{background:#BBB;}
 @media(max-width:1200px){.stats-grid{grid-template-columns:repeat(2,1fr);}}
 </style>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jsbarcode/3.11.5/JsBarcode.all.min.js"></script>
 </head>
 <body>
 
@@ -232,6 +233,10 @@ tr:hover td{background:#FAFAFA;}
       <div class="nav-item" onclick="showPanel('stock')" data-panel="stock">
         <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" width="18" height="18"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"/></svg>
         <span class="label">Stock</span>
+      </div>
+      <div class="nav-item" onclick="showPanel('barcode')" data-panel="barcode">
+        <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" width="18" height="18"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v1m6 11h2m-6 0h-2v4m0-11v3m0 0h.01M12 12h4.01M16 20h4M4 12h4m12 0h.01M5 8h2a1 1 0 001-1V5a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1zm12 0h2a1 1 0 001-1V5a1 1 0 00-1-1h-2a1 1 0 00-1 1v2a1 1 0 001 1zM5 20h2a1 1 0 001-1v-2a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1z"/></svg>
+        <span class="label">Barcode</span>
       </div>
       <div class="nav-item" onclick="showPanel('billing')" data-panel="billing">
         <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" width="18" height="18"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 14l6-6m-5.5.5h.01m4.99 5h.01M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16l3.5-2 3.5 2 3.5-2 3.5 2z"/></svg>
@@ -438,6 +443,86 @@ tr:hover td{background:#FAFAFA;}
         </div>
       </div>
 
+
+
+      <!-- BARCODE PANEL -->
+      <div class="panel" id="panel-barcode">
+        <div class="section-header">
+          <div class="section-title">📊 Barcode System</div>
+          <div style="display:flex;gap:8px;">
+            <button class="btn btn-secondary btn-sm" onclick="initBarcodePanel()">🔄 Refresh</button>
+            <button class="btn btn-primary btn-sm" onclick="printAllPriceTags()" style="background:#12B76A;border-color:#12B76A;">🖨️ All Price Tags Print</button>
+          </div>
+        </div>
+
+        <!-- Scan Area -->
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:20px;margin-bottom:24px;max-width:900px;">
+
+          <!-- Billing Scan -->
+          <div class="chart-card" style="border:2px solid var(--gold);">
+            <div style="display:flex;align-items:center;gap:10px;margin-bottom:14px;">
+              <div style="width:36px;height:36px;background:rgba(201,168,76,0.15);border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:20px;">🧾</div>
+              <div class="chart-title" style="margin:0;color:var(--gold);">Billing Scanner</div>
+            </div>
+            <p style="font-size:12px;color:var(--text-muted);margin-bottom:12px;">Barcode scan karein — item billing mein add ho jaayega</p>
+            <div style="display:flex;gap:8px;">
+              <input type="text" id="billing_scan_input" placeholder="Barcode scan karein ya likhein..." 
+                style="flex:1;padding:10px;border:2px solid var(--gold);border-radius:6px;font-size:14px;font-family:monospace;"
+                onkeydown="if(event.key==='Enter') scanForBilling(this.value)"/>
+              <button onclick="scanForBilling(document.getElementById('billing_scan_input').value)" 
+                style="padding:10px 16px;background:var(--gold);color:#111;border:none;border-radius:6px;font-weight:700;">Scan</button>
+            </div>
+            <div id="billing_scan_result" style="margin-top:10px;font-size:13px;display:none;padding:10px;background:#f9f6f2;border-radius:6px;"></div>
+          </div>
+
+          <!-- Stock Scan -->
+          <div class="chart-card" style="border:2px solid #12B76A;">
+            <div style="display:flex;align-items:center;gap:10px;margin-bottom:14px;">
+              <div style="width:36px;height:36px;background:rgba(18,183,106,0.12);border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:20px;">📦</div>
+              <div class="chart-title" style="margin:0;color:#12B76A;">Stock Scanner</div>
+            </div>
+            <p style="font-size:12px;color:var(--text-muted);margin-bottom:12px;">Barcode scan karein — stock update ho jaayega</p>
+            <div style="display:flex;gap:8px;margin-bottom:8px;">
+              <input type="text" id="stock_scan_input" placeholder="Barcode scan karein..." 
+                style="flex:1;padding:10px;border:2px solid #12B76A;border-radius:6px;font-size:14px;font-family:monospace;"
+                onkeydown="if(event.key==='Enter') scanForStock(this.value)"/>
+              <input type="number" id="stock_scan_qty" value="1" min="1" style="width:60px;padding:10px;border:1px solid var(--border);border-radius:6px;"/>
+              <button onclick="scanForStock(document.getElementById('stock_scan_input').value)" 
+                style="padding:10px 16px;background:#12B76A;color:white;border:none;border-radius:6px;font-weight:700;">+Stock</button>
+            </div>
+            <div id="stock_scan_result" style="margin-top:6px;font-size:13px;display:none;padding:10px;background:#f0faf5;border-radius:6px;"></div>
+          </div>
+        </div>
+
+        <!-- Products Barcode Table -->
+        <div class="chart-card" style="max-width:1100px;">
+          <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;">
+            <div style="display:flex;align-items:center;gap:10px;">
+              <div style="width:36px;height:36px;background:rgba(59,130,246,0.12);border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:20px;">🏷️</div>
+              <div class="chart-title" style="margin:0;">Products Barcodes & Price Tags</div>
+            </div>
+            <input type="text" id="barcode_search" placeholder="Product search..." oninput="filterBarcodeTable()" 
+              style="padding:8px 12px;border:1px solid var(--border);border-radius:6px;font-size:13px;width:200px;"/>
+          </div>
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr>
+                  <th>Product</th>
+                  <th>SKU / Barcode</th>
+                  <th style="text-align:center;">Price</th>
+                  <th style="text-align:center;">Stock</th>
+                  <th style="text-align:center;">Barcode</th>
+                  <th style="text-align:center;">Actions</th>
+                </tr>
+              </thead>
+              <tbody id="barcodeTable">
+                <tr><td colspan="6" style="text-align:center;padding:28px;color:var(--text-muted);">Loading...</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
 
       <!-- BILLING PANEL -->
       <div class="panel" id="panel-billing">
@@ -1501,13 +1586,14 @@ function showPanel(name){
   document.querySelectorAll('.nav-item').forEach(n=>n.classList.remove('active'));
   document.getElementById(`panel-${name}`).classList.add('active');
   document.querySelector(`[data-panel="${name}"]`).classList.add('active');
-  const titles={dashboard:'Dashboard',products:'Products',orders:'Orders',settings:'Settings',video:'Hero Video',herotext:'Hero Text',categories:'Categories',social:'Social & Contact',stock:'Stock Management',billing:'Billing System'};
+  const titles={dashboard:'Dashboard',products:'Products',orders:'Orders',settings:'Settings',video:'Hero Video',herotext:'Hero Text',categories:'Categories',social:'Social & Contact',stock:'Stock Management',billing:'Billing System',barcode:'Barcode System'};
   document.getElementById('pageTitle').textContent=titles[name]||name;
   if(name==='products') loadProducts();
   if(name==='orders') loadOrders();
   if(name==='settings') { loadDiscountSettings(); loadCategoryDiscounts(); loadEmailTemplate(); }
   if(name==='stock') loadStockPanel();
   if(name==='billing') initBilling();
+  if(name==='barcode') initBarcodePanel();
   if(name==='video') loadVideoSettings();
   if(name==='herotext') loadHeroTextEditor();
   if(name==='categories') loadCategories();
@@ -2026,6 +2112,258 @@ function exportOrders(){
 
 
 
+
+
+/* ── Barcode System ───────────────────────────── */
+let barcodeProducts = [];
+
+function generateSKU(product) {
+  // Use existing SKU or generate from product ID
+  const id = product._id || product.id;
+  return 'RW' + id.toString().slice(-8).toUpperCase();
+}
+
+async function initBarcodePanel() {
+  try {
+    const data = await apiFetch('/products?limit=200');
+    barcodeProducts = data.products || [];
+    renderBarcodeTable(barcodeProducts);
+  } catch(e) {
+    showToast('Error: ' + e.message, 'error');
+  }
+}
+
+function filterBarcodeTable() {
+  const search = document.getElementById('barcode_search').value.toLowerCase();
+  const filtered = barcodeProducts.filter(p => 
+    p.name.toLowerCase().includes(search) || generateSKU(p).toLowerCase().includes(search)
+  );
+  renderBarcodeTable(filtered);
+}
+
+function renderBarcodeTable(products) {
+  const tbody = document.getElementById('barcodeTable');
+  if (!products.length) {
+    tbody.innerHTML = '<tr><td colspan="6" style="text-align:center;padding:28px;color:var(--text-muted);">Koi product nahi</td></tr>';
+    return;
+  }
+
+  tbody.innerHTML = products.map(p => {
+    const sku = generateSKU(p);
+    return `<tr>
+      <td>
+        <div style="font-weight:600;">${p.name}</div>
+        <div style="font-size:11px;color:var(--text-muted);">${cap(p.category)}</div>
+      </td>
+      <td><code style="background:#f5f5f5;padding:3px 8px;border-radius:4px;font-size:13px;">${sku}</code></td>
+      <td style="text-align:center;font-weight:600;">PKR ${p.price.toLocaleString()}</td>
+      <td style="text-align:center;">${p.stock || 0}</td>
+      <td style="text-align:center;">
+        <svg id="bc_${sku}" style="max-width:150px;"></svg>
+      </td>
+      <td style="text-align:center;">
+        <div style="display:flex;gap:6px;justify-content:center;">
+          <button onclick="printPriceTag('${p._id}')" 
+            style="padding:5px 10px;background:var(--gold);color:#111;border:none;border-radius:4px;cursor:pointer;font-size:11px;font-weight:600;">🏷️ Price Tag</button>
+          <button onclick="printBarcode('${sku}','${p.name.replace(/'/g, '').substring(0,20)}','${p.price}')"
+            style="padding:5px 10px;background:#3B82F6;color:white;border:none;border-radius:4px;cursor:pointer;font-size:11px;font-weight:600;">📊 Barcode</button>
+        </div>
+      </td>
+    </tr>`;
+  }).join('');
+
+  // Render barcodes after DOM update
+  setTimeout(() => {
+    products.forEach(p => {
+      const sku = generateSKU(p);
+      const el = document.getElementById('bc_' + sku);
+      if (el) {
+        try {
+          JsBarcode(el, sku, {
+            format: 'CODE128',
+            width: 1.5,
+            height: 40,
+            displayValue: true,
+            fontSize: 10,
+            margin: 4,
+          });
+        } catch(e) {}
+      }
+    });
+  }, 100);
+}
+
+// Scan barcode for billing
+async function scanForBilling(code) {
+  if (!code) return;
+  const sku = code.trim().toUpperCase();
+  const result = document.getElementById('billing_scan_result');
+  
+  // Find product by SKU
+  const product = barcodeProducts.find(p => generateSKU(p) === sku);
+  
+  if (!product) {
+    result.style.display = 'block';
+    result.style.background = '#fee2e2';
+    result.innerHTML = `❌ Product nahi mila: <strong>${sku}</strong>`;
+    return;
+  }
+
+  result.style.display = 'block';
+  result.style.background = '#f0fdf4';
+  result.innerHTML = `✅ <strong>${product.name}</strong> — PKR ${product.price.toLocaleString()}`;
+  
+  document.getElementById('billing_scan_input').value = '';
+  
+  // Auto add to bill if billing panel has items
+  // Switch to billing and add item
+  billItems.push({ name: product.name, price: product.price, qty: 1 });
+  renderBillItems();
+  updateBillTotals();
+  showToast(`✅ ${product.name} bill mein add ho gaya!`);
+  
+  // Go to billing panel
+  showPanel('billing');
+}
+
+// Scan barcode for stock update
+async function scanForStock(code) {
+  if (!code) return;
+  const sku = code.trim().toUpperCase();
+  const qty = parseInt(document.getElementById('stock_scan_qty').value) || 1;
+  const result = document.getElementById('stock_scan_result');
+
+  const product = barcodeProducts.find(p => generateSKU(p) === sku);
+  
+  if (!product) {
+    result.style.display = 'block';
+    result.innerHTML = `❌ Product nahi mila: <strong>${sku}</strong>`;
+    return;
+  }
+
+  try {
+    const fd = new FormData();
+    const newStock = (product.stock || 0) + qty;
+    fd.append('stock', newStock);
+    const res = await fetch(API + '/products/' + product._id, {
+      method: 'PUT',
+      headers: { 'Authorization': `Bearer ${TOKEN}` },
+      body: fd,
+    });
+    const data = await res.json();
+    if (data.success) {
+      product.stock = newStock;
+      result.style.display = 'block';
+      result.style.background = '#f0fdf4';
+      result.innerHTML = `✅ <strong>${product.name}</strong> — Stock: ${product.stock - qty} → <strong>${newStock}</strong>`;
+      document.getElementById('stock_scan_input').value = '';
+      document.getElementById('stock_scan_qty').value = '1';
+      showToast(`✅ Stock update: ${product.name}`);
+    }
+  } catch(e) {
+    showToast('Error: ' + e.message, 'error');
+  }
+}
+
+// Print single price tag
+function printPriceTag(productId) {
+  const product = barcodeProducts.find(p => p._id === productId);
+  if (!product) return;
+  const sku = generateSKU(product);
+  printBarcode(sku, product.name, product.price);
+}
+
+// Print barcode label
+function printBarcode(sku, name, price) {
+  const win = window.open('', '_blank', 'width=400,height=300');
+  win.document.write(`<!DOCTYPE html><html><head>
+    <meta charset="UTF-8"/>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jsbarcode/3.11.5/JsBarcode.all.min.js"><\/script>
+    <style>
+      * { margin:0; padding:0; box-sizing:border-box; }
+      body { font-family: Arial, sans-serif; }
+      .tag { width:250px; border:1px solid #ddd; padding:10px; text-align:center; margin:10px auto; }
+      .brand { font-size:14px; font-weight:700; letter-spacing:3px; color:#1C1C1C; margin-bottom:4px; }
+      .pname { font-size:11px; color:#555; margin-bottom:6px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+      .price { font-size:20px; font-weight:700; color:#1C1C1C; margin-bottom:6px; }
+      .orig { font-size:12px; color:#aaa; text-decoration:line-through; }
+      @media print { button { display:none; } body { margin:0; } }
+    </style>
+  </head><body>
+    <div class="tag">
+      <div class="brand">RIWAYAT</div>
+      <div class="pname">${name}</div>
+      <div class="price">PKR ${Number(price).toLocaleString()}</div>
+      <svg id="barcode"></svg>
+      <div style="font-size:10px;color:#888;margin-top:4px;">${sku}</div>
+    </div>
+    <div style="text-align:center;margin-top:10px;">
+      <button onclick="window.print()" style="padding:8px 20px;background:#1C1C1C;color:white;border:none;border-radius:4px;cursor:pointer;">🖨️ Print</button>
+    </div>
+    <script>
+      window.onload = function() {
+        JsBarcode('#barcode', '${sku}', {
+          format: 'CODE128', width: 2, height: 50,
+          displayValue: true, fontSize: 12, margin: 6
+        });
+      };
+    <\/script>
+  </body></html>`);
+  win.document.close();
+}
+
+// Print all price tags
+function printAllPriceTags() {
+  if (!barcodeProducts.length) { showToast('Pehle products load karein!', 'error'); return; }
+  
+  const win = window.open('', '_blank');
+  const tagsHTML = barcodeProducts.map(p => {
+    const sku = generateSKU(p);
+    return `<div class="tag">
+      <div class="brand">RIWAYAT</div>
+      <div class="pname">${p.name.substring(0, 25)}</div>
+      <div class="price">PKR ${p.price.toLocaleString()}</div>
+      <svg class="barcode" data-sku="${sku}"></svg>
+      <div class="sku">${sku}</div>
+    </div>`;
+  }).join('');
+
+  win.document.write(`<!DOCTYPE html><html><head>
+    <meta charset="UTF-8"/>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jsbarcode/3.11.5/JsBarcode.all.min.js"><\/script>
+    <style>
+      * { margin:0; padding:0; box-sizing:border-box; }
+      body { font-family: Arial, sans-serif; background:#f5f5f5; }
+      .grid { display:flex; flex-wrap:wrap; gap:10px; padding:20px; justify-content:center; }
+      .tag { width:200px; border:1px solid #ddd; padding:8px; text-align:center; background:white; border-radius:4px; page-break-inside:avoid; }
+      .brand { font-size:12px; font-weight:700; letter-spacing:2px; margin-bottom:3px; }
+      .pname { font-size:9px; color:#555; margin-bottom:4px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+      .price { font-size:16px; font-weight:700; margin-bottom:4px; }
+      .sku { font-size:9px; color:#888; margin-top:3px; }
+      @media print { 
+        body { background:white; } 
+        .no-print { display:none; } 
+        .grid { padding:5px; gap:5px; }
+      }
+    </style>
+  </head><body>
+    <div class="no-print" style="text-align:center;padding:16px;background:#1C1C1C;">
+      <button onclick="window.print()" style="padding:10px 24px;background:#C9A84C;color:#111;border:none;border-radius:4px;cursor:pointer;font-weight:700;font-size:14px;">🖨️ Print All Price Tags</button>
+    </div>
+    <div class="grid">${tagsHTML}</div>
+    <script>
+      window.onload = function() {
+        document.querySelectorAll('.barcode').forEach(el => {
+          JsBarcode(el, el.dataset.sku, {
+            format: 'CODE128', width: 1.5, height: 40,
+            displayValue: true, fontSize: 9, margin: 4
+          });
+        });
+      };
+    <\/script>
+  </body></html>`);
+  win.document.close();
+}
 
 /* ── Billing System ───────────────────────────── */
 let billItems = [];
