@@ -14,8 +14,8 @@ router.get('/admin/stats', protect, getProductStats);
 router.get('/:id', getProduct);
 
 // Admin
-router.post('/', protect, upload.array('images', 6), createProduct);
-router.put('/:id', protect, upload.array('images', 6), updateProduct);
+router.post('/', protect, upload, createProduct);
+router.put('/:id', protect, upload, updateProduct);
 router.delete('/:id', protect, deleteProduct);
 router.delete('/:id/image', protect, deleteProductImage);
 

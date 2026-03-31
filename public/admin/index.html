@@ -332,10 +332,17 @@ tr:hover td{background:#FAFAFA;}
       <div class="panel" id="panel-products">
         <div class="section-header">
           <div class="section-title">All Products</div>
-          <button class="btn btn-primary" onclick="openProductModal()">
-            <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" width="16" height="16"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
-            Add Product
-          </button>
+          <div style="display:flex;gap:8px;align-items:center;">
+            <div id="wm-status-box" style="display:flex;align-items:center;gap:8px;background:var(--bg);border:1px solid var(--border);border-radius:6px;padding:6px 12px;">
+              <span style="font-size:12px;color:var(--text-muted);">🖼️ Watermark:</span>
+              <span id="wm-status-text" style="font-size:12px;font-weight:700;color:#888;">Loading...</span>
+              <button id="wm-toggle-btn" onclick="toggleWatermark()" style="padding:4px 14px;border-radius:4px;border:none;cursor:pointer;font-size:12px;font-weight:700;background:#888;color:white;">...</button>
+            </div>
+            <button class="btn btn-primary" onclick="openProductModal()">
+              <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" width="16" height="16"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
+              Add Product
+            </button>
+          </div>
         </div>
         <div class="table-wrap">
           <div class="table-toolbar">
@@ -1829,7 +1836,7 @@ function showPanel(name){
   document.querySelector(`[data-panel="${name}"]`).classList.add('active');
   const titles={dashboard:'Dashboard',products:'Products',orders:'Orders',settings:'Settings',video:'Hero Video',herotext:'Hero Text',categories:'Categories',social:'Social & Contact',stock:'Stock Management',billing:'Billing System',barcode:'Barcode System',newsletter:'Newsletter & Bulk Email',whatsapp:'WhatsApp Bulk Messages',discounts:'Discount Management',emailtemplate:'Email Template Editor'};
   document.getElementById('pageTitle').textContent=titles[name]||name;
-  if(name==='products') loadProducts();
+  if(name==='products') { loadProducts(); loadWatermarkState(); }
   if(name==='orders') loadOrders();
   if(name==='settings') { loadDiscountSettings(); loadCategoryDiscounts(); loadEmailTemplate(); }
   if(name==='stock') loadStockPanel();
@@ -1899,6 +1906,51 @@ function renderStatusBreakdown(s){
       </div>
     </div>`).join('');
 }
+
+
+// ── Watermark Toggle ─────────────────────────────────────────
+let wmState = { enabled: false, text: 'riwayat-pakistan.online', opacity: 0.35, gravity: 'south_east', fontSize: 28 };
+
+async function loadWatermarkState() {
+  try {
+    const res = await apiFetch('/settings/watermark', 'GET', null, false);
+    if (res.success) wmState = res.value;
+  } catch(e) {}
+  updateWmUI();
+}
+
+function updateWmUI() {
+  const btn  = document.getElementById('wm-toggle-btn');
+  const text = document.getElementById('wm-status-text');
+  if (!btn || !text) return;
+  if (wmState.enabled) {
+    text.textContent = 'ON';
+    text.style.color = '#12B76A';
+    btn.textContent  = 'Turn OFF';
+    btn.style.background = '#F04438';
+  } else {
+    text.textContent = 'OFF';
+    text.style.color = '#888';
+    btn.textContent  = 'Turn ON';
+    btn.style.background = '#12B76A';
+  }
+}
+
+async function toggleWatermark() {
+  const btn = document.getElementById('wm-toggle-btn');
+  btn.textContent = '...'; btn.disabled = true;
+  wmState.enabled = !wmState.enabled;
+  try {
+    await apiFetch('/settings/watermark', 'PUT', wmState);
+    showToast(wmState.enabled ? '✅ Watermark ON — naye products par lagega!' : '🚫 Watermark OFF ho gaya!', wmState.enabled ? 'success' : 'info');
+  } catch(e) {
+    wmState.enabled = !wmState.enabled; // revert
+    showToast('Error! Dobara try karein.', 'error');
+  }
+  btn.disabled = false;
+  updateWmUI();
+}
+// ─────────────────────────────────────────────────────────────
 
 async function loadProducts(){
   const search=document.getElementById('productSearch').value;

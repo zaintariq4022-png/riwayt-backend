@@ -186,6 +186,29 @@ router.post('/send-newsletter', protect, async (req, res) => {
   }
 });
 
+
+
+// GET /api/settings/watermark — public
+router.get('/watermark', async (req, res) => {
+  try {
+    const setting = await Settings.findOne({ key: 'watermark' });
+    res.json({ success: true, value: setting ? setting.value : { enabled: false, text: 'riwayat-pakistan.online', opacity: 0.35, gravity: 'south_east', fontSize: 28 } });
+  } catch (err) {
+    res.json({ success: true, value: { enabled: false, text: 'riwayat-pakistan.online', opacity: 0.35, gravity: 'south_east', fontSize: 28 } });
+  }
+});
+
+// PUT /api/settings/watermark — admin only
+router.put('/watermark', protect, async (req, res) => {
+  const { enabled, text, opacity, gravity, fontSize } = req.body;
+  await Settings.findOneAndUpdate(
+    { key: 'watermark' },
+    { key: 'watermark', value: { enabled: !!enabled, text: text || 'riwayat-pakistan.online', opacity: Number(opacity) || 0.35, gravity: gravity || 'south_east', fontSize: Number(fontSize) || 28 } },
+    { upsert: true, new: true }
+  );
+  res.json({ success: true, message: enabled ? 'Watermark enabled!' : 'Watermark disabled!' });
+});
+
 module.exports = router;
 
 // GET /api/settings/social — public
