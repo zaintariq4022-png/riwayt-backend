@@ -250,6 +250,14 @@ tr:hover td{background:#FAFAFA;}
         <svg fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
         <span class="label">Settings</span>
       </div>
+      <div class="nav-item" onclick="showPanel('discounts')" data-panel="discounts">
+        <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" width="18" height="18"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z"/></svg>
+        <span class="label">Discounts</span>
+      </div>
+      <div class="nav-item" onclick="showPanel('emailtemplate')" data-panel="emailtemplate">
+        <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" width="18" height="18"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/></svg>
+        <span class="label">Email Template</span>
+      </div>
     </nav>
     <div class="sidebar-footer">
       <div class="admin-info">
@@ -1163,6 +1171,101 @@ tr:hover td{background:#FAFAFA;}
         </div>
       </div>
 
+
+      <!-- DISCOUNTS PANEL -->
+      <div class="panel" id="panel-discounts">
+        <div class="section-header"><div class="section-title">🏷️ Discount Management</div></div>
+        <div style="max-width:860px;display:flex;flex-direction:column;gap:20px;">
+                  <!-- GLOBAL DISCOUNT CARD -->
+        <div class="chart-card" style="max-width:800px;margin-bottom:20px;border:2px solid var(--gold);background:rgba(201,168,76,0.05);">
+          <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px;">
+            <div>
+              <div class="chart-title" style="color:var(--gold);font-size:16px;">🏷️ Global Flat Discount</div>
+              <div style="color:var(--text-muted);font-size:12px;margin-top:4px;">Sab products pe ek saath discount lagao</div>
+            </div>
+            <div id="discountStatusBadge" style="padding:4px 14px;border-radius:20px;font-size:12px;font-weight:700;background:rgba(240,68,56,0.12);color:#F04438;">OFF</div>
+          </div>
+          <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:14px;margin-top:20px;align-items:flex-end;">
+            <div class="field">
+              <label>Discount % *</label>
+              <input type="number" id="discountPercent" placeholder="e.g. 20" min="1" max="90" style="font-size:1.3rem;font-weight:700;color:var(--gold);"/>
+            </div>
+            <div class="field">
+              <label>Label (optional)</label>
+              <input type="text" id="discountLabel" placeholder="e.g. EID SALE, SUMMER OFF"/>
+            </div>
+            <div style="display:flex;flex-direction:column;gap:8px;">
+              <button class="btn btn-primary" onclick="applyGlobalDiscount(true)" style="background:var(--gold);color:#111;">
+                ✓ Apply Discount
+              </button>
+              <button class="btn btn-danger" onclick="applyGlobalDiscount(false)">
+                ✕ Remove Discount
+              </button>
+            </div>
+          </div>
+          <div id="discountInfo" style="margin-top:14px;padding:10px 14px;background:rgba(201,168,76,0.08);border-radius:6px;font-size:13px;display:none;"></div>
+        </div>
+
+
+
+
+                  <!-- CATEGORY DISCOUNT CARD -->
+        <div class="chart-card" style="max-width:800px;margin-bottom:20px;border:2px solid #3B82F6;background:rgba(59,130,246,0.04);">
+          <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px;">
+            <div>
+              <div class="chart-title" style="color:#3B82F6;font-size:16px;">🗂️ Category Discount</div>
+              <div style="color:var(--text-muted);font-size:12px;margin-top:4px;">Kisi bhi category pe alag discount lagao</div>
+            </div>
+          </div>
+          <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:12px;margin-top:16px;" id="catDiscountGrid">
+            <!-- Loaded dynamically -->
+          </div>
+          <button class="btn btn-primary" onclick="saveCategoryDiscounts()" style="margin-top:16px;background:#3B82F6;border-color:#3B82F6;">
+            💾 Save Category Discounts
+          </button>
+          <div id="catDiscountMsg" style="margin-top:8px;font-size:13px;color:#12B76A;display:none;">✓ Saved!</div>
+        </div>
+
+        </div>
+      </div>
+
+      <!-- EMAIL TEMPLATE PANEL -->
+      <div class="panel" id="panel-emailtemplate">
+        <div class="section-header"><div class="section-title">📧 Email Template Editor</div></div>
+        <div style="max-width:860px;">
+                  <!-- EMAIL TEMPLATE EDITOR -->
+        <div class="chart-card" style="max-width:800px;margin-bottom:20px;border:2px solid #12B76A;background:rgba(18,183,106,0.03);">
+          <div class="chart-title" style="color:#12B76A;font-size:16px;">📧 Customer Email Template Editor</div>
+          <p style="color:var(--text-muted);font-size:13px;margin:8px 0 16px;">Order confirmation email ka HTML yahan edit karein. Variables use karein: <code>{{customerName}}</code> <code>{{orderNumber}}</code> <code>{{total}}</code> <code>{{city}}</code> <code>{{paymentMethod}}</code> <code>{{items}}</code></p>
+
+          <div class="field" style="margin-bottom:12px;">
+            <label>Email Subject</label>
+            <input type="text" id="emailSubject" placeholder="e.g. ✅ Order Confirmed — {{orderNumber}} | RIWAYAT"/>
+          </div>
+
+          <div class="field">
+            <label>Email HTML Template</label>
+            <textarea id="emailTemplate" rows="16" style="font-family:monospace;font-size:12px;" placeholder="HTML template yahan likhein..."></textarea>
+          </div>
+
+          <div style="display:flex;gap:10px;margin-top:12px;flex-wrap:wrap;">
+            <button class="btn btn-primary" onclick="saveEmailTemplate()" style="background:#12B76A;border-color:#12B76A;">
+              💾 Save Template
+            </button>
+            <button onclick="resetEmailTemplate()" style="padding:8px 16px;border:1px solid var(--border);background:white;border-radius:4px;cursor:pointer;font-size:13px;">
+              🔄 Default Pe Reset
+            </button>
+            <button onclick="previewEmail()" style="padding:8px 16px;border:1px solid #3B82F6;background:white;color:#3B82F6;border-radius:4px;cursor:pointer;font-size:13px;">
+              👁 Preview
+            </button>
+          </div>
+          <div id="emailSaveMsg" style="margin-top:8px;font-size:13px;color:#12B76A;display:none;">✓ Template save ho gaya!</div>
+        </div>
+
+
+        </div>
+      </div>
+
       <!-- SOCIAL PANEL -->
       <div class="panel" id="panel-social">
         <div class="section-header"><div class="section-title">Social Media & Contact</div></div>
@@ -1399,51 +1502,6 @@ tr:hover td{background:#FAFAFA;}
 
 
 
-        <!-- EMAIL TEMPLATE EDITOR -->
-        <div class="chart-card" style="max-width:800px;margin-bottom:20px;border:2px solid #12B76A;background:rgba(18,183,106,0.03);">
-          <div class="chart-title" style="color:#12B76A;font-size:16px;">📧 Customer Email Template Editor</div>
-          <p style="color:var(--text-muted);font-size:13px;margin:8px 0 16px;">Order confirmation email ka HTML yahan edit karein. Variables use karein: <code>{{customerName}}</code> <code>{{orderNumber}}</code> <code>{{total}}</code> <code>{{city}}</code> <code>{{paymentMethod}}</code> <code>{{items}}</code></p>
-
-          <div class="field" style="margin-bottom:12px;">
-            <label>Email Subject</label>
-            <input type="text" id="emailSubject" placeholder="e.g. ✅ Order Confirmed — {{orderNumber}} | RIWAYAT"/>
-          </div>
-
-          <div class="field">
-            <label>Email HTML Template</label>
-            <textarea id="emailTemplate" rows="16" style="font-family:monospace;font-size:12px;" placeholder="HTML template yahan likhein..."></textarea>
-          </div>
-
-          <div style="display:flex;gap:10px;margin-top:12px;flex-wrap:wrap;">
-            <button class="btn btn-primary" onclick="saveEmailTemplate()" style="background:#12B76A;border-color:#12B76A;">
-              💾 Save Template
-            </button>
-            <button onclick="resetEmailTemplate()" style="padding:8px 16px;border:1px solid var(--border);background:white;border-radius:4px;cursor:pointer;font-size:13px;">
-              🔄 Default Pe Reset
-            </button>
-            <button onclick="previewEmail()" style="padding:8px 16px;border:1px solid #3B82F6;background:white;color:#3B82F6;border-radius:4px;cursor:pointer;font-size:13px;">
-              👁 Preview
-            </button>
-          </div>
-          <div id="emailSaveMsg" style="margin-top:8px;font-size:13px;color:#12B76A;display:none;">✓ Template save ho gaya!</div>
-        </div>
-
-        <!-- CATEGORY DISCOUNT CARD -->
-        <div class="chart-card" style="max-width:800px;margin-bottom:20px;border:2px solid #3B82F6;background:rgba(59,130,246,0.04);">
-          <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px;">
-            <div>
-              <div class="chart-title" style="color:#3B82F6;font-size:16px;">🗂️ Category Discount</div>
-              <div style="color:var(--text-muted);font-size:12px;margin-top:4px;">Kisi bhi category pe alag discount lagao</div>
-            </div>
-          </div>
-          <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:12px;margin-top:16px;" id="catDiscountGrid">
-            <!-- Loaded dynamically -->
-          </div>
-          <button class="btn btn-primary" onclick="saveCategoryDiscounts()" style="margin-top:16px;background:#3B82F6;border-color:#3B82F6;">
-            💾 Save Category Discounts
-          </button>
-          <div id="catDiscountMsg" style="margin-top:8px;font-size:13px;color:#12B76A;display:none;">✓ Saved!</div>
-        </div>
 
         <div style="display:grid;grid-template-columns:1fr 1fr;gap:20px;max-width:800px;">
           <div class="chart-card">
@@ -1705,7 +1763,7 @@ function showPanel(name){
   document.querySelectorAll('.nav-item').forEach(n=>n.classList.remove('active'));
   document.getElementById(`panel-${name}`).classList.add('active');
   document.querySelector(`[data-panel="${name}"]`).classList.add('active');
-  const titles={dashboard:'Dashboard',products:'Products',orders:'Orders',settings:'Settings',video:'Hero Video',herotext:'Hero Text',categories:'Categories',social:'Social & Contact',stock:'Stock Management',billing:'Billing System',barcode:'Barcode System',newsletter:'Newsletter & Bulk Email'};
+  const titles={dashboard:'Dashboard',products:'Products',orders:'Orders',settings:'Settings',video:'Hero Video',herotext:'Hero Text',categories:'Categories',social:'Social & Contact',stock:'Stock Management',billing:'Billing System',barcode:'Barcode System',newsletter:'Newsletter & Bulk Email',discounts:'Discount Management',emailtemplate:'Email Template Editor'};
   document.getElementById('pageTitle').textContent=titles[name]||name;
   if(name==='products') loadProducts();
   if(name==='orders') loadOrders();
@@ -1714,6 +1772,8 @@ function showPanel(name){
   if(name==='billing') initBilling();
   if(name==='barcode') initBarcodePanel();
   if(name==='newsletter') initNewsletterPanel();
+  if(name==='discounts') { loadDiscountSettings(); loadCategoryDiscounts(); }
+  if(name==='emailtemplate') loadEmailTemplate();
   if(name==='video') loadVideoSettings();
   if(name==='herotext') loadHeroTextEditor();
   if(name==='categories') loadCategories();
