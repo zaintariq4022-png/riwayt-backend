@@ -2897,38 +2897,69 @@ function printPriceTag(productId) {
 
 // Print barcode label
 function printBarcode(sku, name, price) {
-  const win = window.open('', '_blank', 'width=400,height=300');
+  const win = window.open('', '_blank', 'width=480,height=480');
   win.document.write(`<!DOCTYPE html><html><head>
     <meta charset="UTF-8"/>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jsbarcode/3.11.5/JsBarcode.all.min.js"><\/script>
     <style>
-      * { margin:0; padding:0; box-sizing:border-box; }
-      body { font-family: Arial, sans-serif; }
-      .tag { width:250px; border:1px solid #ddd; padding:10px; text-align:center; margin:10px auto; }
-      .brand { font-size:14px; font-weight:700; letter-spacing:3px; color:#1C1C1C; margin-bottom:4px; }
-      .pname { font-size:11px; color:#555; margin-bottom:6px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
-      .price { font-size:20px; font-weight:700; color:#1C1C1C; margin-bottom:6px; }
-      .orig { font-size:12px; color:#aaa; text-decoration:line-through; }
-      @media print { button { display:none; } body { margin:0; } }
+      *{margin:0;padding:0;box-sizing:border-box;}
+      body{font-family:Arial,sans-serif;background:#f5f5f5;}
+      .controls{background:#1C1C1C;padding:12px 16px;display:flex;flex-wrap:wrap;gap:12px;align-items:center;justify-content:center;}
+      .controls label{color:#ccc;font-size:11px;display:flex;flex-direction:column;align-items:center;gap:3px;}
+      .controls input[type=range]{width:80px;accent-color:#C9A84C;}
+      .controls span{color:#C9A84C;font-weight:700;font-size:12px;min-width:24px;text-align:center;}
+      .controls button{padding:7px 18px;background:#C9A84C;color:#111;border:none;border-radius:4px;cursor:pointer;font-weight:700;font-size:13px;}
+      .tag-wrap{display:flex;justify-content:center;padding:20px;}
+      .tag{border:1px solid #ddd;padding:10px;text-align:center;background:white;border-radius:4px;}
+      .brand{font-weight:700;letter-spacing:3px;color:#1C1C1C;margin-bottom:4px;}
+      .pname{color:#555;margin-bottom:5px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+      .price{font-weight:700;color:#1C1C1C;margin-bottom:5px;}
+      .sku-text{color:#888;}
+      .website{color:#bbb;font-size:9px;margin-top:2px;letter-spacing:0.5px;}
+      @media print{.controls{display:none;}body{background:white;}.tag-wrap{padding:4px;}}
     </style>
   </head><body>
-    <div class="tag">
-      <div class="brand">RIWAYAT</div>
-      <div class="pname">${name}</div>
-      <div class="price">PKR ${Number(price).toLocaleString()}</div>
-      <svg id="barcode"></svg>
-      <div style="font-size:10px;color:#888;margin-top:4px;">${sku}</div>
+    <div class="controls">
+      <label>Tag Width<div style="display:flex;align-items:center;gap:4px;"><input type="range" id="s_tagW" min="120" max="400" value="220" oninput="redraw()"><span id="v_tagW">220</span>px</div></label>
+      <label>Bar Width<div style="display:flex;align-items:center;gap:4px;"><input type="range" id="s_bw" min="1" max="4" value="1.5" step="0.5" oninput="redraw()"><span id="v_bw">1.5</span></div></label>
+      <label>Bar Height<div style="display:flex;align-items:center;gap:4px;"><input type="range" id="s_bh" min="20" max="120" value="40" oninput="redraw()"><span id="v_bh">40</span>px</div></label>
+      <label>Font Size<div style="display:flex;align-items:center;gap:4px;"><input type="range" id="s_fs" min="6" max="20" value="10" oninput="redraw()"><span id="v_fs">10</span>px</div></label>
+      <label>Price Size<div style="display:flex;align-items:center;gap:4px;"><input type="range" id="s_ps" min="10" max="36" value="18" oninput="redraw()"><span id="v_ps">18</span>px</div></label>
+      <button onclick="window.print()">🖨️ Print</button>
     </div>
-    <div style="text-align:center;margin-top:10px;">
-      <button onclick="window.print()" style="padding:8px 20px;background:#1C1C1C;color:white;border:none;border-radius:4px;cursor:pointer;">🖨️ Print</button>
+    <div class="tag-wrap">
+      <div class="tag" id="tag">
+        <div class="brand" id="el_brand">RIWAYAT</div>
+        <div class="pname" id="el_name">${name}</div>
+        <div class="price" id="el_price">PKR ${Number(price).toLocaleString()}</div>
+        <svg id="barcode"></svg>
+        <div class="sku-text" id="el_sku">${sku}</div>
+        <div class="website" id="el_web" style="font-size:9px;color:#aaa;margin-top:3px;letter-spacing:0.5px;">riwayat-pakistan.online</div>
+      </div>
     </div>
     <script>
-      window.onload = function() {
+      function redraw() {
+        const tagW = +document.getElementById('s_tagW').value;
+        const bw   = +document.getElementById('s_bw').value;
+        const bh   = +document.getElementById('s_bh').value;
+        const fs   = +document.getElementById('s_fs').value;
+        const ps   = +document.getElementById('s_ps').value;
+        document.getElementById('v_tagW').textContent = tagW;
+        document.getElementById('v_bw').textContent   = bw;
+        document.getElementById('v_bh').textContent   = bh;
+        document.getElementById('v_fs').textContent   = fs;
+        document.getElementById('v_ps').textContent   = ps;
+        document.getElementById('tag').style.width    = tagW + 'px';
+        document.getElementById('el_price').style.fontSize = ps + 'px';
+        document.getElementById('el_sku').style.fontSize   = Math.max(8, fs-2) + 'px';
+        document.getElementById('el_name').style.fontSize  = Math.max(9, fs) + 'px';
+        document.getElementById('el_brand').style.fontSize = Math.max(10, fs+2) + 'px';
         JsBarcode('#barcode', '${sku}', {
-          format: 'CODE128', width: 2, height: 50,
-          displayValue: true, fontSize: 12, margin: 6
+          format:'CODE128', width:bw, height:bh,
+          displayValue:true, fontSize:fs, margin:4
         });
-      };
+      }
+      window.onload = redraw;
     <\/script>
   </body></html>`);
   win.document.close();
@@ -2947,6 +2978,7 @@ function printAllPriceTags() {
       <div class="price">PKR ${p.price.toLocaleString()}</div>
       <svg class="barcode" data-sku="${sku}"></svg>
       <div class="sku">${sku}</div>
+      <div class="website">riwayat-pakistan.online</div>
     </div>`;
   }).join('');
 
@@ -2954,34 +2986,63 @@ function printAllPriceTags() {
     <meta charset="UTF-8"/>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jsbarcode/3.11.5/JsBarcode.all.min.js"><\/script>
     <style>
-      * { margin:0; padding:0; box-sizing:border-box; }
-      body { font-family: Arial, sans-serif; background:#f5f5f5; }
-      .grid { display:flex; flex-wrap:wrap; gap:10px; padding:20px; justify-content:center; }
-      .tag { width:200px; border:1px solid #ddd; padding:8px; text-align:center; background:white; border-radius:4px; page-break-inside:avoid; }
-      .brand { font-size:12px; font-weight:700; letter-spacing:2px; margin-bottom:3px; }
-      .pname { font-size:9px; color:#555; margin-bottom:4px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
-      .price { font-size:16px; font-weight:700; margin-bottom:4px; }
-      .sku { font-size:9px; color:#888; margin-top:3px; }
-      @media print { 
-        body { background:white; } 
-        .no-print { display:none; } 
-        .grid { padding:5px; gap:5px; }
-      }
+      *{margin:0;padding:0;box-sizing:border-box;}
+      body{font-family:Arial,sans-serif;background:#f5f5f5;}
+      .controls{background:#1C1C1C;padding:10px 16px;display:flex;flex-wrap:wrap;gap:12px;align-items:center;justify-content:center;position:sticky;top:0;z-index:10;}
+      .controls label{color:#ccc;font-size:11px;display:flex;flex-direction:column;align-items:center;gap:2px;}
+      .controls input[type=range]{width:70px;accent-color:#C9A84C;}
+      .controls span{color:#C9A84C;font-weight:700;font-size:11px;min-width:22px;text-align:center;}
+      .controls button{padding:7px 18px;background:#C9A84C;color:#111;border:none;border-radius:4px;cursor:pointer;font-weight:700;font-size:13px;}
+      .grid{display:flex;flex-wrap:wrap;gap:10px;padding:16px;justify-content:center;}
+      .tag{border:1px solid #ddd;padding:8px;text-align:center;background:white;border-radius:4px;page-break-inside:avoid;}
+      .brand{font-weight:700;letter-spacing:2px;margin-bottom:3px;}
+      .pname{color:#555;margin-bottom:4px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+      .price{font-weight:700;margin-bottom:4px;}
+      .sku{color:#888;margin-top:3px;}
+      .website{color:#bbb;font-size:8px;margin-top:2px;letter-spacing:0.5px;}
+      @media print{.controls{display:none;}body{background:white;}.grid{padding:4px;gap:4px;}}
     </style>
   </head><body>
-    <div class="no-print" style="text-align:center;padding:16px;background:#1C1C1C;">
-      <button onclick="window.print()" style="padding:10px 24px;background:#C9A84C;color:#111;border:none;border-radius:4px;cursor:pointer;font-weight:700;font-size:14px;">🖨️ Print All Price Tags</button>
+    <div class="controls">
+      <label>Tag Width<div style="display:flex;align-items:center;gap:3px;"><input type="range" id="s_tagW" min="80" max="300" value="170" oninput="redrawAll()"><span id="v_tagW">170</span>px</div></label>
+      <label>Bar Width<div style="display:flex;align-items:center;gap:3px;"><input type="range" id="s_bw" min="1" max="4" value="1.2" step="0.2" oninput="redrawAll()"><span id="v_bw">1.2</span></div></label>
+      <label>Bar Height<div style="display:flex;align-items:center;gap:3px;"><input type="range" id="s_bh" min="15" max="100" value="35" oninput="redrawAll()"><span id="v_bh">35</span>px</div></label>
+      <label>Font Size<div style="display:flex;align-items:center;gap:3px;"><input type="range" id="s_fs" min="6" max="18" value="8" oninput="redrawAll()"><span id="v_fs">8</span>px</div></label>
+      <label>Price Size<div style="display:flex;align-items:center;gap:3px;"><input type="range" id="s_ps" min="8" max="28" value="14" oninput="redrawAll()"><span id="v_ps">14</span>px</div></label>
+      <label>Gap<div style="display:flex;align-items:center;gap:3px;"><input type="range" id="s_gap" min="2" max="20" value="6" oninput="redrawAll()"><span id="v_gap">6</span>px</div></label>
+      <button onclick="window.print()">🖨️ Print All</button>
     </div>
-    <div class="grid">${tagsHTML}</div>
+    <div class="grid" id="grid">${tagsHTML}</div>
     <script>
-      window.onload = function() {
+      function redrawAll() {
+        const tagW = +document.getElementById('s_tagW').value;
+        const bw   = +document.getElementById('s_bw').value;
+        const bh   = +document.getElementById('s_bh').value;
+        const fs   = +document.getElementById('s_fs').value;
+        const ps   = +document.getElementById('s_ps').value;
+        const gap  = +document.getElementById('s_gap').value;
+        document.getElementById('v_tagW').textContent = tagW;
+        document.getElementById('v_bw').textContent   = bw;
+        document.getElementById('v_bh').textContent   = bh;
+        document.getElementById('v_fs').textContent   = fs;
+        document.getElementById('v_ps').textContent   = ps;
+        document.getElementById('v_gap').textContent  = gap;
+        document.getElementById('grid').style.gap     = gap + 'px';
+        document.querySelectorAll('.tag').forEach(tag => {
+          tag.style.width = tagW + 'px';
+        });
+        document.querySelectorAll('.brand').forEach(el => el.style.fontSize = (fs+2) + 'px');
+        document.querySelectorAll('.pname').forEach(el => el.style.fontSize = fs + 'px');
+        document.querySelectorAll('.price').forEach(el => el.style.fontSize = ps + 'px');
+        document.querySelectorAll('.sku').forEach(el => el.style.fontSize = Math.max(7,fs-1) + 'px');
         document.querySelectorAll('.barcode').forEach(el => {
           JsBarcode(el, el.dataset.sku, {
-            format: 'CODE128', width: 1.5, height: 40,
-            displayValue: true, fontSize: 9, margin: 4
+            format:'CODE128', width:bw, height:bh,
+            displayValue:true, fontSize:fs, margin:3
           });
         });
-      };
+      }
+      window.onload = redrawAll;
     <\/script>
   </body></html>`);
   win.document.close();
