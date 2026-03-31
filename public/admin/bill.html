@@ -113,6 +113,20 @@ body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--text);min-h
     <div class="card">
       <div class="card-title"><span>🛍️</span> Add Items</div>
 
+      <!-- BARCODE SCANNER -->
+      <div class="add-section" style="background:#f0fdf4;border:2px solid #86efac;margin-bottom:12px;">
+        <div class="add-section-title" style="color:#16a34a;">🔍 Barcode Scanner — Scan karein ya SKU likhein</div>
+        <div style="display:flex;gap:8px;align-items:center;">
+          <input type="text" id="scan_input" placeholder="Barcode scan karein ya SKU likhein (RW-XXXXXXXX)..."
+            style="flex:1;padding:12px;border:2px solid #86efac;border-radius:6px;font-size:15px;font-family:monospace;background:white;"
+            autofocus
+            onkeydown="if(event.key==='Enter'){event.preventDefault();scanBarcode();}"/>
+          <button class="btn btn-green" onclick="scanBarcode()" style="padding:12px 20px;font-size:16px;">Scan</button>
+        </div>
+        <div id="scan_result" style="margin-top:8px;font-size:13px;display:none;padding:8px 12px;border-radius:6px;"></div>
+        <div style="font-size:11px;color:#16a34a;margin-top:6px;">💡 Scanner se scan karo — Enter dabate hi item add ho jaayega</div>
+      </div>
+
       <div class="add-section">
         <div class="add-section-title">Product se add karein</div>
         <div class="grid-4">
@@ -211,6 +225,55 @@ const API = '/api';
 let TOKEN = localStorage.getItem('adminToken') || sessionStorage.getItem('adminToken');
 let items = [];
 let billNo = '';
+
+// Barcode Scanner
+function scanBarcode() {
+  const input = document.getElementById('scan_input');
+  const sku = input.value.trim().toUpperCase();
+  const result = document.getElementById('scan_result');
+
+  if (!sku) return;
+
+  // Find product by SKU (RW + last 8 chars of ID)
+  const sel = document.getElementById('bill_product');
+  let found = null;
+
+  for (let i = 0; i < sel.options.length; i++) {
+    const opt = sel.options[i];
+    if (!opt.value) continue;
+    // Generate SKU same way as barcode panel
+    const generatedSKU = 'RW' + opt.value.slice(-8).toUpperCase();
+    if (generatedSKU === sku || opt.value === sku) {
+      found = { name: opt.dataset.name, price: parseFloat(opt.dataset.price) || 0, id: opt.value };
+      break;
+    }
+  }
+
+  if (!found) {
+    result.style.display = 'block';
+    result.style.background = '#fee2e2';
+    result.style.color = '#dc2626';
+    result.innerHTML = '❌ Product nahi mila: <strong>' + sku + '</strong>';
+    input.value = '';
+    input.focus();
+    return;
+  }
+
+  // Add to bill
+  items.push({ name: found.name, price: found.price, qty: 1 });
+  renderItems(); calcTotals(); updatePreview();
+
+  result.style.display = 'block';
+  result.style.background = '#f0fdf4';
+  result.style.color = '#16a34a';
+  result.innerHTML = '✅ Added: <strong>' + found.name + '</strong> — PKR ' + found.price.toLocaleString();
+
+  input.value = '';
+  input.focus();
+
+  // Hide result after 2s
+  setTimeout(() => { result.style.display = 'none'; }, 2000);
+}
 
 // Init
 window.onload = async function() {
