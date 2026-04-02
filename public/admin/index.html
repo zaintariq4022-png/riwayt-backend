@@ -1413,16 +1413,21 @@ tr:hover td{background:#FAFAFA;}
               </select>
             </div>
             <div class="field">
-              <label>Min Order (PKR)</label>
-              <input type="number" id="pm-min" placeholder="0 = no minimum" min="0" value="0"/>
+              <label>Min Order Amount (PKR)</label>
+              <input type="number" id="pm-min" placeholder="0 = koi limit nahi" min="0" value="0"/>
+              <div style="font-size:11px;color:var(--text-muted);margin-top:4px;">Cart ki minimum value — is se kam order pe code apply nahi hoga</div>
             </div>
             <div class="field" id="pm-cat-field" style="display:none;grid-column:1/-1;">
               <label>Categories (select all that apply)</label>
               <div style="display:flex;flex-wrap:wrap;gap:8px;margin-top:6px;" id="pm-cat-list">
-                ${['women','kids','sale','new','stitching','fancy','bridal','accessories'].map(c=>`
-                <label style="display:flex;align-items:center;gap:5px;font-size:13px;background:var(--bg);padding:4px 10px;border-radius:20px;border:1px solid var(--border);cursor:pointer;">
-                  <input type="checkbox" value="${c}" class="pm-cat-cb"> ${c}
-                </label>`).join('')}
+                <label style="display:flex;align-items:center;gap:5px;font-size:13px;background:var(--bg);padding:4px 10px;border-radius:20px;border:1px solid var(--border);cursor:pointer;"><input type="checkbox" value="women" class="pm-cat-cb"> Women</label>
+                <label style="display:flex;align-items:center;gap:5px;font-size:13px;background:var(--bg);padding:4px 10px;border-radius:20px;border:1px solid var(--border);cursor:pointer;"><input type="checkbox" value="kids" class="pm-cat-cb"> Kids</label>
+                <label style="display:flex;align-items:center;gap:5px;font-size:13px;background:var(--bg);padding:4px 10px;border-radius:20px;border:1px solid var(--border);cursor:pointer;"><input type="checkbox" value="sale" class="pm-cat-cb"> Sale</label>
+                <label style="display:flex;align-items:center;gap:5px;font-size:13px;background:var(--bg);padding:4px 10px;border-radius:20px;border:1px solid var(--border);cursor:pointer;"><input type="checkbox" value="new" class="pm-cat-cb"> New Arrivals</label>
+                <label style="display:flex;align-items:center;gap:5px;font-size:13px;background:var(--bg);padding:4px 10px;border-radius:20px;border:1px solid var(--border);cursor:pointer;"><input type="checkbox" value="stitching" class="pm-cat-cb"> Stitching</label>
+                <label style="display:flex;align-items:center;gap:5px;font-size:13px;background:var(--bg);padding:4px 10px;border-radius:20px;border:1px solid var(--border);cursor:pointer;"><input type="checkbox" value="fancy" class="pm-cat-cb"> Fancy</label>
+                <label style="display:flex;align-items:center;gap:5px;font-size:13px;background:var(--bg);padding:4px 10px;border-radius:20px;border:1px solid var(--border);cursor:pointer;"><input type="checkbox" value="bridal" class="pm-cat-cb"> Bridal</label>
+                <label style="display:flex;align-items:center;gap:5px;font-size:13px;background:var(--bg);padding:4px 10px;border-radius:20px;border:1px solid var(--border);cursor:pointer;"><input type="checkbox" value="accessories" class="pm-cat-cb"> Accessories</label>
               </div>
             </div>
             <div class="field" id="pm-prod-field" style="display:none;grid-column:1/-1;">
