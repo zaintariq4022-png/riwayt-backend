@@ -1,5 +1,6 @@
 const Order = require('../models/Order');
 const Product = require('../models/Product');
+const PromoCode = require('../models/PromoCode');
 const { sendOrderConfirmation, sendOrderStatusUpdate } = require('../utils/email');
 
 /* ─── Public ──────────────────────────────────── */
@@ -26,6 +27,7 @@ exports.placeOrder = async (req, res) => {
     }
     orderItems.push({
       product: product._id,
+      _product: product, // temp ref for promo scope check
       name: product.name,
       image: product.images[0] || '',
       price: product.price,
@@ -37,12 +39,34 @@ exports.placeOrder = async (req, res) => {
 
   const deliveryFee = subtotal >= 10000 ? 0 : 250;
   let discount = 0;
-  if (promoCode === 'RIWAYAT20') discount = Math.round(subtotal * 0.2);
+  let appliedPromo = null;
+
+  if (promoCode) {
+    const promo = await PromoCode.findOne({ code: promoCode.toUpperCase().trim(), active: true });
+    if (promo && !(promo.expiresAt && new Date() > promo.expiresAt) && !(promo.maxUses > 0 && promo.usedCount >= promo.maxUses) && subtotal >= promo.minOrderAmount) {
+      let eligibleAmount = subtotal;
+      if (promo.scope === 'category' && promo.categories.length > 0) {
+        eligibleAmount = orderItems.reduce((sum, item) => {
+          const prod = item._product;
+          return prod && promo.categories.includes(prod.category) ? sum + (item.price * item.qty) : sum;
+        }, 0);
+      } else if (promo.scope === 'product' && promo.products.length > 0) {
+        const promoIds = promo.products.map(p => p.toString());
+        eligibleAmount = orderItems.reduce((sum, item) => promoIds.includes(item.product.toString()) ? sum + (item.price * item.qty) : sum, 0);
+      }
+      discount = promo.type === 'percentage' ? Math.round(eligibleAmount * promo.value / 100) : Math.min(promo.value, eligibleAmount);
+      appliedPromo = promo;
+    }
+  }
+
   const total = subtotal + deliveryFee - discount;
+
+  // Remove temp _product refs before saving
+  const cleanItems = orderItems.map(({ _product, ...rest }) => rest);
 
   const order = await Order.create({
     customer,
-    items: orderItems,
+    items: cleanItems,
     subtotal,
     deliveryFee,
     discount,
@@ -55,6 +79,11 @@ exports.placeOrder = async (req, res) => {
   // Reduce stock
   for (const item of items) {
     await Product.findByIdAndUpdate(item.productId, { $inc: { stock: -item.qty } });
+  }
+
+  // Increment promo usedCount
+  if (appliedPromo) {
+    await PromoCode.findByIdAndUpdate(appliedPromo._id, { $inc: { usedCount: 1 } });
   }
 
   // Send response immediately, email in background

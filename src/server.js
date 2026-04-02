@@ -17,6 +17,7 @@ const settingsRoutes  = require('./routes/settings');
 const videoRoutes     = require('./routes/video');
 const categoryRoutes  = require('./routes/categories');
 const sitemapRoutes   = require('./routes/sitemap');
+const promoRoutes     = require('./routes/promoCodes');
 
 connectDB();
 
@@ -43,6 +44,7 @@ app.use('/api/customers',  customerRoutes);
 app.use('/api/settings',   settingsRoutes);
 app.use('/api/video',      videoRoutes);
 app.use('/api/categories', categoryRoutes);
+app.use('/api/promo',      promoRoutes);
 
 // Sitemap & robots
 app.use('/sitemap.xml', sitemapRoutes);
