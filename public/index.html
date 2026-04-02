@@ -3714,6 +3714,9 @@ async function fetchProducts() {
         shortDesc: p.shortDesc || '',
         fabricCare: p.fabricCare || '',
         description: p.description || '',
+        videoUrl: p.videoUrl || '',
+        codEnabled: p.codEnabled !== false,
+        advancePercent: p.advancePercent || 0,
         };
       });
     } else {
