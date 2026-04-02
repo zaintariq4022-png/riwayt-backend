@@ -3094,11 +3094,9 @@
                 3️⃣ Neeche confirm karein — screenshot WhatsApp pe bhejein
               </div>
             </div>
-            <label style="display:flex;align-items:center;gap:10px;margin-top:14px;cursor:pointer;padding:12px;background:white;border-radius:6px;border:1.5px solid var(--border);transition:border-color 0.2s;" id="payConfirmLabel">
-              <input type="checkbox" id="paymentConfirmed" onchange="onPaymentConfirmed()" style="width:18px;height:18px;accent-color:var(--gold);cursor:pointer;flex-shrink:0;">
-              <span style="font-size:13px;font-weight:600;">Maine payment kar di hai — order confirm karein</span>
-            </label>
-            <div id="payConfirmMsg" style="display:none;margin-top:8px;font-size:12px;color:#16a34a;padding:6px 10px;background:#f0fdf4;border-radius:4px;">✅ Payment confirmed! Ab order place karein.</div>
+            <div style="margin-top:10px;font-size:12px;color:#888;">
+              💡 Payment karein phir <strong>Place Order</strong> dabayein
+            </div>
           </div>
 
           <div class="form-grid" id="cardFields" style="display:none;"></div>
@@ -4378,17 +4376,8 @@ function getCurrentOrderAmount() {
 }
 
 function openPayApp(href, app) {
-  // Try to open app — if fails show manual instructions
-  window.location = href;
-  setTimeout(() => {
-    // App nahi khula — store pe bhejo
-    const storeUrl = app === 'easypaisa'
-      ? 'https://play.google.com/store/apps/details?id=pk.com.telenor.phoenix'
-      : 'https://play.google.com/store/apps/details?id=com.jazzcash.android';
-    if (confirm('App nahi khuli? Play Store se install karein?')) {
-      window.open(storeUrl, '_blank');
-    }
-  }, 1500);
+  // Sirf try karo — koi popup nahi
+  try { window.location = href; } catch(e) {}
   return false;
 }
 
@@ -4624,18 +4613,9 @@ function updatePlaceOrderBtn(method) {
 }
 
 async function placeOrder() {
-  // Check if online payment confirmation required
+  // Payment method
   const selectedPayEl  = document.querySelector('.pay-option.selected');
   const method         = selectedPayEl?.dataset.method || 'cod';
-  const needsConfirm   = ['easypaisa','jazzcash','bank'].includes(method);
-  const isConfirmed    = document.getElementById('paymentConfirmed')?.checked || false;
-
-  if (needsConfirm && !isConfirmed) {
-    const reqMsg = document.getElementById('paymentRequiredMsg');
-    if (reqMsg) reqMsg.style.display = 'block';
-    document.getElementById('payAccountBox')?.scrollIntoView({ behavior: 'smooth', block: 'center' });
-    return;
-  }
 
 
   // Checkout form fields
@@ -4879,36 +4859,16 @@ function showOmPaymentDetails(val) {
 
   box.innerHTML = `
     <div style="line-height:1.9;">${accountHtml}</div>
-    <div style="margin-top:14px;border-top:1px solid rgba(201,168,76,0.3);padding-top:12px;">
-      <div style="font-size:12px;color:#888;margin-bottom:8px;">
-        1️⃣ Upar diye account pe payment karein &nbsp; 2️⃣ Screenshot le lein &nbsp; 3️⃣ Neeche confirm karein
-      </div>
-      <label style="display:flex;align-items:center;gap:10px;cursor:pointer;padding:10px;background:white;border-radius:6px;border:1.5px solid #e5e7eb;transition:border-color 0.2s;" id="om_confirm_label">
-        <input type="checkbox" id="om_pay_confirmed" onchange="updateOmSubmitBtn()"
-          style="width:18px;height:18px;accent-color:var(--gold);cursor:pointer;flex-shrink:0;">
-        <span style="font-size:13px;font-weight:600;">Maine payment kar di — order confirm karein</span>
-      </label>
-      <div id="om_pay_err" style="display:none;margin-top:6px;font-size:12px;color:#dc2626;background:#fef2f2;padding:6px 10px;border-radius:4px;">
-        ⚠️ Pehle payment karein aur confirm karein
-      </div>
+    <div style="margin-top:10px;font-size:12px;color:#888;padding:8px 0;">
+      💡 Payment karein phir <strong>Confirm Order</strong> dabayein
     </div>`;
   box.style.display = 'block';
   updateOmSubmitBtn();
 }
 
 function updateOmSubmitBtn() {
-  const btn     = document.getElementById('orderSubmitBtn');
-  const method  = document.getElementById('om_payment')?.value || 'cod';
-  const needsPay = ['easypaisa','jazzcash','bank'].includes(method);
-  const confirmed = document.getElementById('om_pay_confirmed')?.checked || false;
-  if (!btn) return;
-  if (needsPay && !confirmed) {
-    btn.style.opacity = '0.45';
-    btn.style.cursor  = 'not-allowed';
-  } else {
-    btn.style.opacity = '1';
-    btn.style.cursor  = 'pointer';
-  }
+  const btn = document.getElementById('orderSubmitBtn');
+  if (btn) { btn.style.opacity = '1'; btn.style.cursor = 'pointer'; }
 }
 
 function showOmPromoMsg(text, success) {
@@ -4980,16 +4940,7 @@ async function submitDirectOrder() {
     return;
   }
 
-  // Online payment confirm check
-  const omMethod    = document.getElementById('om_payment').value;
-  const omNeedsPay  = ['easypaisa','jazzcash','bank'].includes(omMethod);
-  const omConfirmed = document.getElementById('om_pay_confirmed')?.checked || false;
-  if (omNeedsPay && !omConfirmed) {
-    const errEl = document.getElementById('om_pay_err');
-    if (errEl) errEl.style.display = 'block';
-    document.getElementById('om_pay_details')?.scrollIntoView({ behavior:'smooth', block:'center' });
-    return;
-  }
+  // Payment method record karo — confirm checkbox ki zaroorat nahi
 
   const btn = document.getElementById('orderSubmitBtn');
   btn.textContent = 'Placing Order...';
