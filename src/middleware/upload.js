@@ -59,8 +59,51 @@ const fileFilter = (req, file, cb) => {
 // Middleware jo har request pe fresh watermark setting check kare
 const dynamicUpload = async (req, res, next) => {
   const storage = await getStorage();
-  const upload = multer({ storage, fileFilter, limits: { fileSize: 5 * 1024 * 1024, files: 6 } });
-  upload.array('images', 6)(req, res, next);
+
+  // Video ke liye alag Cloudinary storage (no transformation, raw video)
+  const videoStorage = new CloudinaryStorage({
+    cloudinary,
+    params: {
+      folder: 'riwayat-product-videos',
+      resource_type: 'video',
+      allowed_formats: ['mp4', 'webm', 'ogg', 'mov'],
+    },
+  });
+
+  const videoFileFilter = (req, file, cb) => {
+    if (file.mimetype.startsWith('video/')) cb(null, true);
+    else cb(new Error('Only video files allowed'));
+  };
+
+  const upload = multer({
+    storage,
+    fileFilter,
+    limits: { fileSize: 5 * 1024 * 1024, files: 6 },
+  });
+
+  const uploadVideo = multer({
+    storage: videoStorage,
+    fileFilter: videoFileFilter,
+    limits: { fileSize: 100 * 1024 * 1024 }, // 100MB video
+  });
+
+  // Process images first, then video
+  upload.array('images', 6)(req, res, (err) => {
+    if (err) return next(err);
+    // Check if video file was sent
+    if (req.headers['content-type'] && req.body) {
+      uploadVideo.single('productVideo')(req, res, (videoErr) => {
+        if (videoErr && videoErr.code !== 'LIMIT_UNEXPECTED_FILE') return next(videoErr);
+        // If video uploaded, set videoUrl
+        if (req.file) {
+          req.body.videoUrl = req.file.path || req.file.secure_url || '';
+        }
+        next();
+      });
+    } else {
+      next();
+    }
+  });
 };
 
 module.exports = dynamicUpload;

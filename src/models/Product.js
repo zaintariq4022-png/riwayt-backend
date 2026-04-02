@@ -21,6 +21,7 @@ const productSchema = new mongoose.Schema(
     sizeQtys: { type: Map, of: Number, default: {} },
     colors: [{ type: String }],
     images: [{ type: String }],           // URLs (Cloudinary or local path)
+    videoUrl: { type: String, default: '' }, // Product video URL (Cloudinary or YouTube)
     emoji: { type: String, default: '👗' },
     bgColor: { type: String, default: '#F5EFE6' },
     stock: { type: Number, default: 0, min: 0 },

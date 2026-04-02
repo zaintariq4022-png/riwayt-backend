@@ -1819,6 +1819,36 @@ tr:hover td{background:#FAFAFA;}
           <div class="img-preview-grid" id="imgPreviewGrid"></div>
         </div>
       </div>
+
+      <div class="form-row full">
+        <div class="field">
+          <label>Product Video <span style="font-size:11px;color:var(--text-muted);font-weight:400;">(optional — product page pe play hoga)</span></label>
+          <div style="display:flex;gap:10px;align-items:flex-start;flex-wrap:wrap;">
+            <div style="flex:1;min-width:220px;">
+              <div style="font-size:11px;font-weight:600;color:var(--text-muted);margin-bottom:6px;">📁 Video File Upload (MP4/WebM)</div>
+              <div class="img-upload-area" onclick="document.getElementById('pVideo').click()" id="videoUploadArea" style="padding:14px;min-height:unset;">
+                <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" width="24" height="24" style="margin:0 auto;color:var(--text-muted);"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M15 10l4.553-2.276A1 1 0 0121 8.723v6.554a1 1 0 01-1.447.894L15 14M3 8a2 2 0 012-2h8a2 2 0 012 2v8a2 2 0 01-2 2H5a2 2 0 01-2-2V8z"/></svg>
+                <p id="videoFileName" style="font-size:12px;margin-top:4px;">Click to select video</p>
+              </div>
+              <input type="file" id="pVideo" accept="video/mp4,video/webm,video/ogg" style="display:none;" onchange="onProductVideoSelected(this)"/>
+            </div>
+            <div style="display:flex;align-items:center;padding-top:28px;color:var(--text-muted);font-weight:600;">— YA —</div>
+            <div style="flex:1;min-width:220px;">
+              <div style="font-size:11px;font-weight:600;color:var(--text-muted);margin-bottom:6px;">🔗 Video URL (YouTube / Cloudinary link)</div>
+              <input type="text" id="pVideoUrl" placeholder="https://youtube.com/watch?v=... ya Cloudinary URL" style="width:100%;padding:9px 12px;border:1.5px solid var(--border);border-radius:6px;font-size:13px;" oninput="updateVideoPreview()"/>
+              <div style="font-size:11px;color:var(--text-muted);margin-top:4px;">YouTube link dene pe automatically embed hoga</div>
+            </div>
+          </div>
+          <div id="productVideoPreview" style="margin-top:10px;display:none;">
+            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;">
+              <span style="font-size:12px;font-weight:600;color:#12B76A;">✅ Video ready</span>
+              <button onclick="clearProductVideo()" style="background:#fee2e2;color:#F04438;border:none;border-radius:4px;padding:3px 10px;cursor:pointer;font-size:12px;">Remove</button>
+            </div>
+            <video id="productVideoEl" controls style="width:100%;max-height:160px;border-radius:6px;background:#000;display:none;"></video>
+            <div id="productVideoIframe" style="display:none;"></div>
+          </div>
+        </div>
+      </div>
     </div>
     <div class="modal-footer">
       <button class="btn btn-secondary" onclick="closeModal('productModal')">Cancel</button>
@@ -2360,6 +2390,13 @@ function openProductModal(id=null){
   document.getElementById('productModalTitle').textContent=id?'Edit Product':'Add Product';
   document.getElementById('imgPreviewGrid').innerHTML='';
   document.getElementById('pImages').value='';
+  document.getElementById('pVideoUrl').value='';
+  document.getElementById('pVideo').value='';
+  document.getElementById('productVideoPreview').style.display='none';
+  document.getElementById('productVideoEl').style.display='none';
+  document.getElementById('productVideoEl').src='';
+  document.getElementById('productVideoIframe').innerHTML='';
+  document.getElementById('videoFileName').textContent='Click to select video';
   if(!id){
     ['pName','pDesc','pShortDesc','pFabricCare','pFabric','pEmoji','pTags'].forEach(f=>document.getElementById(f).value='');
     initSizeQtyList([]);
@@ -2397,7 +2434,9 @@ function openProductModal(id=null){
     document.getElementById('pSale').checked=p.isSale;
     document.getElementById('pHot').checked=p.isHot||false;
     if(p.images&&p.images.length){
-      document.getElementById('imgPreviewGrid').innerHTML=p.images.map((img,idx)=>`
+      document.getElementById('pVideoUrl').value = p.videoUrl || '';
+    if (p.videoUrl) updateVideoPreview();
+    document.getElementById('imgPreviewGrid').innerHTML=p.images.map((img,idx)=>`
         <div class="img-preview" id="imgp-${idx}">
           <img src="${img}" alt=""/>
           <div class="remove-img" onclick="removeExistingImage('${id}','${img}',${idx})">✕</div>
@@ -2509,6 +2548,50 @@ function initColorPickers(colors=[]) {
   }
 }
 
+
+function onProductVideoSelected(input) {
+  const file = input.files[0];
+  if (!file) return;
+  document.getElementById('videoFileName').textContent = file.name;
+  document.getElementById('pVideoUrl').value = '';
+  const url = URL.createObjectURL(file);
+  const vidEl = document.getElementById('productVideoEl');
+  vidEl.src = url;
+  vidEl.style.display = 'block';
+  document.getElementById('productVideoIframe').innerHTML = '';
+  document.getElementById('productVideoIframe').style.display = 'none';
+  document.getElementById('productVideoPreview').style.display = 'block';
+}
+
+function updateVideoPreview() {
+  const url = document.getElementById('pVideoUrl').value.trim();
+  if (!url) { document.getElementById('productVideoPreview').style.display='none'; return; }
+  const vidEl   = document.getElementById('productVideoEl');
+  const iframeEl = document.getElementById('productVideoIframe');
+  // YouTube check
+  const ytMatch = url.match(/(?:youtube\.com\/watch\?v=|youtu\.be\/)([a-zA-Z0-9_-]{11})/);
+  if (ytMatch) {
+    vidEl.style.display = 'none'; vidEl.src = '';
+    iframeEl.style.display = 'block';
+    iframeEl.innerHTML = `<iframe width="100%" height="160" src="https://www.youtube.com/embed/${ytMatch[1]}" frameborder="0" allowfullscreen style="border-radius:6px;"></iframe>`;
+  } else {
+    iframeEl.style.display='none'; iframeEl.innerHTML='';
+    vidEl.src = url; vidEl.style.display = 'block';
+  }
+  document.getElementById('productVideoPreview').style.display = 'block';
+}
+
+function clearProductVideo() {
+  document.getElementById('pVideo').value = '';
+  document.getElementById('pVideoUrl').value = '';
+  document.getElementById('videoFileName').textContent = 'Click to select video';
+  document.getElementById('productVideoEl').src = '';
+  document.getElementById('productVideoEl').style.display = 'none';
+  document.getElementById('productVideoIframe').innerHTML = '';
+  document.getElementById('productVideoIframe').style.display = 'none';
+  document.getElementById('productVideoPreview').style.display = 'none';
+}
+
 async function saveProduct(){
   const id=document.getElementById('editProductId').value;
   const btn=document.getElementById('saveProductBtn');
@@ -2537,6 +2620,12 @@ async function saveProduct(){
   document.getElementById('pTags').value.split(',').map(t=>t.trim()).filter(Boolean).forEach(t=>fd.append('tags[]',t));
   document.querySelectorAll('#colorPickerList input[type="color"]').forEach(c=>fd.append('colors[]',c.value));
   Array.from(document.getElementById('pImages').files).forEach(f=>fd.append('images',f));
+  // Video — file ya URL
+  const videoFile = document.getElementById('pVideo').files[0];
+  const videoUrl  = document.getElementById('pVideoUrl').value.trim();
+  if (videoFile) fd.append('productVideo', videoFile);
+  else if (videoUrl) fd.append('videoUrl', videoUrl);
+  else fd.append('videoUrl', '');
   try{
     const res=await fetch(API+(id?`/products/${id}`:'/products'),{
       method:id?'PUT':'POST',
