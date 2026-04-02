@@ -3083,17 +3083,32 @@
           </div>
 
           <!-- Payment Account Details Box -->
-          <div id="payAccountBox" style="display:none;margin-top:16px;padding:16px;border:1.5px solid var(--gold);border-radius:6px;background:rgba(201,168,76,0.05);">
-            <div style="font-size:12px;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;color:var(--mid-gray);margin-bottom:10px;">📋 Payment Details</div>
-            <div id="payAccountDetails" style="font-size:14px;line-height:1.8;"></div>
-            <div style="margin-top:10px;font-size:12px;color:var(--mid-gray);">⚠️ Payment ke baad screenshot WhatsApp par bhejein</div>
+          <div id="payAccountBox" style="display:none;margin-top:16px;padding:20px;border:1.5px solid var(--gold);border-radius:6px;background:rgba(201,168,76,0.05);">
+            <div style="font-size:12px;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;color:var(--mid-gray);margin-bottom:12px;">📋 Payment Details</div>
+            <div id="payAccountDetails" style="font-size:14px;line-height:2;"></div>
+            <div style="margin-top:14px;padding:12px;background:white;border-radius:6px;border:1px solid var(--border);">
+              <div style="font-size:13px;font-weight:600;margin-bottom:8px;color:var(--charcoal);">Payment karne ke steps:</div>
+              <div style="font-size:13px;color:var(--mid-gray);line-height:1.8;">
+                1️⃣ Upar diye account pe payment karein<br>
+                2️⃣ Screenshot le lein<br>
+                3️⃣ Neeche confirm karein — screenshot WhatsApp pe bhejein
+              </div>
+            </div>
+            <label style="display:flex;align-items:center;gap:10px;margin-top:14px;cursor:pointer;padding:12px;background:white;border-radius:6px;border:1.5px solid var(--border);transition:border-color 0.2s;" id="payConfirmLabel">
+              <input type="checkbox" id="paymentConfirmed" onchange="onPaymentConfirmed()" style="width:18px;height:18px;accent-color:var(--gold);cursor:pointer;flex-shrink:0;">
+              <span style="font-size:13px;font-weight:600;">Maine payment kar di hai — order confirm karein</span>
+            </label>
+            <div id="payConfirmMsg" style="display:none;margin-top:8px;font-size:12px;color:#16a34a;padding:6px 10px;background:#f0fdf4;border-radius:4px;">✅ Payment confirmed! Ab order place karein.</div>
           </div>
 
           <div class="form-grid" id="cardFields" style="display:none;"></div>
 
-          <button class="btn-checkout" onclick="placeOrder()" style="margin-top:28px">
+          <button class="btn-checkout" onclick="placeOrder()" id="placeOrderBtn" style="margin-top:28px">
             Place Order — <span id="checkoutTotal">PKR 0</span>
           </button>
+          <div id="paymentRequiredMsg" style="display:none;margin-top:10px;text-align:center;font-size:13px;color:#dc2626;padding:8px;background:#fef2f2;border-radius:6px;">
+            ⚠️ Pehle payment karein aur neeche confirm karein
+          </div>
         </div>
       </div>
 
@@ -4561,11 +4576,66 @@ function selectPayment(el) {
   el.classList.add('selected');
   const method = el.dataset.method || '';
   showPaymentAccountDetails(method);
+  // Reset payment confirmation when method changes
+  const cb = document.getElementById('paymentConfirmed');
+  if (cb) cb.checked = false;
+  const msg = document.getElementById('payConfirmMsg');
+  if (msg) msg.style.display = 'none';
+  updatePlaceOrderBtn(method);
   const isCard = method === 'card';
   document.getElementById('cardFields').style.display = isCard ? 'grid' : 'none';
 }
 
+
+function onPaymentConfirmed() {
+  const cb     = document.getElementById('paymentConfirmed');
+  const msg    = document.getElementById('payConfirmMsg');
+  const reqMsg = document.getElementById('paymentRequiredMsg');
+  if (cb.checked) {
+    msg.style.display    = 'block';
+    reqMsg.style.display = 'none';
+    const label = document.getElementById('payConfirmLabel');
+    if (label) label.style.borderColor = 'var(--gold)';
+  } else {
+    msg.style.display = 'none';
+    const label = document.getElementById('payConfirmLabel');
+    if (label) label.style.borderColor = 'var(--border)';
+  }
+  const method = document.querySelector('.pay-option.selected')?.dataset.method || 'cod';
+  updatePlaceOrderBtn(method);
+}
+
+function updatePlaceOrderBtn(method) {
+  const btn    = document.getElementById('placeOrderBtn');
+  const reqMsg = document.getElementById('paymentRequiredMsg');
+  if (!btn) return;
+  const needsConfirm = ['easypaisa','jazzcash','bank'].includes(method);
+  const isConfirmed  = document.getElementById('paymentConfirmed')?.checked || false;
+  if (needsConfirm && !isConfirmed) {
+    btn.style.opacity = '0.5';
+    btn.style.cursor  = 'not-allowed';
+  } else {
+    btn.style.opacity = '1';
+    btn.style.cursor  = 'pointer';
+    if (reqMsg) reqMsg.style.display = 'none';
+  }
+}
+
 async function placeOrder() {
+  // Check if online payment confirmation required
+  const selectedPayEl  = document.querySelector('.pay-option.selected');
+  const method         = selectedPayEl?.dataset.method || 'cod';
+  const needsConfirm   = ['easypaisa','jazzcash','bank'].includes(method);
+  const isConfirmed    = document.getElementById('paymentConfirmed')?.checked || false;
+
+  if (needsConfirm && !isConfirmed) {
+    const reqMsg = document.getElementById('paymentRequiredMsg');
+    if (reqMsg) reqMsg.style.display = 'block';
+    document.getElementById('payAccountBox')?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    return;
+  }
+
+
   // Checkout form fields
   const fullName = document.getElementById('coName')?.value?.trim();
   const email    = document.getElementById('coEmail')?.value?.trim();
