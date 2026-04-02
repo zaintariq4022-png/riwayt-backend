@@ -321,7 +321,7 @@
       width: 17px;
       height: 17px;
       font-size: 0.65rem;
-      display: flex;
+      display: none;
       align-items: center;
       justify-content: center;
       font-weight: 600;
@@ -3038,6 +3038,26 @@
           </div>
         </div>
 
+        <!-- Promo Code -->
+        <div class="form-section" style="margin-bottom:36px;">
+          <h3>🎟️ Promo Code <span style="font-size:13px;font-weight:400;color:var(--mid-gray);">(optional)</span></h3>
+          <div style="display:flex;gap:10px;align-items:flex-start;margin-top:12px;">
+            <div style="flex:1;">
+              <input type="text" id="checkoutPromoInput" placeholder="Promo code likhein..." 
+                style="width:100%;padding:12px 16px;border:1.5px solid var(--border);font-family:var(--font-body);font-size:0.88rem;outline:none;text-transform:uppercase;letter-spacing:1px;transition:border-color 0.2s;"
+                onfocus="this.style.borderColor='var(--gold)'" onblur="this.style.borderColor='var(--border)'"
+                onkeydown="if(event.key==='Enter'){event.preventDefault();applyCheckoutPromo();}"/>
+            </div>
+            <button onclick="applyCheckoutPromo()" id="checkoutPromoBtn"
+              style="padding:12px 20px;background:var(--charcoal);color:white;border:none;cursor:pointer;font-family:var(--font-body);font-size:0.78rem;font-weight:600;letter-spacing:0.1em;text-transform:uppercase;white-space:nowrap;transition:all 0.2s;"
+              onmouseover="this.style.background='var(--gold)';this.style.color='#111'"
+              onmouseout="if(!appliedCheckoutPromo)this.style.background='var(--charcoal)';this.style.color='white'">
+              Apply
+            </button>
+          </div>
+          <div id="checkoutPromoMsg" style="display:none;margin-top:8px;font-size:13px;padding:8px 12px;border-radius:4px;"></div>
+        </div>
+
         <!-- Payment -->
         <div class="form-section">
           <h3>Payment Method</h3>
@@ -3101,7 +3121,11 @@
           </div>
           <div class="summary-row">
             <span>Delivery</span>
-            <span class="free">Free</span>
+            <span id="coDelivery" class="free">Free</span>
+          </div>
+          <div class="summary-row" id="coPromoRow" style="display:none;">
+            <span style="color:#16a34a;font-weight:600;">🎟️ Promo Discount</span>
+            <span style="color:#16a34a;font-weight:600;" id="coPromoAmt">− PKR 0</span>
           </div>
           <div class="summary-row total">
             <span>Total</span>
@@ -4319,9 +4343,64 @@ function updateCartTotals() {
 /* ==============================================
    CHECKOUT
 ============================================== */
-function renderCheckout() {
+let appliedCheckoutPromo = '';
+let appliedCheckoutDiscount = 0;
+
+async function applyCheckoutPromo() {
+  const code = document.getElementById('checkoutPromoInput').value.trim().toUpperCase();
+  const btn  = document.getElementById('checkoutPromoBtn');
+  const msg  = document.getElementById('checkoutPromoMsg');
+
+  if (!code) { showCheckoutPromoMsg('Code likhein!', false); return; }
+
+  btn.textContent = '...'; btn.disabled = true;
+
   const subtotal = cart.reduce((a, b) => a + b.price * b.qty, 0);
-  const grandTotal = subtotal + (subtotal >= 10000 ? 0 : 250);
+  const items    = cart.map(item => ({ productId: item.id, qty: item.qty }));
+
+  try {
+    const res  = await fetch(API_URL + '/promo/validate', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ code, items, subtotal }),
+    });
+    const data = await res.json();
+
+    if (data.success) {
+      appliedCheckoutPromo    = code;
+      appliedCheckoutDiscount = data.discount;
+      showCheckoutPromoMsg(data.message, true);
+      btn.textContent = '✓ Applied';
+      btn.style.background = 'var(--gold)';
+      btn.style.color = '#111';
+    } else {
+      appliedCheckoutPromo    = '';
+      appliedCheckoutDiscount = 0;
+      showCheckoutPromoMsg(data.message || 'Invalid promo code', false);
+      btn.textContent = 'Apply';
+      btn.style.background = 'var(--charcoal)';
+      btn.style.color = 'white';
+    }
+  } catch(e) {
+    showCheckoutPromoMsg('Server se connect nahi ho saka', false);
+    btn.textContent = 'Apply';
+  }
+  btn.disabled = false;
+  renderCheckout();
+}
+
+function showCheckoutPromoMsg(text, success) {
+  const el = document.getElementById('checkoutPromoMsg');
+  el.style.display    = 'block';
+  el.style.background = success ? '#f0fdf4' : '#fef2f2';
+  el.style.color      = success ? '#16a34a' : '#dc2626';
+  el.textContent      = text;
+}
+
+function renderCheckout() {
+  const subtotal  = cart.reduce((a, b) => a + b.price * b.qty, 0);
+  const delivery  = subtotal >= 10000 ? 0 : 250;
+  const grandTotal = subtotal + delivery - appliedCheckoutDiscount;
 
   document.getElementById('checkoutItems').innerHTML = cart.map(item => `
     <div class="checkout-mini-item">
@@ -4337,9 +4416,18 @@ function renderCheckout() {
     </div>
   `).join('');
 
-  document.getElementById('coSubtotal').textContent = 'PKR ' + subtotal.toLocaleString();
-  document.getElementById('coTotal').textContent = 'PKR ' + grandTotal.toLocaleString();
+  document.getElementById('coSubtotal').textContent  = 'PKR ' + subtotal.toLocaleString();
+  document.getElementById('coDelivery').textContent  = delivery === 0 ? 'Free' : 'PKR 250';
+  document.getElementById('coTotal').textContent     = 'PKR ' + grandTotal.toLocaleString();
   document.getElementById('checkoutTotal').textContent = 'PKR ' + grandTotal.toLocaleString();
+
+  const promoRow = document.getElementById('coPromoRow');
+  if (appliedCheckoutDiscount > 0) {
+    promoRow.style.display = 'flex';
+    document.getElementById('coPromoAmt').textContent = '− PKR ' + appliedCheckoutDiscount.toLocaleString();
+  } else {
+    promoRow.style.display = 'none';
+  }
 }
 
 function selectPayment(el) {
@@ -4368,7 +4456,7 @@ async function placeOrder() {
     : selectedPay.textContent.toLowerCase().includes('easypaisa') ? 'easypaisa'
     : selectedPay.textContent.toLowerCase().includes('jazzcash') ? 'jazzcash' : 'cod' : 'cod';
 
-  const promoCode = appliedPromoCode || '';
+  const promoCode = appliedCheckoutPromo || appliedPromoCode || '';
 
   const orderData = {
     customer: { fullName, email, phone, address, city },
