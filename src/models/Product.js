@@ -22,6 +22,8 @@ const productSchema = new mongoose.Schema(
     colors: [{ type: String }],
     images: [{ type: String }],           // URLs (Cloudinary or local path)
     videoUrl: { type: String, default: '' }, // Product video URL (Cloudinary or YouTube)
+    codEnabled: { type: Boolean, default: true }, // COD available hai ya nahi
+    advancePercent: { type: Number, default: 0 }, // Advance payment % (0 = full payment)
     emoji: { type: String, default: '👗' },
     bgColor: { type: String, default: '#F5EFE6' },
     stock: { type: Number, default: 0, min: 0 },

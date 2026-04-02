@@ -3747,6 +3747,7 @@ function showPage(page, pushHistory = true) {
   document.getElementById('page-' + page).classList.add('active');
   window.scrollTo({ top: 0, behavior: 'smooth' });
   if (page === 'cart') renderCart();
+  if (page === 'checkout') { renderCheckout(); setTimeout(renderCheckoutPaymentOptions, 100); }
   if (page === 'checkout') renderCheckout();
   const footer = document.querySelector('footer');
   if (footer) footer.style.display = '';
@@ -4342,6 +4343,38 @@ async function loadPaymentAccountsForCheckout() {
   } catch(e) {}
 }
 
+
+function getCurrentOrderAmount() {
+  // Checkout page total
+  const coTotal = document.getElementById('coTotal');
+  if (coTotal && coTotal.textContent) {
+    const val = coTotal.textContent.replace(/[^0-9]/g, '');
+    if (val) return parseInt(val);
+  }
+  // Cart total
+  const summaryTotal = document.getElementById('summaryTotal');
+  if (summaryTotal && summaryTotal.textContent) {
+    const val = summaryTotal.textContent.replace(/[^0-9]/g, '');
+    if (val) return parseInt(val);
+  }
+  return 0;
+}
+
+function openPayApp(href, app) {
+  // Try to open app — if fails show manual instructions
+  window.location = href;
+  setTimeout(() => {
+    // App nahi khula — store pe bhejo
+    const storeUrl = app === 'easypaisa'
+      ? 'https://play.google.com/store/apps/details?id=pk.com.telenor.phoenix'
+      : 'https://play.google.com/store/apps/details?id=com.jazzcash.android';
+    if (confirm('App nahi khuli? Play Store se install karein?')) {
+      window.open(storeUrl, '_blank');
+    }
+  }, 1500);
+  return false;
+}
+
 function showPaymentAccountDetails(method) {
   const box     = document.getElementById('payAccountBox');
   const details = document.getElementById('payAccountDetails');
@@ -4353,26 +4386,41 @@ function showPaymentAccountDetails(method) {
 
   let html = '';
   if (method === 'easypaisa' && _paymentAccounts.easypaisa?.active) {
-    const ep = _paymentAccounts.easypaisa;
-    html = `<div><strong>📱 EasyPaisa</strong></div>
-            <div>Account Number: <strong style="font-size:15px;letter-spacing:1px;">${ep.number}</strong></div>
-            <div>Account Name: <strong>${ep.name}</strong></div>
+    const ep  = _paymentAccounts.easypaisa;
+    const amt = getCurrentOrderAmount();
+    const num = ep.number.replace(/[^0-9]/g, '');
+    html = `<div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px;">
+              <strong>📱 EasyPaisa</strong>
+              <a href="easypaisa://send?to=${num}&amount=${amt}" onclick="return openPayApp(this.href,'easypaisa')" style="background:#3ECF8E;color:#fff;padding:6px 14px;border-radius:4px;font-size:12px;font-weight:700;text-decoration:none;cursor:pointer;">
+                Open EasyPaisa App ↗
+              </a>
+            </div>
+            <div style="margin-top:6px;">Account: <strong style="font-size:16px;letter-spacing:1px;">${ep.number}</strong></div>
+            <div>Name: <strong>${ep.name}</strong></div>
+            ${amt > 0 ? `<div style="margin-top:4px;">Amount: <strong style="color:#3ECF8E;">PKR ${amt.toLocaleString()}</strong></div>` : ''}
             ${ep.note ? `<div style="color:var(--mid-gray);font-size:12px;margin-top:6px;">ℹ️ ${ep.note}</div>` : ''}`;
   } else if (method === 'jazzcash' && _paymentAccounts.jazzcash?.active) {
-    const jc = _paymentAccounts.jazzcash;
-    html = `<div><strong>💛 JazzCash</strong></div>
-            <div>Account Number: <strong style="font-size:15px;letter-spacing:1px;">${jc.number}</strong></div>
-            <div>Account Name: <strong>${jc.name}</strong></div>
+    const jc  = _paymentAccounts.jazzcash;
+    const amt = getCurrentOrderAmount();
+    const num = jc.number.replace(/[^0-9]/g, '');
+    html = `<div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px;">
+              <strong>💛 JazzCash</strong>
+              <a href="jazzcash://send?to=${num}&amount=${amt}" onclick="return openPayApp(this.href,'jazzcash')" style="background:#F79009;color:#fff;padding:6px 14px;border-radius:4px;font-size:12px;font-weight:700;text-decoration:none;cursor:pointer;">
+                Open JazzCash App ↗
+              </a>
+            </div>
+            <div style="margin-top:6px;">Account: <strong style="font-size:16px;letter-spacing:1px;">${jc.number}</strong></div>
+            <div>Name: <strong>${jc.name}</strong></div>
+            ${amt > 0 ? `<div style="margin-top:4px;">Amount: <strong style="color:#F79009;">PKR ${amt.toLocaleString()}</strong></div>` : ''}
             ${jc.note ? `<div style="color:var(--mid-gray);font-size:12px;margin-top:6px;">ℹ️ ${jc.note}</div>` : ''}`;
   } else if (method === 'bank' && _paymentAccounts.bank?.active) {
     const bt = _paymentAccounts.bank;
     html = `<div><strong>🏦 ${bt.bankName}</strong></div>
-            <div>Account Title: <strong>${bt.name}</strong></div>
-            <div>Account No: <strong style="font-size:15px;letter-spacing:1px;">${bt.number}</strong></div>
+            <div style="margin-top:6px;">Account Title: <strong>${bt.name}</strong></div>
+            <div>Account No: <strong style="font-size:16px;letter-spacing:1px;">${bt.number}</strong></div>
             ${bt.iban ? `<div>IBAN: <strong>${bt.iban}</strong></div>` : ''}
             ${bt.note ? `<div style="color:var(--mid-gray);font-size:12px;margin-top:6px;">ℹ️ ${bt.note}</div>` : ''}`;
   } else {
-    // Method active nahi — admin ne enable nahi kiya
     html = `<div style="color:var(--mid-gray);">⚠️ Yeh payment method abhi available nahi — COD select karein ya WhatsApp karein.</div>`;
   }
 
@@ -4432,6 +4480,47 @@ function showCheckoutPromoMsg(text, success) {
   el.style.background = success ? '#f0fdf4' : '#fef2f2';
   el.style.color      = success ? '#16a34a' : '#dc2626';
   el.textContent      = text;
+}
+
+function renderCheckoutPaymentOptions() {
+  // COD option hide/show based on product
+  const codEnabled = !orderProduct ? true : (currentProduct?.codEnabled !== false);
+  const codOption  = document.querySelector('.pay-option[data-method="cod"]');
+  if (codOption) {
+    codOption.style.display = codEnabled ? 'flex' : 'none';
+    // Agar COD hide hai aur woh selected hai toh EasyPaisa select karo
+    if (!codEnabled && codOption.classList.contains('selected')) {
+      codOption.classList.remove('selected');
+      const epOption = document.querySelector('.pay-option[data-method="easypaisa"]');
+      if (epOption) { epOption.classList.add('selected'); showPaymentAccountDetails('easypaisa'); }
+    }
+  }
+
+  // Advance payment notice
+  const advPct = currentProduct?.advancePercent || 0;
+  let advBox   = document.getElementById('advancePaymentNotice');
+  if (!advBox) {
+    advBox = document.createElement('div');
+    advBox.id = 'advancePaymentNotice';
+    const placeBtn = document.querySelector('#page-checkout .btn-checkout');
+    if (placeBtn) placeBtn.parentNode.insertBefore(advBox, placeBtn);
+  }
+  if (advPct > 0) {
+    const subtotal   = cart.reduce((a,b) => a + b.price * b.qty, 0);
+    const delivery   = subtotal >= 10000 ? 0 : 250;
+    const total      = subtotal + delivery - (appliedCheckoutDiscount || 0);
+    const advAmt     = Math.round(total * advPct / 100);
+    const remaining  = total - advAmt;
+    advBox.style.cssText = 'margin-bottom:12px;padding:12px 16px;background:#fffbeb;border:1.5px solid #F79009;border-radius:6px;font-size:13px;';
+    advBox.innerHTML = `
+      <div style="font-weight:700;color:#b45309;margin-bottom:4px;">⚠️ Advance Payment Required</div>
+      <div>Is product ke liye <strong>${advPct}% advance (PKR ${advAmt.toLocaleString()})</strong> pehle dena hoga</div>
+      <div style="color:var(--mid-gray);margin-top:2px;">Baqi <strong>PKR ${remaining.toLocaleString()}</strong> delivery ke waqt</div>
+    `;
+    advBox.style.display = 'block';
+  } else {
+    advBox.style.display = 'none';
+  }
 }
 
 function renderCheckout() {
@@ -5178,6 +5267,38 @@ function openOrderModal() {
     <span style="color:var(--mid-gray);font-size:0.85rem">Total (incl. delivery)</span>
     <span style="color:var(--gold);font-weight:600">PKR ${(price + delivery).toLocaleString()}</span>
   `;
+
+  // COD toggle
+  const codEnabled = currentProduct?.codEnabled !== false;
+  const omPaySel   = document.getElementById('om_payment');
+  if (omPaySel) {
+    const codOpt = omPaySel.querySelector('option[value="cod"]');
+    if (codOpt) codOpt.style.display = codEnabled ? '' : 'none';
+    if (!codEnabled && omPaySel.value === 'cod') {
+      omPaySel.value = 'easypaisa';
+      showOmPaymentDetails('easypaisa');
+    }
+  }
+
+  // Advance payment notice in modal
+  const advPct = currentProduct?.advancePercent || 0;
+  let advNote  = document.getElementById('om_advance_note');
+  if (!advNote) {
+    advNote = document.createElement('div');
+    advNote.id = 'om_advance_note';
+    const submitBtn = document.getElementById('orderSubmitBtn');
+    if (submitBtn) submitBtn.parentNode.insertBefore(advNote, submitBtn);
+  }
+  if (advPct > 0) {
+    const price   = (currentProduct?.price || 0) * (qty || 1);
+    const advAmt  = Math.round(price * advPct / 100);
+    const remAmt  = price - advAmt;
+    advNote.style.cssText = 'margin-bottom:12px;padding:10px 14px;background:#fffbeb;border:1.5px solid #F79009;border-radius:4px;font-size:13px;';
+    advNote.innerHTML = `<strong style="color:#b45309;">⚠️ Advance: ${advPct}% = PKR ${advAmt.toLocaleString()} pehle</strong><br><span style="color:#888;font-size:12px;">Baqi PKR ${remAmt.toLocaleString()} delivery pe</span>`;
+    advNote.style.display = 'block';
+  } else {
+    if (advNote) advNote.style.display = 'none';
+  }
 
   document.getElementById('orderModal').style.display = 'flex';
   document.body.style.overflow = 'hidden';

@@ -1887,6 +1887,23 @@ tr:hover td{background:#FAFAFA;}
             <label><input type="checkbox" id="pIsNew"/> New Arrival</label>
             <label><input type="checkbox" id="pSale"/> On Sale</label>
             <label><input type="checkbox" id="pHot"/> 🔥 HOT</label>
+            <label><input type="checkbox" id="pCodEnabled" checked/> 💵 COD Available</label>
+          </div>
+          <div style="margin-top:12px;padding:12px 14px;background:var(--bg);border-radius:6px;border:1px solid var(--border);">
+            <div style="font-size:12px;font-weight:600;color:var(--text-muted);margin-bottom:8px;">💳 Advance Payment Setting</div>
+            <div style="display:flex;align-items:center;gap:12px;flex-wrap:wrap;">
+              <label style="display:flex;align-items:center;gap:6px;font-size:13px;">
+                <input type="radio" name="advPay" id="adv_none" value="0" checked onchange="updateAdvanceLabel()"> Full Payment (100%)
+              </label>
+              <label style="display:flex;align-items:center;gap:6px;font-size:13px;">
+                <input type="radio" name="advPay" id="adv_custom" value="custom" onchange="updateAdvanceLabel()"> Advance %
+              </label>
+              <div style="display:flex;align-items:center;gap:6px;" id="advPercentBox" style="display:none;">
+                <input type="number" id="pAdvancePercent" value="30" min="1" max="99" style="width:70px;padding:5px 8px;border:1px solid var(--border);border-radius:4px;font-size:13px;"/>
+                <span style="font-size:13px;color:var(--text-muted);">% pehle — baqi COD</span>
+              </div>
+            </div>
+            <div id="advancePreview" style="margin-top:8px;font-size:12px;color:var(--gold);display:none;"></div>
           </div>
         </div>
       </div>
@@ -2566,6 +2583,10 @@ function openProductModal(id=null){
     const ppEl = document.getElementById('pricePreview'); if(ppEl) ppEl.style.display='none';
     document.getElementById('pCategory').value='';
     ['pFeatured','pIsNew','pSale','pHot'].forEach(f=>document.getElementById(f).checked=false);
+  document.getElementById('pCodEnabled').checked=true;
+  document.getElementById('adv_none').checked=true;
+  document.getElementById('advPercentBox').style.display='none';
+  document.getElementById('advancePreview').style.display='none';
     initColorPickers([]);
     document.getElementById('productModal').classList.add('open');
     return;
@@ -2591,6 +2612,16 @@ function openProductModal(id=null){
     initSizeQtyList(p.sizes||[], p.sizeQtys||{});
     document.getElementById('pTags').value=(p.tags||[]).join(', ');
     document.getElementById('pFeatured').checked=p.isFeatured;
+    document.getElementById('pCodEnabled').checked = p.codEnabled !== false;
+    if (p.advancePercent > 0) {
+      document.getElementById('adv_custom').checked = true;
+      document.getElementById('pAdvancePercent').value = p.advancePercent;
+      document.getElementById('advPercentBox').style.display = 'flex';
+      updateAdvanceLabel();
+    } else {
+      document.getElementById('adv_none').checked = true;
+      document.getElementById('advPercentBox').style.display = 'none';
+    }
     document.getElementById('pIsNew').checked=p.isNew;
     document.getElementById('pSale').checked=p.isSale;
     document.getElementById('pHot').checked=p.isHot||false;
@@ -2753,6 +2784,21 @@ function clearProductVideo() {
   document.getElementById('productVideoPreview').style.display = 'none';
 }
 
+
+function updateAdvanceLabel() {
+  const isCustom = document.getElementById('adv_custom').checked;
+  const box      = document.getElementById('advPercentBox');
+  const preview  = document.getElementById('advancePreview');
+  box.style.display = isCustom ? 'flex' : 'none';
+  if (isCustom) {
+    const pct = document.getElementById('pAdvancePercent').value || 30;
+    preview.style.display = 'block';
+    preview.textContent   = `Customer pehle ${pct}% advance dega — baqi ${100-pct}% delivery pe`;
+  } else {
+    preview.style.display = 'none';
+  }
+}
+
 async function saveProduct(){
   const id=document.getElementById('editProductId').value;
   const btn=document.getElementById('saveProductBtn');
@@ -2772,6 +2818,9 @@ async function saveProduct(){
   fd.append('isNew',document.getElementById('pIsNew').checked);
   fd.append('isSale',document.getElementById('pSale').checked);
   fd.append('isHot',document.getElementById('pHot').checked);
+  fd.append('codEnabled',document.getElementById('pCodEnabled').checked);
+  const advCustom = document.getElementById('adv_custom').checked;
+  fd.append('advancePercent', advCustom ? (document.getElementById('pAdvancePercent').value || 30) : 0);
   const {sizes: sizeList, qtys: sizeQtys} = getSizeQtyData();
   sizeList.forEach(s => fd.append('sizes[]', s));
   fd.append('sizeQtys', JSON.stringify(sizeQtys));
