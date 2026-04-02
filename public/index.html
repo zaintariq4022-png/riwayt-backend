@@ -3061,21 +3061,24 @@
         <div class="form-section">
           <h3>Payment Method</h3>
           <div class="payment-methods">
-            <div class="pay-option selected" onclick="selectPayment(this)">
+            <div class="pay-option selected" onclick="selectPayment(this)" data-method="cod">
               <div class="pay-radio"></div>
               <div class="pay-label">Cash on Delivery (COD)</div>
             </div>
-            <div class="pay-option" onclick="selectPayment(this)">
+            <div class="pay-option" onclick="selectPayment(this)" data-method="easypaisa">
               <div class="pay-radio"></div>
-              <div class="pay-label">Easypaisa / JazzCash</div>
-              <div class="pay-icons">
-                <div class="pay-icon-card">EP</div>
-                <div class="pay-icon-card">JC</div>
-              </div>
+              <div class="pay-label">EasyPaisa</div>
+              <div class="pay-icons"><div class="pay-icon-card" style="background:#3ECF8E;color:#fff;">EP</div></div>
             </div>
-            <div class="pay-option" onclick="selectPayment(this)">
+            <div class="pay-option" onclick="selectPayment(this)" data-method="jazzcash">
               <div class="pay-radio"></div>
-              <div class="pay-label">Bank Transfer (Online)</div>
+              <div class="pay-label">JazzCash</div>
+              <div class="pay-icons"><div class="pay-icon-card" style="background:#F79009;color:#fff;">JC</div></div>
+            </div>
+            <div class="pay-option" onclick="selectPayment(this)" data-method="bank">
+              <div class="pay-radio"></div>
+              <div class="pay-label">Bank Transfer</div>
+              <div class="pay-icons"><div class="pay-icon-card" style="background:#3B82F6;color:#fff;">BT</div></div>
             </div>
           </div>
 
@@ -4339,41 +4342,42 @@ async function loadPaymentAccountsForCheckout() {
   } catch(e) {}
 }
 
-function showPaymentAccountDetails(label) {
+function showPaymentAccountDetails(method) {
   const box     = document.getElementById('payAccountBox');
   const details = document.getElementById('payAccountDetails');
-  const lbl     = label.toLowerCase();
 
-  if (!_paymentAccounts) { box.style.display = 'none'; return; }
+  if (!_paymentAccounts || !method || method === 'cod' || method === 'card') {
+    box.style.display = 'none';
+    return;
+  }
 
   let html = '';
-  if (lbl.includes('easypaisa') && _paymentAccounts.easypaisa?.active) {
+  if (method === 'easypaisa' && _paymentAccounts.easypaisa?.active) {
     const ep = _paymentAccounts.easypaisa;
     html = `<div><strong>📱 EasyPaisa</strong></div>
-            <div>Account: <strong>${ep.number}</strong></div>
-            <div>Name: <strong>${ep.name}</strong></div>
-            ${ep.note ? `<div style="color:var(--mid-gray);font-size:12px;margin-top:4px;">${ep.note}</div>` : ''}`;
-  } else if (lbl.includes('jazzcash') && _paymentAccounts.jazzcash?.active) {
+            <div>Account Number: <strong style="font-size:15px;letter-spacing:1px;">${ep.number}</strong></div>
+            <div>Account Name: <strong>${ep.name}</strong></div>
+            ${ep.note ? `<div style="color:var(--mid-gray);font-size:12px;margin-top:6px;">ℹ️ ${ep.note}</div>` : ''}`;
+  } else if (method === 'jazzcash' && _paymentAccounts.jazzcash?.active) {
     const jc = _paymentAccounts.jazzcash;
     html = `<div><strong>💛 JazzCash</strong></div>
-            <div>Account: <strong>${jc.number}</strong></div>
-            <div>Name: <strong>${jc.name}</strong></div>
-            ${jc.note ? `<div style="color:var(--mid-gray);font-size:12px;margin-top:4px;">${jc.note}</div>` : ''}`;
-  } else if (lbl.includes('bank') && _paymentAccounts.bank?.active) {
+            <div>Account Number: <strong style="font-size:15px;letter-spacing:1px;">${jc.number}</strong></div>
+            <div>Account Name: <strong>${jc.name}</strong></div>
+            ${jc.note ? `<div style="color:var(--mid-gray);font-size:12px;margin-top:6px;">ℹ️ ${jc.note}</div>` : ''}`;
+  } else if (method === 'bank' && _paymentAccounts.bank?.active) {
     const bt = _paymentAccounts.bank;
     html = `<div><strong>🏦 ${bt.bankName}</strong></div>
             <div>Account Title: <strong>${bt.name}</strong></div>
-            <div>Account No: <strong>${bt.number}</strong></div>
+            <div>Account No: <strong style="font-size:15px;letter-spacing:1px;">${bt.number}</strong></div>
             ${bt.iban ? `<div>IBAN: <strong>${bt.iban}</strong></div>` : ''}
-            ${bt.note ? `<div style="color:var(--mid-gray);font-size:12px;margin-top:4px;">${bt.note}</div>` : ''}`;
+            ${bt.note ? `<div style="color:var(--mid-gray);font-size:12px;margin-top:6px;">ℹ️ ${bt.note}</div>` : ''}`;
+  } else {
+    // Method active nahi — admin ne enable nahi kiya
+    html = `<div style="color:var(--mid-gray);">⚠️ Yeh payment method abhi available nahi — COD select karein ya WhatsApp karein.</div>`;
   }
 
-  if (html) {
-    details.innerHTML = html;
-    box.style.display = 'block';
-  } else {
-    box.style.display = 'none';
-  }
+  details.innerHTML = html;
+  box.style.display = 'block';
 }
 
 let appliedCheckoutPromo = '';
@@ -4466,8 +4470,9 @@ function renderCheckout() {
 function selectPayment(el) {
   document.querySelectorAll('.pay-option').forEach(p => p.classList.remove('selected'));
   el.classList.add('selected');
-  showPaymentAccountDetails(el.querySelector('.pay-label')?.textContent || '');
-  const isCard = el.querySelector('.pay-label').textContent.includes('Card');
+  const method = el.dataset.method || '';
+  showPaymentAccountDetails(method);
+  const isCard = method === 'card';
   document.getElementById('cardFields').style.display = isCard ? 'grid' : 'none';
 }
 
@@ -4485,10 +4490,8 @@ async function placeOrder() {
   }
 
   // Selected payment method
-  const selectedPay = document.querySelector('.pay-option.selected .pay-label');
-  const paymentMethod = selectedPay ? selectedPay.textContent.toLowerCase().includes('card') ? 'card'
-    : selectedPay.textContent.toLowerCase().includes('easypaisa') ? 'easypaisa'
-    : selectedPay.textContent.toLowerCase().includes('jazzcash') ? 'jazzcash' : 'cod' : 'cod';
+  const selectedPayEl = document.querySelector('.pay-option.selected');
+  const paymentMethod = selectedPayEl ? (selectedPayEl.dataset.method || 'cod') : 'cod';
 
   const promoCode = appliedCheckoutPromo || appliedPromoCode || '';
 
