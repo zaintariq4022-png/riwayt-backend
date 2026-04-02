@@ -2,6 +2,36 @@ const Product = require('../models/Product');
 const path = require('path');
 const fs = require('fs');
 
+// FormData strings ko proper types mein convert karo
+function sanitizeBody(body) {
+  const bools = ['isFeatured','isNew','isSale','isHot','codEnabled'];
+  const nums  = ['price','originalPrice','stock','advancePercent','rating','numReviews'];
+
+  bools.forEach(k => {
+    if (k in body) body[k] = body[k] === 'true' || body[k] === true;
+  });
+  nums.forEach(k => {
+    if (k in body && body[k] !== '') body[k] = Number(body[k]);
+  });
+
+  // tags[] array
+  if (body['tags[]']) {
+    body.tags = Array.isArray(body['tags[]']) ? body['tags[]'] : [body['tags[]']];
+    delete body['tags[]'];
+  }
+  // colors[] array
+  if (body['colors[]']) {
+    body.colors = Array.isArray(body['colors[]']) ? body['colors[]'] : [body['colors[]']];
+    delete body['colors[]'];
+  }
+  // sizes[] array
+  if (body['sizes[]']) {
+    body.sizes = Array.isArray(body['sizes[]']) ? body['sizes[]'] : [body['sizes[]']];
+    delete body['sizes[]'];
+  }
+  return body;
+}
+
 exports.getProducts = async (req, res) => {
   const { category, search, sort, page = 1, limit = 20 } = req.query;
   const query = {};
@@ -27,39 +57,48 @@ exports.getProduct = async (req, res) => {
 
 exports.createProduct = async (req, res) => {
   try {
-    const images = req.files ? req.files.map(f => f.path || `/uploads/${f.filename}`) : [];
+    const images = req.files ? req.files.map(f => f.path || f.secure_url || `/uploads/${f.filename}`) : [];
+    const body   = sanitizeBody({ ...req.body });
     let sizeQtys = {};
-    if (req.body.sizeQtys) { try { sizeQtys = JSON.parse(req.body.sizeQtys); } catch(e) {} }
+    if (body.sizeQtys) { try { sizeQtys = JSON.parse(body.sizeQtys); } catch(e) {} }
     const totalStock = Object.values(sizeQtys).reduce((a, b) => a + Number(b), 0);
-    const stock = totalStock > 0 ? totalStock : (Number(req.body.stock) || 0);
-    const product = await Product.create({ ...req.body, images, sizeQtys, stock });
+    const stock = totalStock > 0 ? totalStock : (Number(body.stock) || 0);
+    const product = await Product.create({ ...body, images, sizeQtys, stock });
     res.status(201).json({ success:true, product });
-  } catch(err) { res.status(400).json({ success:false, message: err.message }); }
+  } catch(err) {
+    console.error('createProduct error:', err.message);
+    res.status(400).json({ success:false, message: err.message });
+  }
 };
 
 exports.updateProduct = async (req, res) => {
   try {
     const product = await Product.findById(req.params.id);
     if (!product) return res.status(404).json({ success:false, message:'Product not found' });
+
+    const body = sanitizeBody({ ...req.body });
+
+    // New images append karo
     if (req.files && req.files.length > 0) {
-      req.body.images = [...(product.images||[]), ...req.files.map(f => f.path || `/uploads/${f.filename}`)];
+      body.images = [...(product.images||[]), ...req.files.map(f => f.path || f.secure_url || `/uploads/${f.filename}`)];
     }
-    if (req.body.sizeQtys) {
+
+    // sizeQtys parse karo
+    if (body.sizeQtys) {
       try {
-        req.body.sizeQtys = JSON.parse(req.body.sizeQtys);
-        const totalStock = Object.values(req.body.sizeQtys).reduce((a, b) => a + Number(b), 0);
-        if (totalStock > 0) req.body.stock = totalStock;
+        body.sizeQtys = JSON.parse(body.sizeQtys);
+        const totalStock = Object.values(body.sizeQtys).reduce((a, b) => a + Number(b), 0);
+        if (totalStock > 0) body.stock = totalStock;
       } catch(e) {}
     }
-    // Handle sizes array
-    if (req.body['sizes[]']) {
-      req.body.sizes = Array.isArray(req.body['sizes[]']) ? req.body['sizes[]'] : [req.body['sizes[]']];
-      delete req.body['sizes[]'];
-    }
-    Object.assign(product, req.body);
+
+    Object.assign(product, body);
     await product.save();
     res.json({ success:true, product });
-  } catch(err) { res.status(400).json({ success:false, message: err.message }); }
+  } catch(err) {
+    console.error('updateProduct error:', err.message);
+    res.status(400).json({ success:false, message: err.message });
+  }
 };
 
 exports.deleteProduct = async (req, res) => {
