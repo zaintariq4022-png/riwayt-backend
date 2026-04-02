@@ -4742,10 +4742,16 @@ function resetOrderModalPromo() {
   const btn   = document.getElementById('om_promo_btn');
   const msg   = document.getElementById('om_promo_msg');
   const row   = document.getElementById('omPromoDiscountRow');
+  const payBox = document.getElementById('om_pay_details');
   if (input) input.value = '';
   if (btn)   { btn.textContent = 'Apply'; btn.style.background = 'var(--charcoal)'; btn.style.color = 'white'; }
   if (msg)   msg.style.display = 'none';
   if (row)   row.style.display = 'none';
+  if (payBox) { payBox.style.display = 'none'; payBox.innerHTML = ''; }
+  // Reset payment select to COD
+  const omSel = document.getElementById('om_payment');
+  if (omSel) omSel.value = 'cod';
+  updateOmSubmitBtn();
 }
 
 function closeOrderModal() {
@@ -4804,20 +4810,99 @@ async function applyOrderModalPromo() {
 
 function showOmPaymentDetails(val) {
   const box = document.getElementById('om_pay_details');
-  if (!_paymentAccounts || val === 'cod' || val === 'card') { box.style.display='none'; return; }
-  let html = '';
-  if (val === 'easypaisa' && _paymentAccounts.easypaisa?.active) {
-    const ep = _paymentAccounts.easypaisa;
-    html = `📱 <strong>EasyPaisa</strong><br>Account: <strong>${ep.number}</strong><br>Name: <strong>${ep.name}</strong>${ep.note?'<br><span style="color:#888;font-size:12px;">'+ep.note+'</span>':''}`;
-  } else if (val === 'jazzcash' && _paymentAccounts.jazzcash?.active) {
-    const jc = _paymentAccounts.jazzcash;
-    html = `💛 <strong>JazzCash</strong><br>Account: <strong>${jc.number}</strong><br>Name: <strong>${jc.name}</strong>${jc.note?'<br><span style="color:#888;font-size:12px;">'+jc.note+'</span>':''}`;
-  } else if (val === 'bank' && _paymentAccounts.bank?.active) {
-    const bt = _paymentAccounts.bank;
-    html = `🏦 <strong>${bt.bankName}</strong><br>Title: <strong>${bt.name}</strong><br>Account: <strong>${bt.number}</strong>${bt.iban?'<br>IBAN: <strong>'+bt.iban+'</strong>':''}${bt.note?'<br><span style="color:#888;font-size:12px;">'+bt.note+'</span>':''}`;
+  // Reset confirm checkbox whenever method changes
+  const cb = document.getElementById('om_pay_confirmed');
+  if (cb) cb.checked = false;
+  updateOmSubmitBtn();
+
+  if (!val || val === 'cod') { box.style.display='none'; return; }
+
+  if (!_paymentAccounts) {
+    box.innerHTML = '<span style="color:#888;font-size:13px;">⏳ Payment details load ho rahi hain...</span>';
+    box.style.display = 'block';
+    return;
   }
-  if (html) { box.innerHTML = html; box.style.display = 'block'; }
-  else box.style.display = 'none';
+
+  let accountHtml = '';
+  if (val === 'easypaisa') {
+    if (_paymentAccounts.easypaisa?.active) {
+      const ep = _paymentAccounts.easypaisa;
+      const num = ep.number.replace(/[^0-9]/g,'');
+      const amt = orderProduct ? Math.round((orderProduct.price||0)*(qty||1) + ((orderProduct.price||0)*(qty||1) >= 10000 ? 0 : 250)) : 0;
+      accountHtml = `<div style="font-weight:700;color:#16a34a;margin-bottom:8px;">📱 EasyPaisa</div>
+        <div>Account Number: <strong style="font-size:16px;letter-spacing:1px;">${ep.number}</strong></div>
+        <div>Account Name: <strong>${ep.name}</strong></div>
+        ${amt>0?`<div style="margin-top:4px;">Amount: <strong style="color:#16a34a;">PKR ${amt.toLocaleString()}</strong></div>`:''}
+        <a href="easypaisa://send?to=${num}&amount=${amt}" onclick="return openPayApp(this.href,'easypaisa')"
+          style="display:inline-block;margin-top:10px;background:#16a34a;color:white;padding:8px 16px;border-radius:4px;font-size:13px;font-weight:700;text-decoration:none;">
+          📱 EasyPaisa App Kholo ↗
+        </a>
+        ${ep.note?`<div style="margin-top:6px;font-size:12px;color:#888;">ℹ️ ${ep.note}</div>`:''}`;
+    } else {
+      accountHtml = '<span style="color:#dc2626;font-size:13px;">⚠️ EasyPaisa abhi available nahi — COD select karein</span>';
+    }
+  } else if (val === 'jazzcash') {
+    if (_paymentAccounts.jazzcash?.active) {
+      const jc = _paymentAccounts.jazzcash;
+      const num = jc.number.replace(/[^0-9]/g,'');
+      const amt = orderProduct ? Math.round((orderProduct.price||0)*(qty||1) + ((orderProduct.price||0)*(qty||1) >= 10000 ? 0 : 250)) : 0;
+      accountHtml = `<div style="font-weight:700;color:#F79009;margin-bottom:8px;">💛 JazzCash</div>
+        <div>Account Number: <strong style="font-size:16px;letter-spacing:1px;">${jc.number}</strong></div>
+        <div>Account Name: <strong>${jc.name}</strong></div>
+        ${amt>0?`<div style="margin-top:4px;">Amount: <strong style="color:#F79009;">PKR ${amt.toLocaleString()}</strong></div>`:''}
+        <a href="jazzcash://send?to=${num}&amount=${amt}" onclick="return openPayApp(this.href,'jazzcash')"
+          style="display:inline-block;margin-top:10px;background:#F79009;color:white;padding:8px 16px;border-radius:4px;font-size:13px;font-weight:700;text-decoration:none;">
+          💛 JazzCash App Kholo ↗
+        </a>
+        ${jc.note?`<div style="margin-top:6px;font-size:12px;color:#888;">ℹ️ ${jc.note}</div>`:''}`;
+    } else {
+      accountHtml = '<span style="color:#dc2626;font-size:13px;">⚠️ JazzCash abhi available nahi — COD select karein</span>';
+    }
+  } else if (val === 'bank') {
+    if (_paymentAccounts.bank?.active) {
+      const bt = _paymentAccounts.bank;
+      accountHtml = `<div style="font-weight:700;color:#3B82F6;margin-bottom:8px;">🏦 ${bt.bankName}</div>
+        <div>Account Title: <strong>${bt.name}</strong></div>
+        <div>Account No: <strong style="font-size:16px;letter-spacing:1px;">${bt.number}</strong></div>
+        ${bt.iban?`<div>IBAN: <strong>${bt.iban}</strong></div>`:''}
+        ${bt.note?`<div style="margin-top:6px;font-size:12px;color:#888;">ℹ️ ${bt.note}</div>`:''}`;
+    } else {
+      accountHtml = '<span style="color:#dc2626;font-size:13px;">⚠️ Bank transfer abhi available nahi — COD select karein</span>';
+    }
+  }
+
+  box.innerHTML = `
+    <div style="line-height:1.9;">${accountHtml}</div>
+    <div style="margin-top:14px;border-top:1px solid rgba(201,168,76,0.3);padding-top:12px;">
+      <div style="font-size:12px;color:#888;margin-bottom:8px;">
+        1️⃣ Upar diye account pe payment karein &nbsp; 2️⃣ Screenshot le lein &nbsp; 3️⃣ Neeche confirm karein
+      </div>
+      <label style="display:flex;align-items:center;gap:10px;cursor:pointer;padding:10px;background:white;border-radius:6px;border:1.5px solid #e5e7eb;transition:border-color 0.2s;" id="om_confirm_label">
+        <input type="checkbox" id="om_pay_confirmed" onchange="updateOmSubmitBtn()"
+          style="width:18px;height:18px;accent-color:var(--gold);cursor:pointer;flex-shrink:0;">
+        <span style="font-size:13px;font-weight:600;">Maine payment kar di — order confirm karein</span>
+      </label>
+      <div id="om_pay_err" style="display:none;margin-top:6px;font-size:12px;color:#dc2626;background:#fef2f2;padding:6px 10px;border-radius:4px;">
+        ⚠️ Pehle payment karein aur confirm karein
+      </div>
+    </div>`;
+  box.style.display = 'block';
+  updateOmSubmitBtn();
+}
+
+function updateOmSubmitBtn() {
+  const btn     = document.getElementById('orderSubmitBtn');
+  const method  = document.getElementById('om_payment')?.value || 'cod';
+  const needsPay = ['easypaisa','jazzcash','bank'].includes(method);
+  const confirmed = document.getElementById('om_pay_confirmed')?.checked || false;
+  if (!btn) return;
+  if (needsPay && !confirmed) {
+    btn.style.opacity = '0.45';
+    btn.style.cursor  = 'not-allowed';
+  } else {
+    btn.style.opacity = '1';
+    btn.style.cursor  = 'pointer';
+  }
 }
 
 function showOmPromoMsg(text, success) {
@@ -4835,6 +4920,7 @@ function updateOrderModalTotal() {
   const subtotal = price * quantity;
   const delivery = subtotal >= 10000 ? 0 : 250;
   const total    = subtotal + delivery - omPromoDiscount;
+  const advPct   = orderProduct.advancePercent || 0;
 
   const promoRow = document.getElementById('omPromoDiscountRow');
   if (omPromoDiscount > 0) {
@@ -4844,9 +4930,29 @@ function updateOrderModalTotal() {
     promoRow.style.display = 'none';
   }
 
+  let advHtml = '';
+  if (advPct > 0) {
+    const advAmt = Math.round(total * advPct / 100);
+    const remAmt = total - advAmt;
+    advHtml = `<div style="margin-top:8px;padding:10px 12px;background:#fffbeb;border:1px solid #F79009;border-radius:4px;font-size:13px;">
+      <strong style="color:#b45309;">⚠️ Advance ${advPct}% = PKR ${advAmt.toLocaleString()} pehle</strong><br>
+      <span style="color:#888;font-size:12px;">Baqi PKR ${remAmt.toLocaleString()} delivery pe</span>
+    </div>`;
+  }
+
   document.getElementById('orderTotal').innerHTML =
     `<span>Total <span style="font-size:0.75rem;color:var(--mid-gray);font-family:var(--font-body)">(incl. delivery)</span></span>
      <span style="color:var(--gold)">PKR ${total.toLocaleString()}</span>`;
+
+  // Advance notice inject after total div
+  let advNote = document.getElementById('om_advance_inline');
+  if (!advNote) {
+    advNote = document.createElement('div');
+    advNote.id = 'om_advance_inline';
+    const totalDiv = document.getElementById('orderTotal');
+    if (totalDiv && totalDiv.parentNode) totalDiv.parentNode.insertBefore(advNote, totalDiv.nextSibling);
+  }
+  advNote.innerHTML = advHtml;
 }
 
 async function submitDirectOrder() {
@@ -4865,6 +4971,17 @@ async function submitDirectOrder() {
 
   if (!orderProduct) {
     showToast('Product select karein');
+    return;
+  }
+
+  // Online payment confirm check
+  const omMethod    = document.getElementById('om_payment').value;
+  const omNeedsPay  = ['easypaisa','jazzcash','bank'].includes(omMethod);
+  const omConfirmed = document.getElementById('om_pay_confirmed')?.checked || false;
+  if (omNeedsPay && !omConfirmed) {
+    const errEl = document.getElementById('om_pay_err');
+    if (errEl) errEl.style.display = 'block';
+    document.getElementById('om_pay_details')?.scrollIntoView({ behavior:'smooth', block:'center' });
     return;
   }
 
