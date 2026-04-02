@@ -10,100 +10,88 @@ cloudinary.config({
   api_secret: process.env.CLOUDINARY_API_SECRET,
 });
 
-// Dynamic storage — watermark setting check karke transformation apply karo
-async function getStorage() {
-  let wmSetting = { enabled: false, text: 'riwayat-pakistan.online', opacity: 0.35, gravity: 'south_east', fontSize: 28 };
+async function getWatermarkTransformations() {
+  let wm = { enabled: false, text: 'riwayat-pakistan.online', opacity: 0.35, gravity: 'south_east', fontSize: 28 };
   try {
     const s = await Settings.findOne({ key: 'watermark' });
-    if (s && s.value) wmSetting = s.value;
+    if (s && s.value) wm = s.value;
   } catch (e) {}
 
-  const transformations = [
-    { width: 800, height: 1067, crop: 'fill', quality: 'auto' }
-  ];
-
-  if (wmSetting.enabled) {
-    transformations.push({
-      overlay: {
-        font_family: 'Arial',
-        font_size: wmSetting.fontSize || 28,
-        text: wmSetting.text || 'riwayat-pakistan.online',
-      },
-      opacity: Math.round((wmSetting.opacity || 0.35) * 100),
-      gravity: wmSetting.gravity || 'south_east',
-      x: 10,
-      y: 10,
-      color: 'white',
+  const t = [{ width: 800, height: 1067, crop: 'fill', quality: 'auto' }];
+  if (wm.enabled) {
+    t.push({
+      overlay: { font_family: 'Arial', font_size: wm.fontSize || 28, text: wm.text || 'riwayat-pakistan.online' },
+      opacity: Math.round((wm.opacity || 0.35) * 100),
+      gravity: wm.gravity || 'south_east',
+      x: 10, y: 10, color: 'white',
     });
   }
-
-  return new CloudinaryStorage({
-    cloudinary,
-    params: {
-      folder: 'riwayat-products',
-      allowed_formats: ['jpeg', 'jpg', 'png', 'webp'],
-      transformation: transformations,
-    },
-  });
+  return t;
 }
 
-const fileFilter = (req, file, cb) => {
-  const allowed = /jpeg|jpg|png|webp/;
-  if (allowed.test(path.extname(file.originalname).toLowerCase()) && allowed.test(file.mimetype)) {
-    cb(null, true);
-  } else {
-    cb(new Error('Only JPEG, PNG and WebP images are allowed'));
-  }
-};
-
-// Middleware jo har request pe fresh watermark setting check kare
 const dynamicUpload = async (req, res, next) => {
-  const storage = await getStorage();
+  try {
+    const transformations = await getWatermarkTransformations();
 
-  // Video ke liye alag Cloudinary storage (no transformation, raw video)
-  const videoStorage = new CloudinaryStorage({
-    cloudinary,
-    params: {
-      folder: 'riwayat-product-videos',
-      resource_type: 'video',
-      allowed_formats: ['mp4', 'webm', 'ogg', 'mov'],
-    },
-  });
-
-  const videoFileFilter = (req, file, cb) => {
-    if (file.mimetype.startsWith('video/')) cb(null, true);
-    else cb(new Error('Only video files allowed'));
-  };
-
-  const upload = multer({
-    storage,
-    fileFilter,
-    limits: { fileSize: 5 * 1024 * 1024, files: 6 },
-  });
-
-  const uploadVideo = multer({
-    storage: videoStorage,
-    fileFilter: videoFileFilter,
-    limits: { fileSize: 100 * 1024 * 1024 }, // 100MB video
-  });
-
-  // Process images first, then video
-  upload.array('images', 6)(req, res, (err) => {
-    if (err) return next(err);
-    // Check if video file was sent
-    if (req.headers['content-type'] && req.body) {
-      uploadVideo.single('productVideo')(req, res, (videoErr) => {
-        if (videoErr && videoErr.code !== 'LIMIT_UNEXPECTED_FILE') return next(videoErr);
-        // If video uploaded, set videoUrl
-        if (req.file) {
-          req.body.videoUrl = req.file.path || req.file.secure_url || '';
+    const storage = new CloudinaryStorage({
+      cloudinary,
+      params: async (req, file) => {
+        if (file.fieldname === 'productVideo') {
+          return {
+            folder: 'riwayat-product-videos',
+            resource_type: 'video',
+            allowed_formats: ['mp4', 'webm', 'ogg', 'mov'],
+          };
         }
-        next();
-      });
-    } else {
+        return {
+          folder: 'riwayat-products',
+          allowed_formats: ['jpeg', 'jpg', 'png', 'webp'],
+          transformation: transformations,
+        };
+      },
+    });
+
+    const fileFilter = (req, file, cb) => {
+      if (file.fieldname === 'productVideo') {
+        if (file.mimetype.startsWith('video/')) return cb(null, true);
+        return cb(new Error('Only video files allowed'));
+      }
+      const ok = /jpeg|jpg|png|webp/;
+      if (ok.test(path.extname(file.originalname).toLowerCase()) && ok.test(file.mimetype)) {
+        return cb(null, true);
+      }
+      cb(new Error('Only JPEG, PNG and WebP allowed'));
+    };
+
+    const upload = multer({
+      storage,
+      fileFilter,
+      limits: { fileSize: 100 * 1024 * 1024 },
+    }).fields([
+      { name: 'images', maxCount: 6 },
+      { name: 'productVideo', maxCount: 1 },
+    ]);
+
+    upload(req, res, (err) => {
+      if (err) return next(err);
+
+      const fields = req.files || {};
+
+      // Controller expects req.files as array of image files
+      req.files = fields.images || [];
+
+      // If video uploaded, put URL in req.body
+      if (fields.productVideo && fields.productVideo.length > 0) {
+        const vid = fields.productVideo[0];
+        req.body.videoUrl = vid.path || vid.secure_url || '';
+      }
+
       next();
-    }
-  });
+    });
+
+  } catch (e) {
+    next(e);
+  }
 };
 
 module.exports = dynamicUpload;
