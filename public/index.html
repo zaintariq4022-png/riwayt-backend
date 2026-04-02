@@ -4540,9 +4540,99 @@ let orderProduct = null;
 
 // openOrderModal moved to account JS section below
 
+function resetOrderModalPromo() {
+  omPromoApplied  = '';
+  omPromoDiscount = 0;
+  const input = document.getElementById('om_promo');
+  const btn   = document.getElementById('om_promo_btn');
+  const msg   = document.getElementById('om_promo_msg');
+  const row   = document.getElementById('omPromoDiscountRow');
+  if (input) input.value = '';
+  if (btn)   { btn.textContent = 'Apply'; btn.style.background = 'var(--charcoal)'; btn.style.color = 'white'; }
+  if (msg)   msg.style.display = 'none';
+  if (row)   row.style.display = 'none';
+}
+
 function closeOrderModal() {
   document.getElementById('orderModal').style.display = 'none';
   document.body.style.overflow = '';
+}
+
+let omPromoApplied = '';
+let omPromoDiscount = 0;
+
+async function applyOrderModalPromo() {
+  const code = document.getElementById('om_promo').value.trim().toUpperCase();
+  const btn  = document.getElementById('om_promo_btn');
+  const msg  = document.getElementById('om_promo_msg');
+
+  if (!code) { showOmPromoMsg('Code likhein!', false); return; }
+
+  btn.textContent = '...'; btn.disabled = true;
+
+  const price    = orderProduct ? (orderProduct.price || 0) : 0;
+  const quantity = qty || 1;
+  const subtotal = price * quantity;
+  const items    = orderProduct ? [{ productId: orderProduct.id, qty: quantity }] : [];
+
+  try {
+    const res = await fetch(API_URL + '/promo/validate', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ code, items, subtotal }),
+    });
+    const data = await res.json();
+
+    if (data.success) {
+      omPromoApplied  = code;
+      omPromoDiscount = data.discount;
+      showOmPromoMsg(data.message, true);
+      btn.textContent = '✓ Applied';
+      btn.style.background = 'var(--gold)';
+      btn.style.color = '#111';
+    } else {
+      omPromoApplied  = '';
+      omPromoDiscount = 0;
+      showOmPromoMsg(data.message || 'Invalid promo code', false);
+      btn.textContent = 'Apply';
+      btn.style.background = 'var(--charcoal)';
+      btn.style.color = 'white';
+    }
+  } catch(e) {
+    showOmPromoMsg('Server se connect nahi ho saka', false);
+    btn.textContent = 'Apply';
+  }
+  btn.disabled = false;
+  updateOrderModalTotal();
+}
+
+function showOmPromoMsg(text, success) {
+  const el = document.getElementById('om_promo_msg');
+  el.style.display    = 'block';
+  el.style.background = success ? '#f0fdf4' : '#fef2f2';
+  el.style.color      = success ? '#16a34a' : '#dc2626';
+  el.textContent      = text;
+}
+
+function updateOrderModalTotal() {
+  if (!orderProduct) return;
+  const price    = orderProduct.price || 0;
+  const quantity = qty || 1;
+  const subtotal = price * quantity;
+  const delivery = subtotal >= 10000 ? 0 : 250;
+  const total    = subtotal + delivery - omPromoDiscount;
+
+  const promoRow = document.getElementById('omPromoDiscountRow');
+  if (omPromoDiscount > 0) {
+    promoRow.style.display = 'flex';
+    document.getElementById('omPromoDiscountAmt').textContent = '− PKR ' + omPromoDiscount.toLocaleString();
+  } else {
+    promoRow.style.display = 'none';
+  }
+
+  document.getElementById('orderTotal').innerHTML =
+    `<span>Total <span style="font-size:0.75rem;color:var(--mid-gray);font-family:var(--font-body)">(incl. delivery)</span></span>
+     <span style="color:var(--gold)">PKR ${total.toLocaleString()}</span>`;
 }
 
 async function submitDirectOrder() {
@@ -4569,11 +4659,13 @@ async function submitDirectOrder() {
   btn.disabled = true;
 
   try {
+    const promoCode = omPromoApplied || '';
     const orderData = {
       customer: { fullName: name, email, phone, address, city },
       items: [{ productId: orderProduct.id, qty: qty || 1, size: selectedSize || '' }],
       paymentMethod: payment || 'cod',
       notes: notes || '',
+      promoCode,
     };
 
     const res = await fetch(`${API_URL}/orders`, {
@@ -4982,6 +5074,7 @@ function showAccountPage() {
 
 // Auto-fill order form if customer is logged in
 function openOrderModal() {
+  resetOrderModalPromo();
   if (!currentProduct) return;
   orderProduct = currentProduct;
 
@@ -5466,12 +5559,34 @@ updateCartBadge();
           resize:none;background:white;
         " onfocus="this.style.borderColor='var(--gold)'" onblur="this.style.borderColor='var(--border)'"></textarea>
       </div>
+      <div style="grid-column:1/-1">
+        <label style="display:block;font-size:0.72rem;letter-spacing:0.1em;text-transform:uppercase;color:var(--mid-gray);margin-bottom:6px">🎟️ Promo Code (Optional)</label>
+        <div style="display:flex;gap:8px;">
+          <input id="om_promo" type="text" placeholder="Promo code likhein..." style="
+            flex:1;padding:11px 14px;border:1px solid var(--border);
+            font-family:var(--font-body);font-size:0.88rem;outline:none;
+            text-transform:uppercase;letter-spacing:1px;background:white;transition:border-color 0.3s;
+          " onfocus="this.style.borderColor='var(--gold)'" onblur="this.style.borderColor='var(--border)'"
+          onkeydown="if(event.key==='Enter'){event.preventDefault();applyOrderModalPromo();}"/>
+          <button onclick="applyOrderModalPromo()" id="om_promo_btn" style="
+            padding:11px 16px;background:var(--charcoal);color:white;border:none;cursor:pointer;
+            font-family:var(--font-body);font-size:0.75rem;font-weight:600;letter-spacing:0.1em;
+            text-transform:uppercase;white-space:nowrap;transition:all 0.2s;
+          " onmouseover="this.style.background='var(--gold)';this.style.color='#111'"
+             onmouseout="if(!omPromoApplied)this.style.background='var(--charcoal)';this.style.color='white'">Apply</button>
+        </div>
+        <div id="om_promo_msg" style="display:none;margin-top:6px;font-size:12px;padding:6px 10px;border-radius:3px;"></div>
+      </div>
     </div>
 
     <!-- Total -->
+    <div id="omPromoDiscountRow" style="display:none;justify-content:space-between;align-items:center;padding:8px 0;margin-top:8px;font-size:13px;">
+      <span style="color:#16a34a;font-weight:600;">🎟️ Promo Discount</span>
+      <span style="color:#16a34a;font-weight:600;" id="omPromoDiscountAmt">− PKR 0</span>
+    </div>
     <div id="orderTotal" style="
       display:flex;justify-content:space-between;align-items:center;
-      padding:14px 0;border-top:1px solid var(--border);margin-top:8px;
+      padding:14px 0;border-top:1px solid var(--border);margin-top:4px;
       font-family:var(--font-display);font-size:1.1rem;
     "></div>
 
