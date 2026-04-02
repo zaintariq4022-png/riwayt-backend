@@ -209,6 +209,28 @@ router.put('/watermark', protect, async (req, res) => {
   res.json({ success: true, message: enabled ? 'Watermark enabled!' : 'Watermark disabled!' });
 });
 
+
+// GET /api/settings/payment-accounts — public (frontend pe show karne ke liye)
+router.get('/payment-accounts', async (req, res) => {
+  try {
+    const setting = await Settings.findOne({ key: 'payment_accounts' });
+    res.json({ success: true, value: setting ? setting.value : null });
+  } catch (err) {
+    res.json({ success: true, value: null });
+  }
+});
+
+// PUT /api/settings/payment-accounts — admin only
+router.put('/payment-accounts', protect, async (req, res) => {
+  const { accounts } = req.body;
+  await Settings.findOneAndUpdate(
+    { key: 'payment_accounts' },
+    { key: 'payment_accounts', value: accounts },
+    { upsert: true, new: true }
+  );
+  res.json({ success: true, message: 'Payment accounts saved!' });
+});
+
 module.exports = router;
 
 // GET /api/settings/social — public

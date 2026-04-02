@@ -3088,6 +3088,13 @@
             </div>
           </div>
 
+          <!-- Payment Account Details Box -->
+          <div id="payAccountBox" style="display:none;margin-top:16px;padding:16px;border:1.5px solid var(--gold);border-radius:6px;background:rgba(201,168,76,0.05);">
+            <div style="font-size:12px;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;color:var(--mid-gray);margin-bottom:10px;">📋 Payment Details</div>
+            <div id="payAccountDetails" style="font-size:14px;line-height:1.8;"></div>
+            <div style="margin-top:10px;font-size:12px;color:var(--mid-gray);">⚠️ Payment ke baad screenshot WhatsApp par bhejein</div>
+          </div>
+
           <!-- Card fields (shown conditionally) -->
           <div class="form-grid" id="cardFields">
             <div class="form-group form-full">
@@ -4184,6 +4191,7 @@ function addToCart(product, size, quantity = 1) {
     cart.push({ ...product, size, qty: quantity });
   }
   updateCartBadge();
+loadPaymentAccountsForCheckout();
   showToast(`${product.name} added to your bag`);
 }
 
@@ -4343,6 +4351,54 @@ function updateCartTotals() {
 /* ==============================================
    CHECKOUT
 ============================================== */
+
+let _paymentAccounts = null;
+
+async function loadPaymentAccountsForCheckout() {
+  try {
+    const res  = await fetch(API_URL + '/settings/payment-accounts');
+    const data = await res.json();
+    if (data.success && data.value) _paymentAccounts = data.value;
+  } catch(e) {}
+}
+
+function showPaymentAccountDetails(label) {
+  const box     = document.getElementById('payAccountBox');
+  const details = document.getElementById('payAccountDetails');
+  const lbl     = label.toLowerCase();
+
+  if (!_paymentAccounts) { box.style.display = 'none'; return; }
+
+  let html = '';
+  if (lbl.includes('easypaisa') && _paymentAccounts.easypaisa?.active) {
+    const ep = _paymentAccounts.easypaisa;
+    html = `<div><strong>📱 EasyPaisa</strong></div>
+            <div>Account: <strong>${ep.number}</strong></div>
+            <div>Name: <strong>${ep.name}</strong></div>
+            ${ep.note ? `<div style="color:var(--mid-gray);font-size:12px;margin-top:4px;">${ep.note}</div>` : ''}`;
+  } else if (lbl.includes('jazzcash') && _paymentAccounts.jazzcash?.active) {
+    const jc = _paymentAccounts.jazzcash;
+    html = `<div><strong>💛 JazzCash</strong></div>
+            <div>Account: <strong>${jc.number}</strong></div>
+            <div>Name: <strong>${jc.name}</strong></div>
+            ${jc.note ? `<div style="color:var(--mid-gray);font-size:12px;margin-top:4px;">${jc.note}</div>` : ''}`;
+  } else if (lbl.includes('bank') && _paymentAccounts.bank?.active) {
+    const bt = _paymentAccounts.bank;
+    html = `<div><strong>🏦 ${bt.bankName}</strong></div>
+            <div>Account Title: <strong>${bt.name}</strong></div>
+            <div>Account No: <strong>${bt.number}</strong></div>
+            ${bt.iban ? `<div>IBAN: <strong>${bt.iban}</strong></div>` : ''}
+            ${bt.note ? `<div style="color:var(--mid-gray);font-size:12px;margin-top:4px;">${bt.note}</div>` : ''}`;
+  }
+
+  if (html) {
+    details.innerHTML = html;
+    box.style.display = 'block';
+  } else {
+    box.style.display = 'none';
+  }
+}
+
 let appliedCheckoutPromo = '';
 let appliedCheckoutDiscount = 0;
 
@@ -4433,6 +4489,7 @@ function renderCheckout() {
 function selectPayment(el) {
   document.querySelectorAll('.pay-option').forEach(p => p.classList.remove('selected'));
   el.classList.add('selected');
+  showPaymentAccountDetails(el.querySelector('.pay-label')?.textContent || '');
   const isCard = el.querySelector('.pay-label').textContent.includes('Card');
   document.getElementById('cardFields').style.display = isCard ? 'grid' : 'none';
 }
@@ -4604,6 +4661,25 @@ async function applyOrderModalPromo() {
   }
   btn.disabled = false;
   updateOrderModalTotal();
+}
+
+
+function showOmPaymentDetails(val) {
+  const box = document.getElementById('om_pay_details');
+  if (!_paymentAccounts || val === 'cod' || val === 'card') { box.style.display='none'; return; }
+  let html = '';
+  if (val === 'easypaisa' && _paymentAccounts.easypaisa?.active) {
+    const ep = _paymentAccounts.easypaisa;
+    html = `📱 <strong>EasyPaisa</strong><br>Account: <strong>${ep.number}</strong><br>Name: <strong>${ep.name}</strong>${ep.note?'<br><span style="color:#888;font-size:12px;">'+ep.note+'</span>':''}`;
+  } else if (val === 'jazzcash' && _paymentAccounts.jazzcash?.active) {
+    const jc = _paymentAccounts.jazzcash;
+    html = `💛 <strong>JazzCash</strong><br>Account: <strong>${jc.number}</strong><br>Name: <strong>${jc.name}</strong>${jc.note?'<br><span style="color:#888;font-size:12px;">'+jc.note+'</span>':''}`;
+  } else if (val === 'bank' && _paymentAccounts.bank?.active) {
+    const bt = _paymentAccounts.bank;
+    html = `🏦 <strong>${bt.bankName}</strong><br>Title: <strong>${bt.name}</strong><br>Account: <strong>${bt.number}</strong>${bt.iban?'<br>IBAN: <strong>'+bt.iban+'</strong>':''}${bt.note?'<br><span style="color:#888;font-size:12px;">'+bt.note+'</span>':''}`;
+  }
+  if (html) { box.innerHTML = html; box.style.display = 'block'; }
+  else box.style.display = 'none';
 }
 
 function showOmPromoMsg(text, success) {
@@ -5076,6 +5152,21 @@ function showAccountPage() {
 function openOrderModal() {
   resetOrderModalPromo();
   if (!currentProduct) return;
+
+  // Size select honi chahiye
+  if (currentProduct.sizes && currentProduct.sizes.length > 0 && !selectedSize) {
+    // Size selector highlight karo
+    const sizeSelector = document.getElementById('detailSizeSelector');
+    if (sizeSelector) {
+      sizeSelector.style.outline = '2px solid var(--terracotta)';
+      sizeSelector.style.borderRadius = '4px';
+      sizeSelector.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      setTimeout(() => { sizeSelector.style.outline = 'none'; }, 2000);
+    }
+    showToast('⚠️ Pehle size select karein!');
+    return;
+  }
+
   orderProduct = currentProduct;
 
   if (currentCustomer) {
@@ -5544,12 +5635,14 @@ updateCartBadge();
           width:100%;padding:11px 14px;border:1px solid var(--border);
           font-family:var(--font-body);font-size:0.88rem;outline:none;
           background:white;cursor:pointer;
-        ">
+        " onchange="showOmPaymentDetails(this.value)">
           <option value="cod">Cash on Delivery (COD)</option>
           <option value="easypaisa">EasyPaisa</option>
           <option value="jazzcash">JazzCash</option>
+          <option value="bank">Bank Transfer</option>
           <option value="card">Card</option>
         </select>
+        <div id="om_pay_details" style="display:none;margin-top:8px;padding:12px 14px;border:1px solid var(--gold);border-radius:4px;background:rgba(201,168,76,0.05);font-size:13px;line-height:1.8;"></div>
       </div>
       <div style="grid-column:1/-1">
         <label style="display:block;font-size:0.72rem;letter-spacing:0.1em;text-transform:uppercase;color:var(--mid-gray);margin-bottom:6px">Special Notes (Optional)</label>
