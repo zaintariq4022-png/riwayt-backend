@@ -4648,9 +4648,8 @@ async function placeOrder() {
     return;
   }
 
-  // Selected payment method
-  const selectedPayEl = document.querySelector('.pay-option.selected');
-  const paymentMethod = selectedPayEl ? (selectedPayEl.dataset.method || 'cod') : 'cod';
+  // Selected payment method (reuse from above)
+  const paymentMethod = method || 'cod';
 
   const promoCode = appliedCheckoutPromo || appliedPromoCode || '';
 
