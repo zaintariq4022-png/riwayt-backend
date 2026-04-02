@@ -2912,8 +2912,13 @@
         </div>
 
         <div class="promo-row">
-          <input class="promo-input" placeholder="Promo / Gift Code" id="promoInput" />
-          <button class="promo-btn" onclick="applyPromo()">Apply</button>
+          <input class="promo-input" placeholder="Promo code likhein..." id="promoInput" style="text-transform:uppercase;" onkeydown="if(event.key==='Enter') applyPromo()"/>
+          <button class="promo-btn" onclick="applyPromo()" id="promoBtn">Apply</button>
+        </div>
+        <div id="promoMsg" style="font-size:12px;margin-top:6px;display:none;padding:6px 10px;border-radius:6px;"></div>
+        <div id="promoAppliedRow" class="summary-row" style="display:none;">
+          <span style="color:#12B76A;font-weight:600;">🎟️ Promo Discount</span>
+          <span style="color:#12B76A;font-weight:600;" id="promoDiscountAmt">− PKR 0</span>
         </div>
 
         <button class="btn-checkout" onclick="showPage('checkout')">Proceed to Checkout</button>
@@ -4211,11 +4216,7 @@ function renderCart() {
     </div>
   `).join('');
 
-  document.getElementById('summarySubtotal').textContent = 'PKR ' + subtotal.toLocaleString();
-  document.getElementById('summaryDelivery').textContent = subtotal >= 10000 ? 'Free' : 'PKR 250';
-  document.getElementById('summaryDiscount').textContent = '− PKR ' + saved.toLocaleString();
-  const grandTotal = subtotal + (subtotal >= 10000 ? 0 : 250);
-  document.getElementById('summaryTotal').textContent = 'PKR ' + grandTotal.toLocaleString();
+  updateCartTotals();
 }
 
 function updateCartQty(idx, delta) {
@@ -4230,12 +4231,88 @@ function removeCartItem(idx) {
   renderCart();
 }
 
-function applyPromo() {
+let appliedPromoCode = '';
+let appliedPromoDiscount = 0;
+
+async function applyPromo() {
   const code = document.getElementById('promoInput').value.trim().toUpperCase();
-  if (code === 'RIWAYAT20') {
-    showToast('Promo code applied! Extra 20% off');
-  } else if (code) {
-    showToast('Invalid promo code');
+  const btn  = document.getElementById('promoBtn');
+  const msg  = document.getElementById('promoMsg');
+
+  if (!code) {
+    showPromoMsg('Code likhein!', false);
+    return;
+  }
+
+  btn.textContent = '...'; btn.disabled = true;
+  msg.style.display = 'none';
+
+  const subtotal = cart.reduce((a, b) => a + b.price * b.qty, 0);
+  const items    = cart.map(item => ({ productId: item.id, qty: item.qty }));
+
+  try {
+    const res  = await fetch(API_URL + '/promo/validate', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ code, items, subtotal }),
+    });
+    const data = await res.json();
+
+    if (data.success) {
+      appliedPromoCode     = code;
+      appliedPromoDiscount = data.discount;
+      showPromoMsg(data.message, true);
+      updateCartTotals();
+    } else {
+      appliedPromoCode     = '';
+      appliedPromoDiscount = 0;
+      showPromoMsg(data.message || 'Invalid promo code', false);
+      updateCartTotals();
+    }
+  } catch(e) {
+    showPromoMsg('Server se connect nahi ho saka', false);
+  }
+
+  btn.textContent = appliedPromoCode ? '✓ Applied' : 'Apply';
+  btn.disabled    = false;
+}
+
+function removePromo() {
+  appliedPromoCode     = '';
+  appliedPromoDiscount = 0;
+  document.getElementById('promoInput').value = '';
+  document.getElementById('promoBtn').textContent = 'Apply';
+  document.getElementById('promoBtn').disabled    = false;
+  document.getElementById('promoMsg').style.display = 'none';
+  document.getElementById('promoAppliedRow').style.display = 'none';
+  updateCartTotals();
+}
+
+function showPromoMsg(text, success) {
+  const el = document.getElementById('promoMsg');
+  el.style.display    = 'block';
+  el.style.background = success ? '#f0fdf4' : '#fef2f2';
+  el.style.color      = success ? '#16a34a' : '#dc2626';
+  el.textContent      = text;
+}
+
+function updateCartTotals() {
+  const subtotal   = cart.reduce((a, b) => a + b.price * b.qty, 0);
+  const saved      = cart.reduce((a, b) => a + ((b.original || b.price) - b.price) * b.qty, 0);
+  const delivery   = subtotal >= 10000 ? 0 : 250;
+  const grandTotal = subtotal + delivery - appliedPromoDiscount;
+
+  document.getElementById('summarySubtotal').textContent  = 'PKR ' + subtotal.toLocaleString();
+  document.getElementById('summaryDelivery').textContent  = delivery === 0 ? 'Free' : 'PKR 250';
+  document.getElementById('summaryDiscount').textContent  = '− PKR ' + saved.toLocaleString();
+  document.getElementById('summaryTotal').textContent     = 'PKR ' + grandTotal.toLocaleString();
+
+  const promoRow = document.getElementById('promoAppliedRow');
+  if (appliedPromoDiscount > 0) {
+    promoRow.style.display = 'flex';
+    document.getElementById('promoDiscountAmt').textContent = '− PKR ' + appliedPromoDiscount.toLocaleString();
+  } else {
+    promoRow.style.display = 'none';
   }
 }
 
@@ -4291,7 +4368,7 @@ async function placeOrder() {
     : selectedPay.textContent.toLowerCase().includes('easypaisa') ? 'easypaisa'
     : selectedPay.textContent.toLowerCase().includes('jazzcash') ? 'jazzcash' : 'cod' : 'cod';
 
-  const promoCode = document.getElementById('promoInput')?.value?.trim() || '';
+  const promoCode = appliedPromoCode || '';
 
   const orderData = {
     customer: { fullName, email, phone, address, city },
