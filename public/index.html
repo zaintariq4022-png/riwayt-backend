@@ -4190,7 +4190,6 @@ function addToCart(product, size, quantity = 1) {
     cart.push({ ...product, size, qty: quantity });
   }
   updateCartBadge();
-loadPaymentAccountsForCheckout();
   showToast(`${product.name} added to your bag`);
 }
 
@@ -4823,6 +4822,10 @@ function showOmPaymentDetails(val) {
   if (!_paymentAccounts) {
     box.innerHTML = '<span style="color:#888;font-size:13px;">⏳ Payment details load ho rahi hain...</span>';
     box.style.display = 'block';
+    // Load and retry
+    loadPaymentAccountsForCheckout().then(() => {
+      if (_paymentAccounts) showOmPaymentDetails(val);
+    });
     return;
   }
 
@@ -5410,6 +5413,8 @@ function showAccountPage() {
 function openOrderModal() {
   resetOrderModalPromo();
   if (!currentProduct) return;
+  // Ensure payment accounts are loaded
+  if (!_paymentAccounts) loadPaymentAccountsForCheckout();
 
   // Size select honi chahiye
   if (currentProduct.sizes && currentProduct.sizes.length > 0 && !selectedSize) {
@@ -5785,6 +5790,7 @@ async function loadHeroText() {
 }
 
 updateCartBadge();
+loadPaymentAccountsForCheckout();
 </script>
 
 <!-- =============================================
