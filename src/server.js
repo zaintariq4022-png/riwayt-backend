@@ -54,9 +54,12 @@ app.get('/product/:slug', async (req, res) => {
 
     // Agar bot hai toh OG HTML do, warna frontend pe redirect karo
     const ua = req.headers['user-agent'] || '';
-    const isBot = /whatsapp|facebookexternalhit|twitterbot|googlebot|linkedinbot|slackbot|telegrambot|discordbot|crawler|spider/i.test(ua);
+    const isBot = /whatsapp|facebookexternalhit|twitterbot|googlebot|linkedinbot|slackbot|telegrambot|discordbot|crawler|spider|bot|preview/i.test(ua);
+    // WhatsApp ke liye hamesha OG serve karo
+    const forceOG = req.query.og === '1';
 
-    if (isBot) {
+    if (isBot || forceOG) {
+      res.setHeader('Cache-Control', 'no-cache, no-store');
       return res.send(`<!DOCTYPE html>
 <html>
 <head>

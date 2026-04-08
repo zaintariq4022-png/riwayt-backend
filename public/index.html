@@ -3730,6 +3730,7 @@ async function fetchProducts() {
         videoUrl: p.videoUrl || '',
         codEnabled: p.codEnabled !== false,
         advancePercent: p.advancePercent || 0,
+        slug: p.slug || '',
         };
       });
     } else {
@@ -5832,10 +5833,9 @@ function initStickyCartBar() {
 
 function shareProduct() {
   if (!currentProduct) return;
-  const slug = currentProduct.name
-    .toLowerCase()
-    .replace(/[^a-z0-9]+/g, '-')
-    .replace(/^-+|-+$/g, '');
+  // DB slug use karo — nahi hai toh name se banao
+  const slug = currentProduct.slug ||
+    currentProduct.name.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '');
   const url  = `https://riwayat-pakistan.online/product/${slug}`;
   const text = `${currentProduct.name} — PKR ${currentProduct.price.toLocaleString()}\n${url}`;
 
