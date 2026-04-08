@@ -3852,16 +3852,15 @@ history.replaceState({ page: 'home' }, '', '#home');
   const params = new URLSearchParams(window.location.search);
   const pid = params.get('pid');
   if (pid) {
-    // Products load hone ka wait karo phir product open karo
-    const tryOpen = () => {
-      const p = PRODUCTS.find(pr => pr.id === pid);
+    const tryOpen = (attempts = 0) => {
+      const p = PRODUCTS.find(pr => pr.id === pid || pr.id === String(pid));
       if (p) {
         showProductDetail(p.id);
-      } else if (PRODUCTS.length === 0) {
-        setTimeout(tryOpen, 300);
+      } else if (attempts < 15) {
+        setTimeout(() => tryOpen(attempts + 1), 400);
       }
     };
-    setTimeout(tryOpen, 500);
+    setTimeout(() => tryOpen(), 800);
   }
 })();
 
@@ -5866,21 +5865,14 @@ function initStickyCartBar() {
 
 function shareProduct() {
   if (!currentProduct) return;
-  // DB slug use karo — nahi hai toh name se banao
-  const slug = currentProduct.slug ||
-    currentProduct.name.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '');
-  const url  = `https://riwayat-pakistan.online/product/${slug}`;
-  const text = `${currentProduct.name} — PKR ${currentProduct.price.toLocaleString()}\n${url}`;
-
+  const url  = `https://riwayat-pakistan.online/p/${currentProduct.id}`;
+  const text = `${currentProduct.name}\nPKR ${currentProduct.price.toLocaleString()}\n${url}`;
   if (navigator.share) {
-    navigator.share({ title: currentProduct.name, text: `PKR ${currentProduct.price.toLocaleString()}`, url })
-      .catch(() => {});
+    navigator.share({ title: currentProduct.name, text: `PKR ${currentProduct.price.toLocaleString()}`, url }).catch(() => {});
   } else {
-    // Clipboard copy
     navigator.clipboard.writeText(url).then(() => {
       showToast('🔗 Link copy ho gaya!');
     }).catch(() => {
-      // WhatsApp fallback
       window.open('https://wa.me/?text=' + encodeURIComponent(text), '_blank');
     });
   }

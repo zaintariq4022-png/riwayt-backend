@@ -115,6 +115,55 @@ app.get('/admin/bill', (req, res) => res.sendFile(path.join(__dirname, '../publi
 app.get('/',      (req, res) => res.sendFile(path.join(__dirname, '../public/index.html')));
 app.get('/health', (req, res) => res.json({ status: 'ok', env: process.env.NODE_ENV }));
 
+// Short share link: /p/PRODUCT_ID — works for all users + bots
+app.get('/p/:id', async (req, res) => {
+  try {
+    const product = await Product.findById(req.params.id);
+    if (!product) return res.redirect('/');
+
+    const title = `${product.name} — RIWAYAT`;
+    const desc  = (product.description || 'Luxury Pakistani Fashion').substring(0, 150);
+    const image = product.images?.[0] || 'https://riwayat-pakistan.online/og-image.jpg';
+    const url   = `https://riwayat-pakistan.online/p/${product._id}`;
+
+    const ua    = req.headers['user-agent'] || '';
+    const isBot = /whatsapp|facebook|twitter|telegram|discord|linkedin|slack|google|bot|crawler|spider|preview/i.test(ua);
+
+    if (isBot) {
+      return res.send(`<!DOCTYPE html><html><head>
+  <meta charset="UTF-8"/>
+  <title>${title}</title>
+  <meta property="og:type" content="product"/>
+  <meta property="og:url" content="${url}"/>
+  <meta property="og:title" content="${title}"/>
+  <meta property="og:description" content="${desc} — PKR ${product.price.toLocaleString()}"/>
+  <meta property="og:image" content="${image}"/>
+  <meta property="og:image:secure_url" content="${image}"/>
+  <meta property="og:image:type" content="image/jpeg"/>
+  <meta property="og:image:width" content="800"/>
+  <meta property="og:image:height" content="1067"/>
+  <meta property="og:site_name" content="RIWAYAT — Pakistan Fashion"/>
+  <meta name="twitter:card" content="summary_large_image"/>
+  <meta name="twitter:image" content="${image}"/>
+</head>
+<body><p>${title}</p></body>
+</html>`);
+    }
+
+    // Normal user — index.html pe redirect + pid parameter se product auto open hoga
+    return res.send(`<!DOCTYPE html><html><head>
+  <meta charset="UTF-8"/>
+  <meta http-equiv="refresh" content="0;url=/?pid=${product._id}"/>
+  <title>${title}</title>
+  <meta property="og:image" content="${image}"/>
+</head>
+<body><script>window.location='/?pid=${product._id}'</script></body>
+</html>`);
+  } catch(e) {
+    return res.redirect('/');
+  }
+});
+
 // 404
 app.use((req, res) => res.status(404).json({ success: false, message: 'Route not found' }));
 
