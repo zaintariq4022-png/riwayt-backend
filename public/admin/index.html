@@ -1735,7 +1735,7 @@ tr:hover td{background:#FAFAFA;}
                 <div id="dropZoneSubtext" style="font-size:12px;color:var(--text-muted);">MP4, WebM, MOV — Max 100MB</div>
                 <div id="selectedFileName" style="margin-top:8px;font-size:12px;color:#3B82F6;display:none;"></div>
               </div>
-              <input type="file" id="videoFileInput" accept="video/mp4,video/webm,video/ogg,video/quicktime" style="display:none;" onchange="onVideoSelected(this)"/>
+              <input type="file" id="videoFileInput" accept="video/mp4,video/webm,video/ogg,video/quicktime" style="display:none;" onchange="if(typeof onVideoSelected==='function')onVideoSelected(this);else{const n=document.getElementById('selectedFileName');if(n){n.textContent='📁 '+this.files[0]?.name;n.style.display='block';}}"/>
             </div>
 
             <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-top:16px;align-items:flex-end;">
@@ -2584,6 +2584,19 @@ function confirmDelete(type, id, name) {
   overlay.classList.add('open');
 }
 // ───────────────────────────────────────────────
+
+
+function handleGlobalSearch(val) {
+  if (!val || val.length < 2) return;
+  // Products search
+  const results = PRODUCTS ? PRODUCTS.filter(p =>
+    p.name.toLowerCase().includes(val.toLowerCase()) ||
+    (p.tags && p.tags.some(t => t.toLowerCase().includes(val.toLowerCase())))
+  ) : [];
+  // Simple — just filter products table if visible
+  const searchInput = document.getElementById('productSearch');
+  if (searchInput) { searchInput.value = val; loadProducts(); }
+}
 
 function showPanel(name){
   document.querySelectorAll('.panel').forEach(p=>p.classList.remove('active'));
