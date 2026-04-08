@@ -3788,13 +3788,13 @@ async function fetchProducts() {
   loadFeaturedSlider();
 
   // /p/:id se aaya hai toh product auto open karo
-  if (window.__openProductId) {
-    const pid = window.__openProductId;
+  const _pid = window.__openProductId || new URLSearchParams(window.location.search).get('pid');
+  if (_pid) {
     window.__openProductId = null;
-    setTimeout(() => {
-      const p = PRODUCTS.find(pr => pr.id === pid || pr.id === String(pid));
-      if (p) showProductDetail(p.id);
-    }, 300);
+    const p = PRODUCTS.find(pr => pr.id === _pid || pr.id === String(_pid));
+    if (p) {
+      setTimeout(() => showProductDetail(p.id), 200);
+    }
   }
   // Event dispatch karo (server-injected script ke liye)
   window.dispatchEvent(new Event('productsLoaded'));
