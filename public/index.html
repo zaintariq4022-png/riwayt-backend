@@ -3854,19 +3854,15 @@ window.addEventListener('popstate', (e) => {
   showPage(page, false);
 });
 
-// Check cookie for shared product link
+// Hash se pid check karo — /p/:id se redirect hota hai #pid-XXXXX
 (function() {
-  function getCookie(name) {
-    const v = document.cookie.match('(^|;)\s*' + name + '\s*=\s*([^;]+)');
-    return v ? v.pop() : null;
+  const hash = window.location.hash || '';
+  if (hash.startsWith('#pid-')) {
+    window.__shareProductId = hash.replace('#pid-', '');
+    history.replaceState({ page: 'home' }, '', '#home');
+  } else {
+    history.replaceState({ page: 'home' }, '', '#home');
   }
-  const pid = getCookie('riwayat_pid');
-  if (pid) {
-    window.__shareProductId = pid;
-    // Cookie delete karo
-    document.cookie = 'riwayat_pid=;expires=Thu, 01 Jan 1970 00:00:00 GMT;path=/';
-  }
-  history.replaceState({ page: 'home' }, '', '#home');
 })();
 
 /* ==============================================

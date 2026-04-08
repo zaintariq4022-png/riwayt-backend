@@ -116,10 +116,9 @@ app.get('/p/:id', async (req, res) => {
         '</head><body><p>' + title + '</p></body></html>');
     }
 
-    // Normal user — seedha index.html serve karo
-    // Product ID cookie mein save karo — reliable cross-page solution
-    res.cookie('riwayat_pid', product._id.toString(), { maxAge: 30000, httpOnly: false });
-    return res.sendFile(require('path').join(__dirname, '../public/index.html'));
+    // Normal user — hash mein product ID daal ke redirect karo
+    // Frontend hash change detect karega aur product open karega
+    return res.redirect('/#pid-' + product._id.toString());
   } catch(e) {
     return res.redirect('/');
   }
