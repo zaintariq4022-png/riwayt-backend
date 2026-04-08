@@ -120,15 +120,37 @@ app.get('/p/:id', async (req, res) => {
 </html>`);
     }
 
-    // Normal user — index.html pe redirect + pid parameter se product auto open hoga
-    return res.send(`<!DOCTYPE html><html><head>
-  <meta charset="UTF-8"/>
-  <meta http-equiv="refresh" content="0;url=/?pid=${product._id}"/>
-  <title>${title}</title>
-  <meta property="og:image" content="${image}"/>
-</head>
-<body><script>window.location='/?pid=${product._id}'</script></body>
-</html>`);
+    // Normal user — index.html serve karo with auto-open script
+    const fs = require('fs');
+    const indexPath = require('path').join(__dirname, '../public/index.html');
+    let html = fs.readFileSync(indexPath, 'utf8');
+    const autoOpen = `<script>
+      window.__openProductId = '${product._id}';
+      // Try immediately and also on productsLoaded event
+      function _tryOpenProduct() {
+        var pid = window.__openProductId;
+        if (!pid) return;
+        if (typeof PRODUCTS !== 'undefined' && PRODUCTS.length > 0) {
+          var p = PRODUCTS.find(function(pr){ return pr.id === pid; });
+          if (p && typeof showProductDetail === 'function') {
+            window.__openProductId = null;
+            showProductDetail(p.id);
+            return;
+          }
+        }
+        // Retry
+        setTimeout(_tryOpenProduct, 300);
+      }
+      // Start trying after page loads
+      if (document.readyState === 'complete') {
+        setTimeout(_tryOpenProduct, 500);
+      } else {
+        window.addEventListener('load', function(){ setTimeout(_tryOpenProduct, 500); });
+      }
+      window.addEventListener('productsLoaded', _tryOpenProduct);
+    </script>`;
+    html = html.replace('</body>', autoOpen + '</body>');
+    return res.send(html);
   } catch(e) {
     return res.redirect('/');
   }
