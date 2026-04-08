@@ -85,36 +85,6 @@ app.get('/product/:slug', async (req, res) => {
   }
 });
 
-// Static files — AFTER product route
-app.use('/uploads', express.static(path.join(__dirname, '../uploads')));
-app.use('/admin',   express.static(path.join(__dirname, '../public/admin')));
-app.use(express.static(path.join(__dirname, '../public')));
-
-// ─────────────────────────────────────────────────────────
-
-// API Routes
-app.use('/api/products',   productRoutes);
-app.use('/api/orders',     orderRoutes);
-app.use('/api/admin/auth', authRoutes);
-app.use('/api/customers',  customerRoutes);
-app.use('/api/settings',   settingsRoutes);
-app.use('/api/video',      videoRoutes);
-app.use('/api/categories', categoryRoutes);
-app.use('/api/promo',      promoRoutes);
-
-// Sitemap & robots
-app.use('/sitemap.xml', sitemapRoutes);
-app.get('/robots.txt', (req, res) => {
-  res.type('text/plain');
-  res.send('User-agent: *\nAllow: /\nDisallow: /admin\nSitemap: https://riwayat-pakistan.online/sitemap.xml');
-});
-
-// Pages
-app.get('/admin', (req, res) => res.sendFile(path.join(__dirname, '../public/admin/index.html')));
-app.get('/admin/bill', (req, res) => res.sendFile(path.join(__dirname, '../public/admin/bill.html')));
-app.get('/',      (req, res) => res.sendFile(path.join(__dirname, '../public/index.html')));
-app.get('/health', (req, res) => res.json({ status: 'ok', env: process.env.NODE_ENV }));
-
 // Short share link: /p/PRODUCT_ID — works for all users + bots
 app.get('/p/:id', async (req, res) => {
   try {
@@ -163,6 +133,37 @@ app.get('/p/:id', async (req, res) => {
     return res.redirect('/');
   }
 });
+// Static files — AFTER product route
+app.use('/uploads', express.static(path.join(__dirname, '../uploads')));
+app.use('/admin',   express.static(path.join(__dirname, '../public/admin')));
+app.use(express.static(path.join(__dirname, '../public')));
+
+// ─────────────────────────────────────────────────────────
+
+// API Routes
+app.use('/api/products',   productRoutes);
+app.use('/api/orders',     orderRoutes);
+app.use('/api/admin/auth', authRoutes);
+app.use('/api/customers',  customerRoutes);
+app.use('/api/settings',   settingsRoutes);
+app.use('/api/video',      videoRoutes);
+app.use('/api/categories', categoryRoutes);
+app.use('/api/promo',      promoRoutes);
+
+// Sitemap & robots
+app.use('/sitemap.xml', sitemapRoutes);
+app.get('/robots.txt', (req, res) => {
+  res.type('text/plain');
+  res.send('User-agent: *\nAllow: /\nDisallow: /admin\nSitemap: https://riwayat-pakistan.online/sitemap.xml');
+});
+
+// Pages
+app.get('/admin', (req, res) => res.sendFile(path.join(__dirname, '../public/admin/index.html')));
+app.get('/admin/bill', (req, res) => res.sendFile(path.join(__dirname, '../public/admin/bill.html')));
+app.get('/',      (req, res) => res.sendFile(path.join(__dirname, '../public/index.html')));
+app.get('/health', (req, res) => res.json({ status: 'ok', env: process.env.NODE_ENV }));
+
+
 
 // 404
 app.use((req, res) => res.status(404).json({ success: false, message: 'Route not found' }));
