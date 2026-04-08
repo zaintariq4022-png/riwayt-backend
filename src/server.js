@@ -36,6 +36,59 @@ app.use('/uploads', express.static(path.join(__dirname, '../uploads')));
 app.use('/admin',   express.static(path.join(__dirname, '../public/admin')));
 app.use(express.static(path.join(__dirname, '../public')));
 
+
+// ── Dynamic OG tags for product sharing ──────────────────
+// WhatsApp/Facebook bots yahan aate hain — product pic aur details serve karo
+const Product = require('./models/Product');
+
+app.get('/product/:slug', async (req, res) => {
+  try {
+    const product = await Product.findOne({ slug: req.params.slug });
+    if (!product) return res.redirect('/');
+
+    const title   = `${product.name} — RIWAYAT`;
+    const desc    = product.description ? product.description.substring(0, 150) : 'Luxury Pakistani Fashion';
+    const image   = product.images && product.images[0] ? product.images[0] : 'https://riwayat-pakistan.online/og-image.jpg';
+    const url     = `https://riwayat-pakistan.online/product/${product.slug}`;
+    const price   = `PKR ${product.price.toLocaleString()}`;
+
+    // Agar bot hai toh OG HTML do, warna frontend pe redirect karo
+    const ua = req.headers['user-agent'] || '';
+    const isBot = /whatsapp|facebookexternalhit|twitterbot|googlebot|linkedinbot|slackbot|telegrambot|discordbot|crawler|spider/i.test(ua);
+
+    if (isBot) {
+      return res.send(`<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8"/>
+  <title>${title}</title>
+  <meta property="og:type" content="product"/>
+  <meta property="og:url" content="${url}"/>
+  <meta property="og:title" content="${title}"/>
+  <meta property="og:description" content="${desc} — ${price}"/>
+  <meta property="og:image" content="${image}"/>
+  <meta property="og:image:width" content="800"/>
+  <meta property="og:image:height" content="1067"/>
+  <meta property="og:site_name" content="RIWAYAT"/>
+  <meta property="product:price:amount" content="${product.price}"/>
+  <meta property="product:price:currency" content="PKR"/>
+  <meta name="twitter:card" content="summary_large_image"/>
+  <meta name="twitter:title" content="${title}"/>
+  <meta name="twitter:description" content="${desc}"/>
+  <meta name="twitter:image" content="${image}"/>
+</head>
+<body><script>window.location='/#detail?id=${product._id}'</script></body>
+</html>`);
+    }
+
+    // Normal user — frontend pe redirect with product ID
+    return res.redirect(`/#detail?pid=${product._id}`);
+  } catch(e) {
+    return res.redirect('/');
+  }
+});
+// ─────────────────────────────────────────────────────────
+
 // API Routes
 app.use('/api/products',   productRoutes);
 app.use('/api/orders',     orderRoutes);
