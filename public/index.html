@@ -2327,7 +2327,50 @@
     .featured-dots { display: flex; justify-content: center; gap: 5px; margin-top: 10px; }
     .featured-dot { width: 5px; height: 5px; border-radius: 50%; background: #ccc; cursor: pointer; transition: all 0.3s; }
     .featured-dot.active { background: var(--charcoal); width: 14px; border-radius: 3px; }
-  </style>
+  
+    /* ── Sticky Add to Cart Bar ── */
+    .sticky-cart-bar {
+      position: fixed;
+      bottom: -100px;
+      left: 0; right: 0;
+      background: #fff;
+      border-top: 1px solid #e8e4df;
+      padding: 10px 20px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      z-index: 400;
+      box-shadow: 0 -4px 20px rgba(0,0,0,0.10);
+      transition: bottom 0.35s cubic-bezier(0.4,0,0.2,1);
+    }
+    .sticky-cart-bar.visible { bottom: 0; }
+    .sticky-cart-info { flex: 1; min-width: 0; overflow: hidden; }
+    .sticky-cart-name { font-size: 0.82rem; font-weight: 600; color: #1c1c1c; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .sticky-cart-price { font-size: 1rem; font-weight: 700; color: #c0522a; margin-top: 2px; }
+    .sticky-cart-btns { display: flex; gap: 8px; flex-shrink: 0; }
+    .sticky-btn-cart {
+      padding: 10px 18px;
+      background: #1c1c1c; color: white;
+      border: none; cursor: pointer;
+      font-family: inherit; font-size: 0.75rem;
+      font-weight: 600; letter-spacing: 0.12em; text-transform: uppercase;
+      transition: background 0.2s;
+    }
+    .sticky-btn-cart:hover { background: #c9a84c; color: #111; }
+    .sticky-btn-order {
+      padding: 10px 18px;
+      background: #c0522a; color: white;
+      border: none; cursor: pointer;
+      font-family: inherit; font-size: 0.75rem;
+      font-weight: 600; letter-spacing: 0.12em; text-transform: uppercase;
+      transition: background 0.2s;
+    }
+    .sticky-btn-order:hover { background: #a84d2a; }
+    @media(max-width:500px) {
+      .sticky-cart-bar { padding: 8px 12px; gap: 8px; }
+      .sticky-btn-cart, .sticky-btn-order { padding: 9px 12px; font-size: 0.68rem; }
+    }
+    </style>
 <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;1,400&family=Montserrat:wght@300;400;600&family=Lato:wght@300;400&family=Raleway:wght@300;400;600&family=Dancing+Script:wght@400;600&family=Merriweather:ital,wght@0,300;0,400;1,300&display=swap" rel="stylesheet">
 
   <!-- Schema Markup — Google ko samjhao -->
@@ -5808,26 +5851,16 @@ async function loadHeroText() {
 
 // ── Sticky Cart Bar ──
 function initStickyCartBar() {
-  const bar      = document.getElementById('stickyCartBar');
-  const cartRow  = document.querySelector('.add-cart-row');
-  if (!bar || !cartRow) return;
-
-  // Purana observer clear karo
-  if (window._stickyObserver) window._stickyObserver.disconnect();
-
-  window._stickyObserver = new IntersectionObserver(
-    ([entry]) => {
-      const detailPage = document.getElementById('page-detail');
-      const isDetailVisible = detailPage && getComputedStyle(detailPage).display !== 'none';
-      if (!entry.isIntersecting && isDetailVisible) {
-        bar.classList.add('visible');
-      } else {
-        bar.classList.remove('visible');
-      }
-    },
-    { threshold: 0, rootMargin: '-60px 0px 0px 0px' }
-  );
-  window._stickyObserver.observe(cartRow);
+  const bar    = document.getElementById('stickyCartBar');
+  const target = document.querySelector('.add-cart-row');
+  if (!bar || !target) return;
+  if (window._stickyObs) window._stickyObs.disconnect();
+  window._stickyObs = new IntersectionObserver(([e]) => {
+    const onDetail = document.getElementById('page-detail')?.classList.contains('active');
+    if (!e.isIntersecting && onDetail) bar.classList.add('visible');
+    else bar.classList.remove('visible');
+  }, { rootMargin: '-56px 0px 0px 0px' });
+  window._stickyObs.observe(target);
 }
 
 

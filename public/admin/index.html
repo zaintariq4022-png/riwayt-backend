@@ -2,6 +2,8 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8"/>
+<link rel="icon" type="image/x-icon" href="/favicon.ico"/>
+<link rel="icon" type="image/png" sizes="32x32" href="/favicon-32.png"/>
 <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
 <title>RIWAYAT — Admin Dashboard</title>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Cormorant+Garamond:wght@400;600&display=swap" rel="stylesheet"/>
@@ -2397,6 +2399,149 @@ async function deletePromo(id) {
 }
 
 
+
+// ══════════════════════════════════════════════
+// HERO VIDEO MANAGEMENT
+// ══════════════════════════════════════════════
+let currentVideoData = null;
+let currentMediaType = 'video';
+
+function setMediaType(type) {
+  currentMediaType = type;
+  const videoBtn = document.getElementById('typeVideo');
+  const imageBtn = document.getElementById('typeImage');
+  const fileInput = document.getElementById('videoFileInput');
+  const dropZoneText = document.getElementById('dropZoneText');
+  const dropZoneSubtext = document.getElementById('dropZoneSubtext');
+
+  if (type === 'video') {
+    videoBtn.style.background = 'var(--gold)'; videoBtn.style.color = '#111'; videoBtn.style.border = 'none';
+    imageBtn.style.background = 'var(--bg)'; imageBtn.style.color = 'var(--text-muted)'; imageBtn.style.border = '1px solid var(--border)';
+    fileInput.accept = 'video/mp4,video/webm,video/ogg,video/quicktime';
+    dropZoneText.textContent = 'Click to select video';
+    dropZoneSubtext.textContent = 'MP4, WebM, MOV — Max 100MB';
+  } else {
+    imageBtn.style.background = 'var(--gold)'; imageBtn.style.color = '#111'; imageBtn.style.border = 'none';
+    videoBtn.style.background = 'var(--bg)'; videoBtn.style.color = 'var(--text-muted)'; videoBtn.style.border = '1px solid var(--border)';
+    fileInput.accept = 'image/jpeg,image/png,image/webp,image/gif';
+    dropZoneText.textContent = 'Click to select image';
+    dropZoneSubtext.textContent = 'JPEG, PNG, WebP, GIF — Max 20MB';
+  }
+}
+
+function onVideoSelected(input) {
+  const file = input.files[0];
+  if (!file) return;
+  const nameEl = document.getElementById('selectedFileName');
+  if (nameEl) { nameEl.textContent = '📁 ' + file.name; nameEl.style.display = 'block'; }
+}
+
+async function uploadVideo() {
+  const fileInput = document.getElementById('videoFileInput');
+  const file = fileInput.files[0];
+  if (!file) { showToast('Pehle file select karein!', 'error'); return; }
+
+  const opacity = document.getElementById('videoOpacity').value || 0.5;
+  const btn = document.getElementById('uploadVideoBtn');
+  const progress = document.getElementById('uploadProgress');
+  const progressBar = document.getElementById('progressBar');
+  const progressText = document.getElementById('progressText');
+
+  btn.textContent = 'Uploading...'; btn.disabled = true;
+  if (progress) progress.style.display = 'block';
+
+  const fd = new FormData();
+  fd.append('video', file);
+  fd.append('opacity', opacity);
+  fd.append('type', currentMediaType);
+
+  try {
+    // XHR for progress
+    await new Promise((resolve, reject) => {
+      const xhr = new XMLHttpRequest();
+      xhr.upload.onprogress = (e) => {
+        if (e.lengthComputable) {
+          const pct = Math.round(e.loaded / e.total * 100);
+          if (progressBar) progressBar.style.width = pct + '%';
+          if (progressText) progressText.textContent = pct + '% uploaded...';
+        }
+      };
+      xhr.onload = () => {
+        try {
+          const data = JSON.parse(xhr.responseText);
+          if (data.success) {
+            showToast('✅ Video upload ho gaya!', 'success');
+            loadVideoSettings();
+            fileInput.value = '';
+            const nameEl = document.getElementById('selectedFileName');
+            if (nameEl) nameEl.style.display = 'none';
+          } else {
+            showToast('Error: ' + (data.message || 'Upload failed'), 'error');
+          }
+        } catch(e) { showToast('Upload response error', 'error'); }
+        resolve();
+      };
+      xhr.onerror = () => { showToast('Upload error!', 'error'); reject(); };
+      xhr.open('POST', API + '/video/upload');
+      xhr.setRequestHeader('Authorization', 'Bearer ' + TOKEN);
+      xhr.send(fd);
+    });
+  } catch(e) {
+    showToast('Upload failed: ' + e.message, 'error');
+  }
+
+  btn.textContent = '📤 Upload & Apply'; btn.disabled = false;
+  if (progress) { progress.style.display = 'none'; if (progressBar) progressBar.style.width = '0%'; }
+}
+
+async function toggleVideo(active) {
+  try {
+    const opacity = document.getElementById('videoOpacity')?.value || 0.5;
+    await apiFetch('/video/settings', 'PUT', { active, opacity: Number(opacity) });
+    showToast(active ? '✅ Video show ho rahi hai!' : '⏸ Video hide ho gayi!', 'success');
+    loadVideoSettings();
+  } catch(e) { showToast('Error: ' + e.message, 'error'); }
+}
+
+async function deleteVideo() {
+  if (!confirm('Hero video delete karna chahte hain?')) return;
+  try {
+    await apiFetch('/video', 'DELETE');
+    showToast('🗑 Video delete ho gayi!', 'success');
+    loadVideoSettings();
+  } catch(e) { showToast('Error: ' + e.message, 'error'); }
+}
+
+// Override loadVideoSettings with correct element IDs
+async function loadVideoSettings() {
+  try {
+    const res  = await fetch(API + '/video');
+    const data = await res.json();
+    if (!data.success) return;
+    const v = data.video;
+    currentVideoData = v;
+
+    const badge = document.getElementById('videoBadge');
+    const preview = document.getElementById('videoPreview');
+    const player = document.getElementById('previewPlayer');
+    const opacitySlider = document.getElementById('videoOpacity');
+    const opacityVal = document.getElementById('opacityVal');
+
+    if (opacitySlider && v.opacity) { opacitySlider.value = v.opacity; }
+    if (opacityVal && v.opacity)    { opacityVal.textContent = v.opacity; }
+
+    if (v && v.url) {
+      if (badge) { badge.textContent = v.active ? 'ACTIVE' : 'HIDDEN'; badge.style.background = v.active ? 'rgba(18,183,106,0.12)' : 'rgba(240,68,56,0.12)'; badge.style.color = v.active ? '#12B76A' : '#F04438'; }
+      if (player) { player.src = v.url; }
+      if (preview) { preview.style.display = 'block'; }
+    } else {
+      if (badge)   { badge.textContent = 'NO VIDEO'; badge.style.background = 'rgba(240,68,56,0.12)'; badge.style.color = '#F04438'; }
+      if (preview) { preview.style.display = 'none'; }
+    }
+  } catch(e) { console.error('loadVideoSettings error:', e); }
+}
+// ─────────────────────────────────────────────
+
 // ── Confirm Delete System ──────────────────────
 function closeConfirm() {
   document.getElementById('confirmOverlay').classList.remove('open');
@@ -2874,12 +3019,15 @@ async function saveProduct(){
   document.getElementById('pTags').value.split(',').map(t=>t.trim()).filter(Boolean).forEach(t=>fd.append('tags[]',t));
   document.querySelectorAll('#colorPickerList input[type="color"]').forEach(c=>fd.append('colors[]',c.value));
   Array.from(document.getElementById('pImages').files).forEach(f=>fd.append('images',f));
-  // Video — file ya URL
+  // Video — file ya URL (existing preserve karo agar kuch nahi diya)
   const videoFile = document.getElementById('pVideo').files[0];
   const videoUrl  = document.getElementById('pVideoUrl').value.trim();
-  if (videoFile) fd.append('productVideo', videoFile);
-  else if (videoUrl) fd.append('videoUrl', videoUrl);
-  else fd.append('videoUrl', '');
+  if (videoFile) {
+    fd.append('productVideo', videoFile);
+  } else {
+    // URL ya empty — dono cases mein send karo
+    fd.append('videoUrl', videoUrl);
+  }
   try{
     const res=await fetch(API+(id?`/products/${id}`:'/products'),{
       method:id?'PUT':'POST',

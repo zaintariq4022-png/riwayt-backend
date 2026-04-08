@@ -78,6 +78,10 @@ exports.updateProduct = async (req, res) => {
 
     const body = sanitizeBody({ ...req.body });
 
+    // VideoUrl — agar video file upload hua toh middleware ne set kiya hai
+    // Agar URL empty aaye toh existing clear karo, agar URL hai toh update karo
+    // (already handled via body.videoUrl)
+
     // New images append karo
     if (req.files && req.files.length > 0) {
       body.images = [...(product.images||[]), ...req.files.map(f => f.path || f.secure_url || `/uploads/${f.filename}`)];
