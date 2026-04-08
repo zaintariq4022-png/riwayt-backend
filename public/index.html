@@ -3786,6 +3786,18 @@ async function fetchProducts() {
   }
   renderProducts(currentFilter);
   loadFeaturedSlider();
+
+  // /p/:id se aaya hai toh product auto open karo
+  if (window.__openProductId) {
+    const pid = window.__openProductId;
+    window.__openProductId = null;
+    setTimeout(() => {
+      const p = PRODUCTS.find(pr => pr.id === pid || pr.id === String(pid));
+      if (p) showProductDetail(p.id);
+    }, 300);
+  }
+  // Event dispatch karo (server-injected script ke liye)
+  window.dispatchEvent(new Event('productsLoaded'));
 }
 
 // Fallback: agar backend offline ho toh yeh products dikhao
@@ -3844,23 +3856,17 @@ window.addEventListener('popstate', (e) => {
   showPage(page, false);
 });
 
-// Set initial history state
-history.replaceState({ page: 'home' }, '', '#home');
-
-// URL mein pid parameter check karo — product link se aaya
+// URL mein pid parameter check karo — product link se aaya (BEFORE history.replaceState)
 (function() {
   const params = new URLSearchParams(window.location.search);
   const pid = params.get('pid');
   if (pid) {
-    const tryOpen = (attempts = 0) => {
-      const p = PRODUCTS.find(pr => pr.id === pid || pr.id === String(pid));
-      if (p) {
-        showProductDetail(p.id);
-      } else if (attempts < 15) {
-        setTimeout(() => tryOpen(attempts + 1), 400);
-      }
-    };
-    setTimeout(() => tryOpen(), 800);
+    window.__openProductId = pid;
+    // Clean URL without pid
+    history.replaceState({ page: 'detail' }, '', '#detail');
+  } else {
+    // Normal home page
+    history.replaceState({ page: 'home' }, '', '#home');
   }
 })();
 
