@@ -31,14 +31,8 @@ app.use(express.urlencoded({ extended: true, limit: '10mb' }));
 
 app.use('/api', rateLimit({ windowMs: 15 * 60 * 1000, max: 300 }));
 
-// Static files
-app.use('/uploads', express.static(path.join(__dirname, '../uploads')));
-app.use('/admin',   express.static(path.join(__dirname, '../public/admin')));
-app.use(express.static(path.join(__dirname, '../public')));
-
-
 // ── Dynamic OG tags for product sharing ──────────────────
-// WhatsApp/Facebook bots yahan aate hain — product pic aur details serve karo
+// MUST be BEFORE static files!
 const Product = require('./models/Product');
 
 app.get('/product/:slug', async (req, res) => {
@@ -90,6 +84,12 @@ app.get('/product/:slug', async (req, res) => {
     return res.redirect('/');
   }
 });
+
+// Static files — AFTER product route
+app.use('/uploads', express.static(path.join(__dirname, '../uploads')));
+app.use('/admin',   express.static(path.join(__dirname, '../public/admin')));
+app.use(express.static(path.join(__dirname, '../public')));
+
 // ─────────────────────────────────────────────────────────
 
 // API Routes
