@@ -3787,14 +3787,12 @@ async function fetchProducts() {
   renderProducts(currentFilter);
   loadFeaturedSlider();
 
-  // /p/:id se aaya hai toh product auto open karo
-  if (window.__openProductId) {
-    const _pid = window.__openProductId;
-    window.__openProductId = null;
-    const p = PRODUCTS.find(pr => pr.id === _pid);
-    if (p) {
-      setTimeout(() => showProductDetail(p.id), 100);
-    }
+  // Share link se aaya hai? Cookie mein product ID hogi
+  const _sharePid = window.__shareProductId;
+  if (_sharePid) {
+    window.__shareProductId = null;
+    const p = PRODUCTS.find(pr => pr.id === _sharePid);
+    if (p) showProductDetail(p.id);
   }
   // Event dispatch karo (server-injected script ke liye)
   window.dispatchEvent(new Event('productsLoaded'));
@@ -3856,15 +3854,19 @@ window.addEventListener('popstate', (e) => {
   showPage(page, false);
 });
 
-// Share link se aaya hai? __openProductId already set hoga server se
+// Check cookie for shared product link
 (function() {
-  if (window.__openProductId) {
-    // /p/:id se aaya — history detail pe set karo
-    history.replaceState({ page: 'detail' }, '', '#detail');
-  } else {
-    // Normal home page
-    history.replaceState({ page: 'home' }, '', '#home');
+  function getCookie(name) {
+    const v = document.cookie.match('(^|;)\s*' + name + '\s*=\s*([^;]+)');
+    return v ? v.pop() : null;
   }
+  const pid = getCookie('riwayat_pid');
+  if (pid) {
+    window.__shareProductId = pid;
+    // Cookie delete karo
+    document.cookie = 'riwayat_pid=;expires=Thu, 01 Jan 1970 00:00:00 GMT;path=/';
+  }
+  history.replaceState({ page: 'home' }, '', '#home');
 })();
 
 /* ==============================================

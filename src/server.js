@@ -85,52 +85,41 @@ app.get('/product/:slug', async (req, res) => {
   }
 });
 
-// Short share link: /p/PRODUCT_ID — works for all users + bots
+// Short share link: /p/PRODUCT_ID
 app.get('/p/:id', async (req, res) => {
   try {
     const product = await Product.findById(req.params.id);
     if (!product) return res.redirect('/');
 
-    const title = `${product.name} — RIWAYAT`;
+    const title = product.name + ' — RIWAYAT';
     const desc  = (product.description || 'Luxury Pakistani Fashion').substring(0, 150);
-    const image = product.images?.[0] || 'https://riwayat-pakistan.online/og-image.jpg';
-    const url   = `https://riwayat-pakistan.online/p/${product._id}`;
-
+    const image = (product.images && product.images[0]) ? product.images[0] : 'https://riwayat-pakistan.online/og-image.jpg';
+    const url   = 'https://riwayat-pakistan.online/p/' + product._id;
     const ua    = req.headers['user-agent'] || '';
     const isBot = /whatsapp|facebook|twitter|telegram|discord|linkedin|slack|google|bot|crawler|spider|preview/i.test(ua);
 
+    // Bots ke liye OG page
     if (isBot) {
-      return res.send(`<!DOCTYPE html><html><head>
-  <meta charset="UTF-8"/>
-  <title>${title}</title>
-  <meta property="og:type" content="product"/>
-  <meta property="og:url" content="${url}"/>
-  <meta property="og:title" content="${title}"/>
-  <meta property="og:description" content="${desc} — PKR ${product.price.toLocaleString()}"/>
-  <meta property="og:image" content="${image}"/>
-  <meta property="og:image:secure_url" content="${image}"/>
-  <meta property="og:image:type" content="image/jpeg"/>
-  <meta property="og:image:width" content="800"/>
-  <meta property="og:image:height" content="1067"/>
-  <meta property="og:site_name" content="RIWAYAT — Pakistan Fashion"/>
-  <meta name="twitter:card" content="summary_large_image"/>
-  <meta name="twitter:image" content="${image}"/>
-</head>
-<body><p>${title}</p></body>
-</html>`);
+      return res.send('<!DOCTYPE html><html><head>' +
+        '<meta charset="UTF-8"/>' +
+        '<title>' + title + '</title>' +
+        '<meta property="og:type" content="product"/>' +
+        '<meta property="og:url" content="' + url + '"/>' +
+        '<meta property="og:title" content="' + title + '"/>' +
+        '<meta property="og:description" content="' + desc + ' — PKR ' + product.price.toLocaleString() + '"/>' +
+        '<meta property="og:image" content="' + image + '"/>' +
+        '<meta property="og:image:width" content="800"/>' +
+        '<meta property="og:image:height" content="1067"/>' +
+        '<meta property="og:site_name" content="RIWAYAT"/>' +
+        '<meta name="twitter:card" content="summary_large_image"/>' +
+        '<meta name="twitter:image" content="' + image + '"/>' +
+        '</head><body><p>' + title + '</p></body></html>');
     }
 
-    // Normal user — index.html serve karo with auto-open script
-    const fs = require('fs');
-    const indexPath = require('path').join(__dirname, '../public/index.html');
-    let html = fs.readFileSync(indexPath, 'utf8');
-    const autoOpen = `<script>
-      window.__openProductId = '${product._id}';
-      window.__fromShareLink = true;
-    </script>`;
-    // Inject at very beginning — before any other script runs
-    html = html.replace('<meta charset="UTF-8" />', '<meta charset="UTF-8" />' + autoOpen);
-    return res.send(html);
+    // Normal user — seedha index.html serve karo
+    // Product ID cookie mein save karo — reliable cross-page solution
+    res.cookie('riwayat_pid', product._id.toString(), { maxAge: 30000, httpOnly: false });
+    return res.sendFile(require('path').join(__dirname, '../public/index.html'));
   } catch(e) {
     return res.redirect('/');
   }
