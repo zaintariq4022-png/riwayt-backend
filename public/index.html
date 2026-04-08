@@ -3851,15 +3851,19 @@ function showPage(page, pushHistory = true) {
 // Handle browser back button
 window.addEventListener('popstate', (e) => {
   const page = (e.state && e.state.page) ? e.state.page : 'home';
-  showPage(page, false);
+  if (page === 'detail' && e.state && e.state.pid) {
+    openProduct(e.state.pid);
+  } else {
+    showPage(page, false);
+  }
 });
 
-// Hash se pid check karo — /p/:id se redirect hota hai #pid-XXXXX
+// Hash se pid check karo — #pid-XXXXX se product open karo
 (function() {
   const hash = window.location.hash || '';
   if (hash.startsWith('#pid-')) {
     window.__shareProductId = hash.replace('#pid-', '');
-    history.replaceState({ page: 'home' }, '', '#home');
+    // Hash rakho — products load hone ke baad use hoga
   } else {
     history.replaceState({ page: 'home' }, '', '#home');
   }
@@ -4037,6 +4041,8 @@ function openProduct(id) {
   if (!currentProduct) return;
   selectedSize = null;
   qty = 1;
+  // URL update karo taake refresh pe bhi product khule
+  history.pushState({ page: 'detail', pid: id }, '', '#pid-' + id);
 
   document.getElementById('detailBreadcrumb').textContent = currentProduct.name;
   document.getElementById('detailName').textContent = currentProduct.name;
