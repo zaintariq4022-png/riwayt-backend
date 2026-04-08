@@ -3792,7 +3792,7 @@ async function fetchProducts() {
   if (_sharePid) {
     window.__shareProductId = null;
     const p = PRODUCTS.find(pr => pr.id === _sharePid);
-    if (p) showProductDetail(p.id);
+    if (p) openProduct(p.id);
   }
   // Event dispatch karo (server-injected script ke liye)
   window.dispatchEvent(new Event('productsLoaded'));
