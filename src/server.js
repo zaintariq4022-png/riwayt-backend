@@ -126,30 +126,10 @@ app.get('/p/:id', async (req, res) => {
     let html = fs.readFileSync(indexPath, 'utf8');
     const autoOpen = `<script>
       window.__openProductId = '${product._id}';
-      // Try immediately and also on productsLoaded event
-      function _tryOpenProduct() {
-        var pid = window.__openProductId;
-        if (!pid) return;
-        if (typeof PRODUCTS !== 'undefined' && PRODUCTS.length > 0) {
-          var p = PRODUCTS.find(function(pr){ return pr.id === pid; });
-          if (p && typeof showProductDetail === 'function') {
-            window.__openProductId = null;
-            showProductDetail(p.id);
-            return;
-          }
-        }
-        // Retry
-        setTimeout(_tryOpenProduct, 300);
-      }
-      // Start trying after page loads
-      if (document.readyState === 'complete') {
-        setTimeout(_tryOpenProduct, 500);
-      } else {
-        window.addEventListener('load', function(){ setTimeout(_tryOpenProduct, 500); });
-      }
-      window.addEventListener('productsLoaded', _tryOpenProduct);
+      window.__fromShareLink = true;
     </script>`;
-    html = html.replace('</body>', autoOpen + '</body>');
+    // Inject at very beginning — before any other script runs
+    html = html.replace('<meta charset="UTF-8" />', '<meta charset="UTF-8" />' + autoOpen);
     return res.send(html);
   } catch(e) {
     return res.redirect('/');
