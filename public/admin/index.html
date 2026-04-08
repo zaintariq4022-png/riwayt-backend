@@ -2396,6 +2396,50 @@ async function deletePromo(id) {
   showToast('Promo code delete ho gaya!', 'success');
 }
 
+
+// ── Confirm Delete System ──────────────────────
+function closeConfirm() {
+  document.getElementById('confirmOverlay').classList.remove('open');
+}
+
+function confirmDelete(type, id, name) {
+  const overlay  = document.getElementById('confirmOverlay');
+  const titleEl  = document.getElementById('confirmTitle');
+  const msgEl    = document.getElementById('confirmMsg');
+  const okBtn    = document.getElementById('confirmOkBtn');
+
+  titleEl.textContent = 'Delete karna chahte hain?';
+  msgEl.textContent   = '"' + name + '" hamesha ke liye delete ho jaega!';
+
+  okBtn.onclick = async () => {
+    closeConfirm();
+    try {
+      if (type === 'product') {
+        const data = await apiFetch('/products/' + id, 'DELETE');
+        if (data.success) {
+          showToast('Product delete ho gaya!', 'success');
+          loadProducts();
+        } else {
+          showToast('Error: ' + (data.message || 'Delete failed'), 'error');
+        }
+      } else if (type === 'order') {
+        const data = await apiFetch('/orders/admin/' + id, 'DELETE');
+        if (data.success) {
+          showToast('Order delete ho gaya!', 'success');
+          loadOrders();
+        } else {
+          showToast('Error: ' + (data.message || 'Delete failed'), 'error');
+        }
+      }
+    } catch(e) {
+      showToast('Delete error: ' + e.message, 'error');
+    }
+  };
+
+  overlay.classList.add('open');
+}
+// ───────────────────────────────────────────────
+
 function showPanel(name){
   document.querySelectorAll('.panel').forEach(p=>p.classList.remove('active'));
   document.querySelectorAll('.nav-item').forEach(n=>n.classList.remove('active'));
