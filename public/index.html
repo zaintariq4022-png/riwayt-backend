@@ -2697,6 +2697,13 @@
         <div class="thumb-grid" id="thumbGrid">
           <!-- Thumbnails injected by JS -->
         </div>
+        <!-- Product Video -->
+        <div id="detailVideoSection" style="display:none;margin-top:16px;">
+          <div style="position:relative;width:100%;border-radius:8px;overflow:hidden;background:#000;">
+            <video id="detailVideoEl" controls style="width:100%;max-height:480px;display:block;border-radius:8px;" playsinline></video>
+          </div>
+          <div id="detailVideoIframe" style="display:none;margin-top:0;border-radius:8px;overflow:hidden;"></div>
+        </div>
       </div>
 
       <!-- Product Info -->
@@ -4029,6 +4036,34 @@ function openProduct(id) {
   }
 
   // Color swatches
+  updateStickyBar();
+  setTimeout(initStickyCartBar, 100);
+
+  // Video load karo
+  const videoSection = document.getElementById('detailVideoSection');
+  const videoEl      = document.getElementById('detailVideoEl');
+  const iframeEl     = document.getElementById('detailVideoIframe');
+  const videoUrl     = currentProduct.videoUrl || '';
+
+  if (videoUrl) {
+    videoSection.style.display = 'block';
+    const ytMatch = videoUrl.match(/(?:youtube\.com\/watch\?v=|youtu\.be\/)([a-zA-Z0-9_-]{11})/);
+    if (ytMatch) {
+      videoEl.style.display    = 'none';
+      iframeEl.style.display   = 'block';
+      iframeEl.innerHTML       = `<iframe width="100%" height="360" src="https://www.youtube.com/embed/${ytMatch[1]}" frameborder="0" allowfullscreen style="display:block;border-radius:8px;"></iframe>`;
+    } else {
+      videoEl.src              = videoUrl;
+      videoEl.style.display    = 'block';
+      iframeEl.style.display   = 'none';
+      iframeEl.innerHTML       = '';
+    }
+  } else {
+    videoSection.style.display = 'none';
+    videoEl.src = '';
+    iframeEl.innerHTML = '';
+  }
+
   document.getElementById('colorSelector').innerHTML = currentProduct.colors.map((c, i) => `
     <div class="color-swatch ${i===0?'selected':''}" style="background:${c}" onclick="selectColor(this,'Color ${i+1}')" title="Color ${i+1}"></div>
   `).join('');
@@ -5734,9 +5769,50 @@ async function loadHeroText() {
   } catch(e) {}
 }
 
+
+// ── Sticky Cart Bar ──
+function initStickyCartBar() {
+  const bar      = document.getElementById('stickyCartBar');
+  const cartRow  = document.querySelector('.add-cart-row');
+  if (!bar || !cartRow) return;
+
+  const observer = new IntersectionObserver(
+    ([entry]) => {
+      if (!entry.isIntersecting) {
+        bar.classList.add('visible');
+      } else {
+        bar.classList.remove('visible');
+      }
+    },
+    { threshold: 0, rootMargin: '-60px 0px 0px 0px' }
+  );
+  observer.observe(cartRow);
+}
+
+function updateStickyBar() {
+  if (!currentProduct) return;
+  const nameEl  = document.getElementById('stickyName');
+  const priceEl = document.getElementById('stickyPrice');
+  if (nameEl)  nameEl.textContent  = currentProduct.name;
+  if (priceEl) priceEl.textContent = 'PKR ' + currentProduct.price.toLocaleString();
+}
+
 updateCartBadge();
 loadPaymentAccountsForCheckout();
 </script>
+
+
+<!-- ── Sticky Add to Cart Bar ── -->
+<div class="sticky-cart-bar" id="stickyCartBar">
+  <div class="sticky-cart-info">
+    <div class="sticky-cart-name" id="stickyName">Product</div>
+    <div class="sticky-cart-price" id="stickyPrice">PKR 0</div>
+  </div>
+  <div class="sticky-cart-btns">
+    <button class="sticky-btn-cart" onclick="addToCartFromDetail()">Add to Bag</button>
+    <button class="sticky-btn-order" onclick="openOrderModal()">Order Now</button>
+  </div>
+</div>
 
 <!-- =============================================
      WHATSAPP LIVE BUTTON
