@@ -4867,6 +4867,79 @@ async function loadHeroTextEditor() {
     }
   }, 200);
 }
+
+async function saveHeroText() {
+  try {
+    const getVal = id => { const el = document.getElementById(id); return el ? el.value.trim() : ''; };
+
+    // Load existing slides to preserve hidden state
+    let existing = [];
+    try { const r = await apiFetch('/settings/hero_text','GET',null,false); existing = r.value || []; } catch(e) {}
+
+    const slides = [
+      {
+        tag: getVal('s1_tag_edit'), tagColor: getVal('s1_tag_color'),
+        title: getVal('s1_title_edit'), titleColor: getVal('s1_title_color'),
+        sub: getVal('s1_sub_edit'), subColor: getVal('s1_sub_color'),
+        desc: getVal('s1_desc_edit'), descColor: getVal('s1_desc_color'),
+        font: getVal('s1_font'),
+        badge_pct: getVal('s1_badge_pct_edit') || (existing[0]?.badge_pct || ''),
+        badge_off: getVal('s1_badge_off_edit') || (existing[0]?.badge_off || ''),
+        hidden: existing[0]?.hidden || false,
+        visible: existing[0]?.visible !== false,
+      },
+      {
+        tag: getVal('s2_tag_edit'), tagColor: getVal('s2_tag_color'),
+        title: getVal('s2_title_edit'), titleColor: getVal('s2_title_color'),
+        sub: getVal('s2_sub_edit'), subColor: getVal('s2_sub_color'),
+        desc: getVal('s2_desc_edit'), descColor: getVal('s2_desc_color'),
+        font: getVal('s2_font'),
+        hidden: existing[1]?.hidden || false,
+        visible: existing[1]?.visible !== false,
+      },
+      {
+        tag: getVal('s3_tag_edit'), tagColor: getVal('s3_tag_color'),
+        title: getVal('s3_title_edit'), titleColor: getVal('s3_title_color'),
+        sub: getVal('s3_sub_edit'), subColor: getVal('s3_sub_color'),
+        desc: getVal('s3_desc_edit'), descColor: getVal('s3_desc_color'),
+        font: getVal('s3_font'),
+        hidden: existing[2]?.hidden || false,
+        visible: existing[2]?.visible !== false,
+      },
+      // Sale banner (index 3)
+      {
+        tag: getVal('sb_tag_edit'), tagColor: getVal('sb_tag_color'),
+        title: getVal('sb_title_edit'), titleColor: getVal('sb_title_color'),
+        desc: getVal('sb_desc_edit'), descColor: getVal('sb_desc_color'),
+        btn: getVal('sb_btn_edit'), btnColor: getVal('sb_btn_color'),
+        box1_pct: getVal('sb_box1_pct_edit'), box1_cat: getVal('sb_box1_cat_edit'),
+        box2_pct: getVal('sb_box2_pct_edit'), box2_cat: getVal('sb_box2_cat_edit'),
+        watermark: getVal('sb_watermark_edit'), watermarkColor: getVal('sb_watermark_color'),
+        watermarkOpacity: getVal('sb_watermark_opacity'),
+        bgColor: getVal('sb_bg_color'), bgOpacity: getVal('sb_bg_opacity'),
+      },
+      // Announcement bar (index 4)
+      {
+        text1: getVal('ann_text1'), text1Color: getVal('ann_text1_color'),
+        text2: getVal('ann_text2'), text2Color: getVal('ann_text2_color'),
+        text3: getVal('ann_text3'), text3Color: getVal('ann_text3_color'),
+        bgColor: getVal('ann_bg_color'),
+      },
+    ];
+
+    await apiFetch('/settings/hero_text', 'PUT', { value: slides });
+
+    // Position save karo
+    if (currentHeroPos) {
+      await apiFetch('/settings/hero-position', 'PUT', { position: currentHeroPos });
+    }
+
+    showToast('✅ Hero text + position save ho gaya!', 'success');
+  } catch(e) {
+    showToast('Error: ' + e.message, 'error');
+  }
+}
+
 </script>
 </body>
 </html>
