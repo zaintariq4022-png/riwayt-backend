@@ -451,12 +451,23 @@
     }
 
     .hero-content {
-      position: relative;
+      position: absolute;
       z-index: 2;
-      padding: 60px;
+      padding: 40px 60px;
       max-width: 600px;
       animation: heroFadeIn 1s ease forwards;
+      transition: all 0.3s ease;
     }
+    /* Position classes */
+    .hero-pos-top-left     { top:0;   left:0;    right:auto;  bottom:auto; transform:none;                text-align:left;   }
+    .hero-pos-top-center   { top:0;   left:50%;  right:auto;  bottom:auto; transform:translateX(-50%);    text-align:center; }
+    .hero-pos-top-right    { top:0;   right:0;   left:auto;   bottom:auto; transform:none;                text-align:right;  }
+    .hero-pos-middle-left  { top:50%; left:0;    right:auto;  bottom:auto; transform:translateY(-50%);    text-align:left;   }
+    .hero-pos-middle-center{ top:50%; left:50%;  right:auto;  bottom:auto; transform:translate(-50%,-50%);text-align:center; }
+    .hero-pos-middle-right { top:50%; right:0;   left:auto;   bottom:auto; transform:translateY(-50%);    text-align:right;  }
+    .hero-pos-bottom-left  { bottom:80px; left:0;  right:auto; top:auto; transform:none;               text-align:left;   }
+    .hero-pos-bottom-center{ bottom:80px; left:50%;right:auto; top:auto; transform:translateX(-50%);    text-align:center; }
+    .hero-pos-bottom-right { bottom:80px; right:0; left:auto;  top:auto; transform:none;               text-align:right;  }
 
     @keyframes heroFadeIn {
       from { opacity: 0; transform: translateY(30px); }
@@ -4050,7 +4061,7 @@ function openProduct(id) {
   // Short description below order buttons
   const sdEl = document.getElementById('detailShortDesc');
   if (sdEl) {
-    const sd = currentProduct.description || currentProduct.fabric_detail || '';
+    const sd = currentProduct.shortDesc || '';
     if (sd) { sdEl.textContent = sd; sdEl.style.display = 'block'; }
     else sdEl.style.display = 'none';
   }
@@ -5883,6 +5894,16 @@ function shareProduct() {
       window.open('https://wa.me/?text=' + encodeURIComponent(text), '_blank');
     });
   }
+}
+
+
+function applyHeroPosition(pos) {
+  const contents = document.querySelectorAll('.hero-content');
+  contents.forEach(el => {
+    // Remove all pos classes
+    el.classList.forEach(c => { if(c.startsWith('hero-pos-')) el.classList.remove(c); });
+    el.classList.add('hero-pos-' + pos);
+  });
 }
 
 function updateStickyBar() {

@@ -1279,6 +1279,39 @@ tr:hover td{background:#FAFAFA;}
             <div id="fs_save_msg" style="margin-top:8px;font-size:13px;color:#12B76A;display:none;">✓ Saved!</div>
           </div>
 
+          <!-- TEXT POSITION + LIVE PREVIEW -->
+          <div class="chart-card" style="border:2px solid var(--gold);background:rgba(201,168,76,0.04);margin-bottom:16px;">
+            <div class="chart-title" style="color:var(--gold);margin-bottom:14px;">📍 Text Position Control + Live Preview</div>
+            
+            <!-- Position Grid -->
+            <div style="margin-bottom:16px;">
+              <div style="font-size:12px;font-weight:600;color:var(--text-muted);margin-bottom:10px;">Text kahan dikhana hai? (sab slides pe apply hoga)</div>
+              <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:6px;max-width:280px;">
+                <button onclick="setHeroPos('top-left')" id="pos_top_left" class="pos-btn" style="padding:10px;border:1.5px solid var(--border);border-radius:6px;cursor:pointer;font-size:11px;background:var(--bg);transition:all 0.2s;">↖ Top Left</button>
+                <button onclick="setHeroPos('top-center')" id="pos_top_center" class="pos-btn" style="padding:10px;border:1.5px solid var(--border);border-radius:6px;cursor:pointer;font-size:11px;background:var(--bg);transition:all 0.2s;">↑ Top Center</button>
+                <button onclick="setHeroPos('top-right')" id="pos_top_right" class="pos-btn" style="padding:10px;border:1.5px solid var(--border);border-radius:6px;cursor:pointer;font-size:11px;background:var(--bg);transition:all 0.2s;">↗ Top Right</button>
+                <button onclick="setHeroPos('middle-left')" id="pos_middle_left" class="pos-btn" style="padding:10px;border:1.5px solid var(--border);border-radius:6px;cursor:pointer;font-size:11px;background:var(--bg);transition:all 0.2s;">← Middle Left</button>
+                <button onclick="setHeroPos('middle-center')" id="pos_middle_center" class="pos-btn" style="padding:10px;border:1.5px solid var(--border);border-radius:6px;cursor:pointer;font-size:11px;background:var(--bg);transition:all 0.2s;">◎ Center</button>
+                <button onclick="setHeroPos('middle-right')" id="pos_middle_right" class="pos-btn" style="padding:10px;border:1.5px solid var(--border);border-radius:6px;cursor:pointer;font-size:11px;background:var(--bg);transition:all 0.2s;">→ Middle Right</button>
+                <button onclick="setHeroPos('bottom-left')" id="pos_bottom_left" class="pos-btn" style="padding:10px;border:1.5px solid var(--border);border-radius:6px;cursor:pointer;font-size:11px;background:var(--bg);transition:all 0.2s;">↙ Bottom Left</button>
+                <button onclick="setHeroPos('bottom-center')" id="pos_bottom_center" class="pos-btn" style="padding:10px;border:1.5px solid var(--border);border-radius:6px;cursor:pointer;font-size:11px;background:var(--bg);transition:all 0.2s;">↓ Bottom Center</button>
+                <button onclick="setHeroPos('bottom-right')" id="pos_bottom_right" class="pos-btn" style="padding:10px;border:1.5px solid var(--border);border-radius:6px;cursor:pointer;font-size:11px;background:var(--bg);transition:all 0.2s;">↘ Bottom Right</button>
+              </div>
+            </div>
+
+            <!-- Live Preview -->
+            <div style="font-size:12px;font-weight:600;color:var(--text-muted);margin-bottom:8px;">Live Preview (Slide 1):</div>
+            <div id="heroPreviewBox" style="position:relative;width:100%;height:220px;background:linear-gradient(135deg,#1C1C1C,#3a3a3a);border-radius:8px;overflow:hidden;display:flex;">
+              <div id="heroPreviewContent" style="position:absolute;padding:20px;transition:all 0.3s;max-width:70%;">
+                <div id="pv_tag" style="display:inline-block;background:#C9A84C;color:#111;padding:3px 10px;font-size:9px;letter-spacing:2px;text-transform:uppercase;font-weight:600;margin-bottom:8px;">Summer Collection</div>
+                <div id="pv_title" style="font-family:'Cormorant Garamond',serif;font-size:22px;color:#FAF7F2;line-height:1.2;margin-bottom:6px;">Festive <em>Lawn</em></div>
+                <div id="pv_sub" style="font-size:11px;color:#FAF7F2;opacity:0.8;margin-bottom:6px;">Crafted with Heritage</div>
+                <div id="pv_desc" style="font-size:9px;color:#FAF7F2;opacity:0.6;line-height:1.5;max-width:200px;">Premium quality fabric, handcrafted embroidery.</div>
+              </div>
+            </div>
+            <div style="font-size:11px;color:var(--text-muted);margin-top:8px;">💡 Preview live update hota hai — Save All Text ke baad website pe apply hoga</div>
+          </div>
+
           <button class="btn btn-primary" onclick="saveHeroText()" style="width:100%;padding:14px;font-size:14px;">
             💾 Save All Text
           </button>
@@ -2540,6 +2573,87 @@ async function loadVideoSettings() {
     }
   } catch(e) { console.error('loadVideoSettings error:', e); }
 }
+// ─────────────────────────────────────────────
+
+
+// ══════════════════════════════════════════════
+// HERO TEXT POSITION CONTROL
+// ══════════════════════════════════════════════
+let currentHeroPos = 'middle-left'; // default
+
+function setHeroPos(pos) {
+  currentHeroPos = pos;
+  
+  // All buttons reset
+  document.querySelectorAll('.pos-btn').forEach(b => {
+    b.style.background = 'var(--bg)';
+    b.style.borderColor = 'var(--border)';
+    b.style.color = 'var(--text)';
+    b.style.fontWeight = '400';
+  });
+  
+  // Active button
+  const activeBtn = document.getElementById('pos_' + pos.replace('-','_'));
+  if (activeBtn) {
+    activeBtn.style.background = 'var(--gold)';
+    activeBtn.style.borderColor = 'var(--gold)';
+    activeBtn.style.color = '#111';
+    activeBtn.style.fontWeight = '700';
+  }
+
+  // Update preview
+  const box = document.getElementById('heroPreviewBox');
+  const content = document.getElementById('heroPreviewContent');
+  if (!box || !content) return;
+
+  // Position map
+  const posMap = {
+    'top-left':      { top:'0',    left:'0',    right:'auto', bottom:'auto',  transform:'none',            textAlign:'left'   },
+    'top-center':    { top:'0',    left:'50%',  right:'auto', bottom:'auto',  transform:'translateX(-50%)', textAlign:'center' },
+    'top-right':     { top:'0',    right:'0',   left:'auto',  bottom:'auto',  transform:'none',            textAlign:'right'  },
+    'middle-left':   { top:'50%',  left:'0',    right:'auto', bottom:'auto',  transform:'translateY(-50%)', textAlign:'left'   },
+    'middle-center': { top:'50%',  left:'50%',  right:'auto', bottom:'auto',  transform:'translate(-50%,-50%)', textAlign:'center' },
+    'middle-right':  { top:'50%',  right:'0',   left:'auto',  bottom:'auto',  transform:'translateY(-50%)', textAlign:'right'  },
+    'bottom-left':   { bottom:'0', left:'0',    right:'auto', top:'auto',     transform:'none',            textAlign:'left'   },
+    'bottom-center': { bottom:'0', left:'50%',  right:'auto', top:'auto',     transform:'translateX(-50%)', textAlign:'center' },
+    'bottom-right':  { bottom:'0', right:'0',   left:'auto',  top:'auto',     transform:'none',            textAlign:'right'  },
+  };
+
+  const p = posMap[pos];
+  if (p) {
+    content.style.top       = p.top    || 'auto';
+    content.style.left      = p.left   || 'auto';
+    content.style.right     = p.right  || 'auto';
+    content.style.bottom    = p.bottom || 'auto';
+    content.style.transform = p.transform;
+    content.style.textAlign = p.textAlign;
+  }
+
+  // Update preview text from slide 1 inputs
+  const tag   = document.getElementById('s1_tag_edit')?.value   || 'Summer Collection';
+  const title = document.getElementById('s1_title_edit')?.value || 'Festive Lawn';
+  const sub   = document.getElementById('s1_sub_edit')?.value   || 'Crafted with Heritage';
+  const desc  = document.getElementById('s1_desc_edit')?.value  || '';
+  const pvTag = document.getElementById('pv_tag');
+  const pvTitle = document.getElementById('pv_title');
+  const pvSub   = document.getElementById('pv_sub');
+  const pvDesc  = document.getElementById('pv_desc');
+  if (pvTag)   pvTag.textContent   = tag;
+  if (pvTitle) pvTitle.innerHTML   = title;
+  if (pvSub)   pvSub.textContent   = sub;
+  if (pvDesc)  pvDesc.textContent  = desc;
+}
+
+// Input change pe preview update karo
+function attachHeroPreviewListeners() {
+  ['s1_tag_edit','s1_title_edit','s1_sub_edit','s1_desc_edit'].forEach(id => {
+    const el = document.getElementById(id);
+    if (el) el.addEventListener('input', () => setHeroPos(currentHeroPos));
+  });
+}
+
+// Position ko hero_text settings mein save karo
+const _origSaveHeroText = typeof saveHeroText === 'function' ? saveHeroText : null;
 // ─────────────────────────────────────────────
 
 // ── Confirm Delete System ──────────────────────
@@ -4745,6 +4859,13 @@ async function loadHeroTextEditor() {
     document.getElementById('sb_box2_pct_edit').value = sb.box2_pct;
     document.getElementById('sb_box2_cat_edit').value = sb.box2_cat;
   }
+  // Position load karo
+  setTimeout(() => {
+    if (typeof setHeroPos === 'function') {
+      setHeroPos('middle-left');
+      attachHeroPreviewListeners();
+    }
+  }, 200);
 }
 </script>
 </body>

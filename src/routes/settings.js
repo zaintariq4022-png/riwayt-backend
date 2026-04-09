@@ -231,6 +231,26 @@ router.put('/payment-accounts', protect, async (req, res) => {
   res.json({ success: true, message: 'Payment accounts saved!' });
 });
 
+
+// GET /api/settings/hero-position
+router.get('/hero-position', async (req, res) => {
+  try {
+    const s = await Settings.findOne({ key: 'hero_position' });
+    res.json({ success: true, value: s ? s.value : 'middle-left' });
+  } catch(e) { res.json({ success: true, value: 'middle-left' }); }
+});
+
+// PUT /api/settings/hero-position — admin only
+router.put('/hero-position', protect, async (req, res) => {
+  const { position } = req.body;
+  await Settings.findOneAndUpdate(
+    { key: 'hero_position' },
+    { key: 'hero_position', value: position },
+    { upsert: true, new: true }
+  );
+  res.json({ success: true, message: 'Position saved!' });
+});
+
 module.exports = router;
 
 // GET /api/settings/social — public
