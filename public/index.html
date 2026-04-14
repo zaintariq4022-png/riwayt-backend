@@ -3799,16 +3799,20 @@ async function fetchProducts() {
     console.warn('Backend connect nahi hua, fallback data use ho raha hai');
     PRODUCTS = getFallbackProducts();
   }
-  renderProducts(currentFilter);
-  loadFeaturedSlider();
-
-  // Share link se aaya hai? Cookie mein product ID hogi
+  // Share link / reload check — PEHLE karo renderProducts se
   const _sharePid = window.__shareProductId;
   if (_sharePid) {
     window.__shareProductId = null;
     const p = PRODUCTS.find(pr => pr.id === _sharePid);
-    if (p) openProduct(p.id);
+    if (p) {
+      // Seedha openProduct karo — renderProducts skip
+      setTimeout(() => openProduct(p.id), 50);
+      return; // renderProducts skip karo
+    }
   }
+
+  renderProducts(currentFilter);
+  loadFeaturedSlider();
   // Event dispatch karo (server-injected script ke liye)
   window.dispatchEvent(new Event('productsLoaded'));
 }
