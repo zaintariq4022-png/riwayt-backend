@@ -3873,12 +3873,14 @@ window.addEventListener('popstate', (e) => {
   }
 });
 
-// Hash se pid check karo — #pid-XXXXX se product open karo
+// Hash se pid check karo — #pid-XXXXX se product open karo (reload pe bhi kaam kare)
 (function() {
   const hash = window.location.hash || '';
   if (hash.startsWith('#pid-')) {
-    window.__shareProductId = hash.replace('#pid-', '');
-    // Hash rakho — products load hone ke baad use hoga
+    const pid = hash.replace('#pid-', '');
+    window.__shareProductId = pid;
+    // History state set karo taake back button theek kaam kare
+    history.replaceState({ page: 'detail', pid: pid }, '', hash);
   } else {
     history.replaceState({ page: 'home' }, '', '#home');
   }
