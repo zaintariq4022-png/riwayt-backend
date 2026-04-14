@@ -832,12 +832,16 @@
       display: grid;
       grid-template-columns: repeat(4, 1fr);
       gap: 28px 20px;
+          overflow: hidden;
     }
 
     /* Product Card */
     .product-card {
       cursor: pointer;
       position: relative;
+      min-width: 0;
+      width: 100%;
+      overflow: hidden;
     }
 
     .product-img-wrap {

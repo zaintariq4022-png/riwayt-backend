@@ -4927,7 +4927,7 @@ async function saveHeroText() {
       },
     ];
 
-    await apiFetch('/settings/hero_text', 'PUT', { value: slides });
+    await apiFetch('/settings/hero_text', 'PUT', { slides: slides });
 
     // Position save karo
     if (currentHeroPos) {
