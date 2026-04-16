@@ -3929,78 +3929,242 @@ function printPriceTag(productId) {
 
 // Print barcode label
 function printBarcode(sku, name, price) {
-  const win = window.open('', '_blank', 'width=480,height=480');
+  const win = window.open('', '_blank', 'width=560,height=620');
   win.document.write(`<!DOCTYPE html><html><head>
     <meta charset="UTF-8"/>
+    <title>Barcode Print</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jsbarcode/3.11.5/JsBarcode.all.min.js"><\/script>
     <style>
       *{margin:0;padding:0;box-sizing:border-box;}
-      body{font-family:Arial,sans-serif;background:#f5f5f5;}
-      .controls{background:#1C1C1C;padding:12px 16px;display:flex;flex-wrap:wrap;gap:12px;align-items:center;justify-content:center;}
-      .controls label{color:#ccc;font-size:11px;display:flex;flex-direction:column;align-items:center;gap:3px;}
-      .controls input[type=range]{width:80px;accent-color:#C9A84C;}
-      .controls span{color:#C9A84C;font-weight:700;font-size:12px;min-width:24px;text-align:center;}
-      .controls button{padding:7px 18px;background:#C9A84C;color:#111;border:none;border-radius:4px;cursor:pointer;font-weight:700;font-size:13px;}
-      .tag-wrap{display:flex;justify-content:center;padding:20px;}
-      .tag{border:1px solid #ddd;padding:10px;text-align:center;background:white;border-radius:4px;}
-      .brand{font-weight:700;letter-spacing:3px;color:#1C1C1C;margin-bottom:4px;}
-      .pname{color:#555;margin-bottom:5px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
-      .price{font-weight:700;color:#1C1C1C;margin-bottom:5px;}
+      body{font-family:Arial,sans-serif;background:#f0f0f0;}
+
+      /* ── CONTROLS ── */
+      .controls{
+        background:#1C1C1C;padding:14px 16px;
+        display:flex;flex-wrap:wrap;gap:10px;
+        align-items:center;justify-content:center;
+      }
+      .ctrl-group{
+        display:flex;flex-direction:column;align-items:center;gap:4px;
+        background:#2a2a2a;border-radius:6px;padding:8px 12px;
+      }
+      .ctrl-label{color:#aaa;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:0.5px;}
+      .ctrl-row{display:flex;align-items:center;gap:6px;}
+      .ctrl-input{
+        width:56px;padding:4px 6px;
+        background:#111;color:#C9A84C;
+        border:1px solid #444;border-radius:4px;
+        font-size:13px;font-weight:700;text-align:center;
+        outline:none;
+      }
+      .ctrl-input:focus{border-color:#C9A84C;}
+      .ctrl-unit{color:#666;font-size:11px;}
+      .ctrl-range{width:70px;accent-color:#C9A84C;cursor:pointer;}
+      .print-btn{
+        padding:10px 24px;background:#C9A84C;color:#111;
+        border:none;border-radius:6px;cursor:pointer;
+        font-weight:800;font-size:14px;letter-spacing:0.5px;
+      }
+      .print-btn:hover{background:#b8963e;}
+      .size-badge{
+        background:#C9A84C;color:#111;
+        padding:4px 10px;border-radius:4px;
+        font-size:10px;font-weight:800;
+        letter-spacing:0.5px;
+      }
+      .reset-btn{
+        padding:6px 12px;background:#333;color:#aaa;
+        border:1px solid #444;border-radius:4px;cursor:pointer;
+        font-size:11px;font-weight:700;
+      }
+      .reset-btn:hover{background:#444;color:white;}
+
+      /* ── PREVIEW ── */
+      .preview-wrap{
+        display:flex;justify-content:center;align-items:center;
+        padding:30px;min-height:300px;
+      }
+      .tag{
+        border:1px dashed #ccc;
+        padding:6px 8px;
+        text-align:center;
+        background:white;
+        border-radius:4px;
+        box-shadow:0 2px 12px rgba(0,0,0,0.12);
+        display:flex;flex-direction:column;align-items:center;justify-content:center;
+        gap:3px;
+      }
+      .brand{font-weight:800;letter-spacing:2px;color:#1C1C1C;}
+      .pname{color:#555;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:100%;}
+      .price{font-weight:700;color:#1C1C1C;}
       .sku-text{color:#888;}
-      .website{color:#bbb;font-size:9px;margin-top:2px;letter-spacing:0.5px;}
+      .website{color:#bbb;letter-spacing:0.5px;}
+
+      /* ── PRINT ── */
       @media print{
-        @page { size: 50mm 40mm; margin: 0; }
-        body { background:white; margin:0; padding:0; }
-        .controls { display:none; }
-        .tag-wrap { padding:0; display:flex; justify-content:center; align-items:center; width:50mm; height:40mm; }
-        .tag { border:none !important; width:50mm !important; height:40mm !important; box-sizing:border-box; padding:2mm; }
+        @page { size: var(--pw) var(--ph); margin: 0; }
+        body{background:white;margin:0;padding:0;}
+        .controls{display:none;}
+        .preview-wrap{
+          padding:0;margin:0;
+          width:var(--pw);height:var(--ph);
+          display:flex;align-items:center;justify-content:center;
+        }
+        .tag{
+          border:none !important;
+          width:var(--pw) !important;
+          height:var(--ph) !important;
+          padding:2mm;
+          box-shadow:none;
+        }
       }
     </style>
   </head><body>
     <div class="controls">
-      <div style="background:#2a2a2a;color:#C9A84C;padding:4px 12px;border-radius:4px;font-size:11px;font-weight:700;margin-right:8px;">GC420d: 50mm × 40mm</div>
-      <label>Tag Width<div style="display:flex;align-items:center;gap:4px;"><input type="range" id="s_tagW" min="120" max="400" value="189" oninput="redraw()"><span id="v_tagW">189</span>px</div></label>
-      <label>Bar Width<div style="display:flex;align-items:center;gap:4px;"><input type="range" id="s_bw" min="1" max="4" value="1.5" step="0.5" oninput="redraw()"><span id="v_bw">1.5</span></div></label>
-      <label>Bar Height<div style="display:flex;align-items:center;gap:4px;"><input type="range" id="s_bh" min="20" max="80" value="35" oninput="redraw()"><span id="v_bh">35</span>px</div></label>
-      <label>Font Size<div style="display:flex;align-items:center;gap:4px;"><input type="range" id="s_fs" min="6" max="16" value="9" oninput="redraw()"><span id="v_fs">9</span>px</div></label>
-      <label>Price Size<div style="display:flex;align-items:center;gap:4px;"><input type="range" id="s_ps" min="10" max="28" value="16" oninput="redraw()"><span id="v_ps">16</span>px</div></label>
-      <button onclick="window.print()">🖨️ Print (GC420d)</button>
+      <div class="size-badge" id="sizeBadge">50mm × 40mm</div>
+
+      <div class="ctrl-group">
+        <div class="ctrl-label">Label Width</div>
+        <div class="ctrl-row">
+          <input class="ctrl-input" type="number" id="i_lw" value="50" min="20" max="150" oninput="syncFromInput('lw')"/>
+          <span class="ctrl-unit">mm</span>
+          <input class="ctrl-range" type="range" id="r_lw" value="50" min="20" max="150" oninput="syncFromRange('lw')"/>
+        </div>
+      </div>
+
+      <div class="ctrl-group">
+        <div class="ctrl-label">Label Height</div>
+        <div class="ctrl-row">
+          <input class="ctrl-input" type="number" id="i_lh" value="40" min="15" max="120" oninput="syncFromInput('lh')"/>
+          <span class="ctrl-unit">mm</span>
+          <input class="ctrl-range" type="range" id="r_lh" value="40" min="15" max="120" oninput="syncFromRange('lh')"/>
+        </div>
+      </div>
+
+      <div class="ctrl-group">
+        <div class="ctrl-label">Bar Width</div>
+        <div class="ctrl-row">
+          <input class="ctrl-input" type="number" id="i_bw" value="1.5" min="0.5" max="4" step="0.5" oninput="syncFromInput('bw')"/>
+          <input class="ctrl-range" type="range" id="r_bw" value="1.5" min="0.5" max="4" step="0.5" oninput="syncFromRange('bw')"/>
+        </div>
+      </div>
+
+      <div class="ctrl-group">
+        <div class="ctrl-label">Bar Height</div>
+        <div class="ctrl-row">
+          <input class="ctrl-input" type="number" id="i_bh" value="30" min="10" max="80" oninput="syncFromInput('bh')"/>
+          <span class="ctrl-unit">px</span>
+          <input class="ctrl-range" type="range" id="r_bh" value="30" min="10" max="80" oninput="syncFromRange('bh')"/>
+        </div>
+      </div>
+
+      <div class="ctrl-group">
+        <div class="ctrl-label">Font Size</div>
+        <div class="ctrl-row">
+          <input class="ctrl-input" type="number" id="i_fs" value="9" min="6" max="18" oninput="syncFromInput('fs')"/>
+          <span class="ctrl-unit">px</span>
+          <input class="ctrl-range" type="range" id="r_fs" value="9" min="6" max="18" oninput="syncFromRange('fs')"/>
+        </div>
+      </div>
+
+      <div class="ctrl-group">
+        <div class="ctrl-label">Price Size</div>
+        <div class="ctrl-row">
+          <input class="ctrl-input" type="number" id="i_ps" value="14" min="8" max="28" oninput="syncFromInput('ps')"/>
+          <span class="ctrl-unit">px</span>
+          <input class="ctrl-range" type="range" id="r_ps" value="14" min="8" max="28" oninput="syncFromRange('ps')"/>
+        </div>
+      </div>
+
+      <div style="display:flex;flex-direction:column;gap:6px;">
+        <button class="print-btn" onclick="window.print()">🖨️ Print</button>
+        <button class="reset-btn" onclick="resetDefaults()">↺ GC420d Default</button>
+      </div>
     </div>
-    <div class="tag-wrap">
+
+    <div class="preview-wrap">
       <div class="tag" id="tag">
         <div class="brand" id="el_brand">RIWAYAT</div>
         <div class="pname" id="el_name">${name}</div>
         <div class="price" id="el_price">PKR ${Number(price).toLocaleString()}</div>
         <svg id="barcode"></svg>
         <div class="sku-text" id="el_sku">${sku}</div>
-        <div class="website" id="el_web" style="font-size:9px;color:#aaa;margin-top:3px;letter-spacing:0.5px;">riwayat-pakistan.online</div>
+        <div class="website" id="el_web">riwayat-pakistan.online</div>
       </div>
     </div>
+
     <script>
-      function redraw() {
-        const tagW = +document.getElementById('s_tagW').value;
-        const bw   = +document.getElementById('s_bw').value;
-        const bh   = +document.getElementById('s_bh').value;
-        const fs   = +document.getElementById('s_fs').value;
-        const ps   = +document.getElementById('s_ps').value;
-        document.getElementById('v_tagW').textContent = tagW;
-        document.getElementById('v_bw').textContent   = bw;
-        document.getElementById('v_bh').textContent   = bh;
-        document.getElementById('v_fs').textContent   = fs;
-        document.getElementById('v_ps').textContent   = ps;
-        document.getElementById('tag').style.width    = tagW + 'px';
-        document.getElementById('el_price').style.fontSize = ps + 'px';
-        document.getElementById('el_sku').style.fontSize   = Math.max(8, fs-2) + 'px';
-        document.getElementById('el_name').style.fontSize  = Math.max(9, fs) + 'px';
-        document.getElementById('el_brand').style.fontSize = Math.max(10, fs+2) + 'px';
-        JsBarcode('#barcode', '${sku}', {
-          format:'CODE128', width:bw, height:bh,
-          displayValue:true, fontSize:fs, margin:4
-        });
+      const MM_TO_PX = 3.7795;
+
+      function getVals() {
+        return {
+          lw: +document.getElementById('i_lw').value,
+          lh: +document.getElementById('i_lh').value,
+          bw: +document.getElementById('i_bw').value,
+          bh: +document.getElementById('i_bh').value,
+          fs: +document.getElementById('i_fs').value,
+          ps: +document.getElementById('i_ps').value,
+        };
       }
+
+      function syncFromInput(key) {
+        const val = document.getElementById('i_'+key).value;
+        document.getElementById('r_'+key).value = val;
+        redraw();
+      }
+
+      function syncFromRange(key) {
+        const val = document.getElementById('r_'+key).value;
+        document.getElementById('i_'+key).value = val;
+        redraw();
+      }
+
+      function redraw() {
+        const v = getVals();
+        const wPx = v.lw * MM_TO_PX;
+        const hPx = v.lh * MM_TO_PX;
+
+        // Update size badge
+        document.getElementById('sizeBadge').textContent = v.lw + 'mm × ' + v.lh + 'mm';
+
+        // Update CSS variables for print
+        document.documentElement.style.setProperty('--pw', v.lw + 'mm');
+        document.documentElement.style.setProperty('--ph', v.lh + 'mm');
+
+        // Update tag size
+        const tag = document.getElementById('tag');
+        tag.style.width  = wPx + 'px';
+        tag.style.height = hPx + 'px';
+
+        // Update font sizes
+        document.getElementById('el_price').style.fontSize = v.ps + 'px';
+        document.getElementById('el_brand').style.fontSize = (v.fs + 2) + 'px';
+        document.getElementById('el_name').style.fontSize  = v.fs + 'px';
+        document.getElementById('el_sku').style.fontSize   = Math.max(7, v.fs - 2) + 'px';
+        document.getElementById('el_web').style.fontSize   = Math.max(6, v.fs - 3) + 'px';
+
+        // Redraw barcode
+        try {
+          JsBarcode('#barcode', '${sku}', {
+            format:'CODE128', width:v.bw, height:v.bh,
+            displayValue:true, fontSize:v.fs, margin:2
+          });
+        } catch(e){}
+      }
+
+      function resetDefaults() {
+        // GC420d defaults: 50mm x 40mm
+        const defs = {lw:50,lh:40,bw:1.5,bh:30,fs:9,ps:14};
+        Object.keys(defs).forEach(k => {
+          document.getElementById('i_'+k).value = defs[k];
+          document.getElementById('r_'+k).value = defs[k];
+        });
+        redraw();
+      }
+
       window.onload = redraw;
     <\/script>
-  </body></html>`);
+  </body></html>\`);
   win.document.close();
 }
 
