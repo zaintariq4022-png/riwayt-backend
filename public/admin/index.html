@@ -3948,16 +3948,23 @@ function printBarcode(sku, name, price) {
       .price{font-weight:700;color:#1C1C1C;margin-bottom:5px;}
       .sku-text{color:#888;}
       .website{color:#bbb;font-size:9px;margin-top:2px;letter-spacing:0.5px;}
-      @media print{.controls{display:none;}body{background:white;}.tag-wrap{padding:4px;}}
+      @media print{
+        @page { size: 50mm 40mm; margin: 0; }
+        body { background:white; margin:0; padding:0; }
+        .controls { display:none; }
+        .tag-wrap { padding:0; display:flex; justify-content:center; align-items:center; width:50mm; height:40mm; }
+        .tag { border:none !important; width:50mm !important; height:40mm !important; box-sizing:border-box; padding:2mm; }
+      }
     </style>
   </head><body>
     <div class="controls">
-      <label>Tag Width<div style="display:flex;align-items:center;gap:4px;"><input type="range" id="s_tagW" min="120" max="400" value="220" oninput="redraw()"><span id="v_tagW">220</span>px</div></label>
+      <div style="background:#2a2a2a;color:#C9A84C;padding:4px 12px;border-radius:4px;font-size:11px;font-weight:700;margin-right:8px;">GC420d: 50mm × 40mm</div>
+      <label>Tag Width<div style="display:flex;align-items:center;gap:4px;"><input type="range" id="s_tagW" min="120" max="400" value="189" oninput="redraw()"><span id="v_tagW">189</span>px</div></label>
       <label>Bar Width<div style="display:flex;align-items:center;gap:4px;"><input type="range" id="s_bw" min="1" max="4" value="1.5" step="0.5" oninput="redraw()"><span id="v_bw">1.5</span></div></label>
-      <label>Bar Height<div style="display:flex;align-items:center;gap:4px;"><input type="range" id="s_bh" min="20" max="120" value="40" oninput="redraw()"><span id="v_bh">40</span>px</div></label>
-      <label>Font Size<div style="display:flex;align-items:center;gap:4px;"><input type="range" id="s_fs" min="6" max="20" value="10" oninput="redraw()"><span id="v_fs">10</span>px</div></label>
-      <label>Price Size<div style="display:flex;align-items:center;gap:4px;"><input type="range" id="s_ps" min="10" max="36" value="18" oninput="redraw()"><span id="v_ps">18</span>px</div></label>
-      <button onclick="window.print()">🖨️ Print</button>
+      <label>Bar Height<div style="display:flex;align-items:center;gap:4px;"><input type="range" id="s_bh" min="20" max="80" value="35" oninput="redraw()"><span id="v_bh">35</span>px</div></label>
+      <label>Font Size<div style="display:flex;align-items:center;gap:4px;"><input type="range" id="s_fs" min="6" max="16" value="9" oninput="redraw()"><span id="v_fs">9</span>px</div></label>
+      <label>Price Size<div style="display:flex;align-items:center;gap:4px;"><input type="range" id="s_ps" min="10" max="28" value="16" oninput="redraw()"><span id="v_ps">16</span>px</div></label>
+      <button onclick="window.print()">🖨️ Print (GC420d)</button>
     </div>
     <div class="tag-wrap">
       <div class="tag" id="tag">

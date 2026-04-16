@@ -5739,7 +5739,12 @@ async function loadCategories() {
 
     const cats = data.categories.filter(c => c.active);
 
-    // Update header nav pills
+    // Update header nav pills (category-bar)
+    const catBar = document.querySelector('.category-bar');
+    if (catBar) {
+      catBar.innerHTML = `<button class="cat-pill active" onclick="catPillClick(this,'all')">All</button>` +
+        cats.map(c => `<button class="cat-pill${c.id==='sale'?' sale-pill':c.id==='new'?' new-pill':''}" onclick="catPillClick(this,'${c.id}')">${c.label}</button>`).join('');
+    }
     const catPillsContainer = document.querySelector('.cat-pills');
     if (catPillsContainer) {
       catPillsContainer.innerHTML = `<button class="cat-pill active" onclick="catPillClick(this,'all')">All</button>` +
