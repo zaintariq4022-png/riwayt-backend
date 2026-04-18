@@ -909,7 +909,10 @@ tr:hover td{background:#FAFAFA;}
             <div style="display:flex;align-items:center;justify-content:space-between;">
               <div style="display:flex;align-items:center;justify-content:space-between;">
               <div class="chart-title" style="color:var(--gold);">Slide 1</div>
-              <button id="s1_toggle_btn" onclick="toggleSlide(1)" style="padding:5px 14px;border-radius:20px;border:1px solid #12B76A;background:rgba(18,183,106,0.1);color:#12B76A;font-size:12px;font-weight:600;cursor:pointer;">✓ Visible</button>
+              <div style="display:flex;gap:8px;align-items:center;">
+                <button id="s1_toggle_btn" onclick="toggleSlide(1)" style="padding:5px 14px;border-radius:20px;border:1px solid #12B76A;background:rgba(18,183,106,0.1);color:#12B76A;font-size:12px;font-weight:600;cursor:pointer;">✓ Visible</button>
+                <button onclick="saveSlide(1)" style="padding:5px 14px;border-radius:20px;border:1px solid var(--gold);background:rgba(201,168,76,0.1);color:var(--gold);font-size:12px;font-weight:600;cursor:pointer;">💾 Save Slide 1</button>
+              </div>
             </div>
             </div>
             <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:14px;">
@@ -975,7 +978,10 @@ tr:hover td{background:#FAFAFA;}
             <div style="display:flex;align-items:center;justify-content:space-between;">
               <div style="display:flex;align-items:center;justify-content:space-between;">
               <div class="chart-title" style="color:#3B82F6;">Slide 2</div>
-              <button id="s2_toggle_btn" onclick="toggleSlide(2)" style="padding:5px 14px;border-radius:20px;border:1px solid #12B76A;background:rgba(18,183,106,0.1);color:#12B76A;font-size:12px;font-weight:600;cursor:pointer;">✓ Visible</button>
+              <div style="display:flex;gap:8px;align-items:center;">
+                <button id="s2_toggle_btn" onclick="toggleSlide(2)" style="padding:5px 14px;border-radius:20px;border:1px solid #12B76A;background:rgba(18,183,106,0.1);color:#12B76A;font-size:12px;font-weight:600;cursor:pointer;">✓ Visible</button>
+                <button onclick="saveSlide(2)" style="padding:5px 14px;border-radius:20px;border:1px solid var(--gold);background:rgba(201,168,76,0.1);color:var(--gold);font-size:12px;font-weight:600;cursor:pointer;">💾 Save Slide 2</button>
+              </div>
             </div>
             </div>
             <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:14px;">
@@ -1041,7 +1047,10 @@ tr:hover td{background:#FAFAFA;}
             <div style="display:flex;align-items:center;justify-content:space-between;">
               <div style="display:flex;align-items:center;justify-content:space-between;">
               <div class="chart-title" style="color:#A855F7;">Slide 3</div>
-              <button id="s3_toggle_btn" onclick="toggleSlide(3)" style="padding:5px 14px;border-radius:20px;border:1px solid #12B76A;background:rgba(18,183,106,0.1);color:#12B76A;font-size:12px;font-weight:600;cursor:pointer;">✓ Visible</button>
+              <div style="display:flex;gap:8px;align-items:center;">
+                <button id="s3_toggle_btn" onclick="toggleSlide(3)" style="padding:5px 14px;border-radius:20px;border:1px solid #12B76A;background:rgba(18,183,106,0.1);color:#12B76A;font-size:12px;font-weight:600;cursor:pointer;">✓ Visible</button>
+                <button onclick="saveSlide(3)" style="padding:5px 14px;border-radius:20px;border:1px solid var(--gold);background:rgba(201,168,76,0.1);color:var(--gold);font-size:12px;font-weight:600;cursor:pointer;">💾 Save Slide 3</button>
+              </div>
             </div>
             </div>
             <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:14px;">
@@ -4883,6 +4892,42 @@ async function loadHeroTextEditor() {
       attachHeroPreviewListeners();
     }
   }, 200);
+}
+
+
+async function saveSlide(n) {
+  const getVal = id => { const el = document.getElementById(id); return el ? el.value.trim() : ''; };
+  try {
+    // Load existing
+    const r = await apiFetch('/settings/hero_text', 'GET', null, false);
+    const existing = r.value || [];
+    
+    // Update only this slide
+    const idx = n - 1;
+    existing[idx] = {
+      ...(existing[idx] || {}),
+      tag:       getVal(`s${n}_tag_edit`),
+      tagColor:  getVal(`s${n}_tag_color`),
+      title:     getVal(`s${n}_title_edit`),
+      titleColor:getVal(`s${n}_title_color`),
+      sub:       getVal(`s${n}_sub_edit`),
+      subColor:  getVal(`s${n}_sub_color`),
+      desc:      getVal(`s${n}_desc_edit`),
+      descColor: getVal(`s${n}_desc_color`),
+      font:      getVal(`s${n}_font`),
+      visible:   slideVisibility[n] !== false,
+      hidden:    slideVisibility[n] === false,
+    };
+    if (n === 1) {
+      existing[0].badge_pct = getVal('s1_badge_pct_edit') || (existing[0]?.badge_pct || '');
+      existing[0].badge_off = getVal('s1_badge_off_edit') || (existing[0]?.badge_off || '');
+    }
+    
+    await apiFetch('/settings/hero_text', 'PUT', { slides: existing });
+    showToast(`✅ Slide ${n} save ho gaya!`, 'success');
+  } catch(e) {
+    showToast('Error: ' + e.message, 'error');
+  }
 }
 
 async function saveHeroText() {
