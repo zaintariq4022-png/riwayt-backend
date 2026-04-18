@@ -1893,7 +1893,16 @@ tr:hover td{background:#FAFAFA;}
       <div class="form-row">
         <div class="field"><label>Product Name *</label><input type="text" id="pName" placeholder="Gulabi Lawn Suit"/></div>
         <div class="field"><label>Category *</label>
-          <select id="pCategory"><option value="">Select category</option>
+          <select id="pCategory">
+            <option value="">Select category</option>
+            <option value="women">Women</option>
+            <option value="kids">Kids</option>
+            <option value="sale">Sale</option>
+            <option value="new">New Arrivals</option>
+            <option value="stitching">Stitching Details</option>
+            <option value="fancy">Fancy</option>
+            <option value="bridal">Bridal</option>
+            <option value="accessories">Accessories</option>
           </select>
         </div>
       </div>
@@ -3250,7 +3259,9 @@ async function saveProduct(){
   fd.append('shortDesc',document.getElementById('pShortDesc')?.value.trim()||'');
   fd.append('fabricCare',document.getElementById('pFabricCare')?.value.trim()||'');
   fd.append('description',document.getElementById('pDesc').value.trim());
-  fd.append('category',document.getElementById('pCategory').value);
+  const catVal = document.getElementById('pCategory').value;
+  if (!catVal) { showToast('Please select a category!', 'error'); btn.textContent='Save Product'; btn.disabled=false; return; }
+  fd.append('category', catVal);
   fd.append('price',document.getElementById('pPrice').value);
   fd.append('originalPrice',document.getElementById('pOriginalPrice').value||'');
   fd.append('stock',document.getElementById('pStock').value);
