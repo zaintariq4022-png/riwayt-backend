@@ -7,8 +7,10 @@ function sanitizeBody(body) {
   const bools = ['isFeatured','isNew','isSale','isHot','codEnabled'];
   const nums  = ['price','originalPrice','stock','advancePercent','rating','numReviews'];
 
+  // FormData mein unchecked checkbox value aati hi nahi
+  // Isliye hamesha explicitly set karo — true ya false
   bools.forEach(k => {
-    if (k in body) body[k] = body[k] === 'true' || body[k] === true;
+    body[k] = body[k] === 'true' || body[k] === true;
   });
   nums.forEach(k => {
     if (k in body && body[k] !== '') body[k] = Number(body[k]);

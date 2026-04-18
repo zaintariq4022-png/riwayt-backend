@@ -3050,10 +3050,8 @@ function initColorPickers(colors=[]) {
   list.innerHTML = '';
   if (colors && colors.length > 0) {
     colors.forEach(c => addColorPicker(c));
-  } else {
-    // Default 3 colors
-    ['#C9A84C','#D4847A','#7A8C6E'].forEach(c => addColorPicker(c));
   }
+  // Koi color nahi hoga by default — user khud add karega
 }
 
 

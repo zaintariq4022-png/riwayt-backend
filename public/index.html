@@ -3769,7 +3769,7 @@ async function fetchProducts() {
         price: price,
         original: original,
         discount: discountPct,
-        colors: p.colors && p.colors.length > 0 ? p.colors : ['#C9A84C', '#D4847A', '#7A8C6E'],
+        colors: p.colors || [],
         emoji: p.emoji || '👗',
         bg: p.bgColor ? p.bgColor : 'linear-gradient(160deg,#E8D4B0,#A08040)',
         tags: [
