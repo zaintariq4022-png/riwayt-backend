@@ -3142,7 +3142,12 @@ async function saveProduct(){
   const totalStock = Object.values(sizeQtys).reduce((a,b)=>a+Number(b),0);
   if(totalStock>0) fd.set('stock', totalStock);
   document.getElementById('pTags').value.split(',').map(t=>t.trim()).filter(Boolean).forEach(t=>fd.append('tags[]',t));
-  document.querySelectorAll('#colorPickerList input[type="color"]').forEach(c=>fd.append('colors[]',c.value));
+  const colorInputs = document.querySelectorAll('#colorPickerList input[type="color"]');
+  if (colorInputs.length > 0) {
+    colorInputs.forEach(c => fd.append('colors[]', c.value));
+  } else {
+    fd.append('colors[]', ''); // empty — backend mein clear hoga
+  }
   Array.from(document.getElementById('pImages').files).forEach(f=>fd.append('images',f));
   // Video — file ya URL (existing preserve karo agar kuch nahi diya)
   const videoFile = document.getElementById('pVideo').files[0];

@@ -21,9 +21,10 @@ function sanitizeBody(body) {
     body.tags = Array.isArray(body['tags[]']) ? body['tags[]'] : [body['tags[]']];
     delete body['tags[]'];
   }
-  // colors[] array
-  if (body['colors[]']) {
-    body.colors = Array.isArray(body['colors[]']) ? body['colors[]'] : [body['colors[]']];
+  // colors[] array — empty strings filter karo
+  if ('colors[]' in body) {
+    const raw = Array.isArray(body['colors[]']) ? body['colors[]'] : [body['colors[]']];
+    body.colors = raw.filter(c => c && c.trim() !== '');
     delete body['colors[]'];
   }
   // sizes[] array
