@@ -2827,14 +2827,11 @@ async function loadAnalytics() {
 }
 
 function showGA4Embed() {
-  // GA4 iframe embed karo
-  const containers = ['visitorsChart','deviceChart','topPages','topProducts','trafficSources','topCities'];
-  
-  // Stats row hide karo
-  const statsRow = document.getElementById('an_visitors')?.closest('.stats-grid');
-  
-  // Sab containers mein GA4 link dikhao
-  document.getElementById('visitorsChart').closest('.chart-card').style.gridColumn = 'span 3';
+  const vcEl = document.getElementById('visitorsChart');
+  if (!vcEl) return; // DOM ready nahi — skip
+  const vcCard = vcEl.closest('.chart-card');
+  if (!vcCard) return;
+  vcCard.style.gridColumn = 'span 3';
   document.getElementById('visitorsChart').innerHTML = `
     <div style="text-align:center;padding:20px 0;">
       <div style="font-size:3rem;margin-bottom:12px;">📊</div>
@@ -3215,6 +3212,8 @@ function showPanel(name){
 }
 
 async function loadDashboard(){
+  // Analytics baad mein load karo — DOM ready hone ke baad
+  setTimeout(() => loadAnalytics(), 300);
   try{
     const[orderStats,productStats,recent]=await Promise.all([
       apiFetch('/orders/admin/stats'),
