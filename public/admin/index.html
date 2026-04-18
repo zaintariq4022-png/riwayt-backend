@@ -4902,8 +4902,8 @@ async function saveHeroText() {
         font: getVal('s1_font'),
         badge_pct: getVal('s1_badge_pct_edit') || (existing[0]?.badge_pct || ''),
         badge_off: getVal('s1_badge_off_edit') || (existing[0]?.badge_off || ''),
-        hidden: existing[0]?.hidden || false,
-        visible: existing[0]?.visible !== false,
+        visible: slideVisibility[1] !== false,
+        hidden: slideVisibility[1] === false,
       },
       {
         tag: getVal('s2_tag_edit'), tagColor: getVal('s2_tag_color'),
@@ -4911,8 +4911,8 @@ async function saveHeroText() {
         sub: getVal('s2_sub_edit'), subColor: getVal('s2_sub_color'),
         desc: getVal('s2_desc_edit'), descColor: getVal('s2_desc_color'),
         font: getVal('s2_font'),
-        hidden: existing[1]?.hidden || false,
-        visible: existing[1]?.visible !== false,
+        visible: slideVisibility[2] !== false,
+        hidden: slideVisibility[2] === false,
       },
       {
         tag: getVal('s3_tag_edit'), tagColor: getVal('s3_tag_color'),
@@ -4920,8 +4920,8 @@ async function saveHeroText() {
         sub: getVal('s3_sub_edit'), subColor: getVal('s3_sub_color'),
         desc: getVal('s3_desc_edit'), descColor: getVal('s3_desc_color'),
         font: getVal('s3_font'),
-        hidden: existing[2]?.hidden || false,
-        visible: existing[2]?.visible !== false,
+        visible: slideVisibility[3] !== false,
+        hidden: slideVisibility[3] === false,
       },
       // Sale banner (index 3)
       {
