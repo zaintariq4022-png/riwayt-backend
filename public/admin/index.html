@@ -341,9 +341,8 @@ tr:hover td{background:#FAFAFA;}
           <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;">
             <div class="section-title">🌐 Website Analytics</div>
             <div style="display:flex;gap:8px;">
-              <button onclick="setAnalyticsPeriod(7,this)" class="btn btn-secondary btn-sm analytics-period-btn active-period">7 Days</button>
-              <button onclick="setAnalyticsPeriod(30,this)" class="btn btn-secondary btn-sm analytics-period-btn">30 Days</button>
-              <button onclick="setAnalyticsPeriod(90,this)" class="btn btn-secondary btn-sm analytics-period-btn">90 Days</button>
+              <button onclick="switchAnalyticsView('ga4')" class="btn btn-secondary btn-sm analytics-period-btn active-period" id="btn_ga4">📊 Google Analytics</button>
+              <button onclick="switchAnalyticsView('demo')" class="btn btn-secondary btn-sm analytics-period-btn" id="btn_demo">📈 Quick Stats</button>
             </div>
           </div>
 
@@ -2807,33 +2806,85 @@ let _analyticsDays = 7;
 
 function setAnalyticsPeriod(days, btn) {
   _analyticsDays = days;
+  loadAnalytics();
+}
+
+let _analyticsView = 'ga4';
+
+function switchAnalyticsView(view) {
+  _analyticsView = view;
   document.querySelectorAll('.analytics-period-btn').forEach(b => b.classList.remove('active-period'));
-  if (btn) btn.classList.add('active-period');
+  document.getElementById('btn_' + view)?.classList.add('active-period');
   loadAnalytics();
 }
 
 async function loadAnalytics() {
-  try {
-    const res = await apiFetch('/analytics?days=' + _analyticsDays, 'GET', null, false);
-    const d = res.data || {};
-    renderAnalyticsStats(d);
-    renderVisitorsChart(d.daily || []);
-    renderDeviceChart(d.devices || {});
-    renderTopPages(d.topPages || []);
-    renderTopProducts(d.topProducts || []);
-    renderTrafficSources(d.sources || {});
-    renderTopCities(d.cities || []);
-  } catch(e) {
-    // Agar analytics API nahi hai — demo data dikhao
-    const demo = generateDemoAnalytics(_analyticsDays);
-    renderAnalyticsStats(demo);
-    renderVisitorsChart(demo.daily);
-    renderDeviceChart(demo.devices);
-    renderTopPages(demo.topPages);
-    renderTopProducts(demo.topProducts);
-    renderTrafficSources(demo.sources);
-    renderTopCities(demo.cities);
+  if (_analyticsView === 'ga4') {
+    showGA4Embed();
+  } else {
+    showQuickStats();
   }
+}
+
+function showGA4Embed() {
+  // GA4 iframe embed karo
+  const containers = ['visitorsChart','deviceChart','topPages','topProducts','trafficSources','topCities'];
+  
+  // Stats row hide karo
+  const statsRow = document.getElementById('an_visitors')?.closest('.stats-grid');
+  
+  // Sab containers mein GA4 link dikhao
+  document.getElementById('visitorsChart').closest('.chart-card').style.gridColumn = 'span 3';
+  document.getElementById('visitorsChart').innerHTML = `
+    <div style="text-align:center;padding:20px 0;">
+      <div style="font-size:3rem;margin-bottom:12px;">📊</div>
+      <div style="font-family:var(--font-head);font-size:1.1rem;font-weight:700;color:var(--text);margin-bottom:8px;">Google Analytics Dashboard</div>
+      <p style="color:var(--text-muted);font-size:13px;margin-bottom:20px;max-width:400px;margin-left:auto;margin-right:auto;">Real-time data directly Google Analytics mein dekhein — wahan sab kuch milega: visitors, cities, devices, products.</p>
+      <a href="https://analytics.google.com/analytics/web/#/p533619980/reports/intelligenthome" target="_blank" 
+         style="display:inline-flex;align-items:center;gap:8px;padding:12px 24px;background:var(--gold);color:#111;border-radius:8px;text-decoration:none;font-weight:700;font-size:14px;margin-bottom:12px;">
+        <svg width="20" height="20" viewBox="0 0 24 24"><path fill="#E37400" d="M22.5 13.5v6a1.5 1.5 0 01-1.5 1.5h-6v-9h6a1.5 1.5 0 011.5 1.5z"/><path fill="#FBBC04" d="M13.5 3v18H9V12H3a1.5 1.5 0 01-1.5-1.5v-6A1.5 1.5 0 013 3h9a1.5 1.5 0 011.5 1.5z"/><path fill="#34A853" d="M13.5 21H9v-9h4.5v9z"/></svg>
+        Open Google Analytics
+      </a>
+      <br/>
+      <div style="display:flex;gap:16px;justify-content:center;flex-wrap:wrap;margin-top:16px;">
+        <a href="https://analytics.google.com/analytics/web/#/p533619980/reports/explorer?params=_u..nav%3Dmaui%26_r.explorerCard..selmet%3D%5B%22activeUsers%22%5D%26_r.explorerCard..seldim%3D%5B%22date%22%5D" target="_blank"
+           style="padding:8px 16px;border:1px solid var(--border);border-radius:6px;font-size:12px;color:var(--text);text-decoration:none;background:white;">👥 Visitors Report</a>
+        <a href="https://analytics.google.com/analytics/web/#/p533619980/reports/realtime" target="_blank"
+           style="padding:8px 16px;border:1px solid var(--border);border-radius:6px;font-size:12px;color:var(--text);text-decoration:none;background:white;">⚡ Real-time</a>
+        <a href="https://analytics.google.com/analytics/web/#/p533619980/reports/explorer?params=_u..nav%3Dmaui%26_r.explorerCard..seldim%3D%5B%22city%22%5D" target="_blank"
+           style="padding:8px 16px;border:1px solid var(--border);border-radius:6px;font-size:12px;color:var(--text);text-decoration:none;background:white;">📍 Cities</a>
+        <a href="https://analytics.google.com/analytics/web/#/p533619980/reports/explorer?params=_u..nav%3Dmaui%26_r.explorerCard..seldim%3D%5B%22deviceCategory%22%5D" target="_blank"
+           style="padding:8px 16px;border:1px solid var(--border);border-radius:6px;font-size:12px;color:var(--text);text-decoration:none;background:white;">📱 Devices</a>
+      </div>
+    </div>`;
+  
+  // Other containers hide karo
+  ['deviceChart','topPages','topProducts','trafficSources','topCities'].forEach(id => {
+    const card = document.getElementById(id)?.closest('.chart-card');
+    if (card) card.style.display = 'none';
+  });
+  const statsGrid = document.getElementById('an_visitors')?.closest('.stats-grid');
+  if (statsGrid) statsGrid.style.display = 'none';
+}
+
+function showQuickStats() {
+  // Show demo stats
+  document.getElementById('visitorsChart').closest('.chart-card').style.gridColumn = 'span 2';
+  ['deviceChart','topPages','topProducts','trafficSources','topCities'].forEach(id => {
+    const card = document.getElementById(id)?.closest('.chart-card');
+    if (card) card.style.display = '';
+  });
+  const statsGrid = document.getElementById('an_visitors')?.closest('.stats-grid');
+  if (statsGrid) statsGrid.style.display = '';
+  
+  const demo = generateDemoAnalytics(_analyticsDays);
+  renderAnalyticsStats(demo);
+  renderVisitorsChart(demo.daily);
+  renderDeviceChart(demo.devices);
+  renderTopPages(demo.topPages);
+  renderTopProducts(demo.topProducts);
+  renderTrafficSources(demo.sources);
+  renderTopCities(demo.cities);
 }
 
 function generateDemoAnalytics(days) {
