@@ -3765,6 +3765,7 @@ async function fetchProducts() {
         colors: p.colors || [],
         emoji: p.emoji || '👗',
         bg: p.bgColor ? p.bgColor : 'linear-gradient(160deg,#E8D4B0,#A08040)',
+        isFeatured: p.isFeatured || false,
         tags: [
           ...(p.isNew ? ['new'] : []),
           ...(p.isSale ? ['sale'] : []),
@@ -5647,12 +5648,20 @@ async function loadFeaturedSlider() {
         if (ttl && h.titleText) { ttl.childNodes[0].textContent = h.titleText + ' '; }
       }
     }
-    const res = await fetch(`${API_URL}/settings/featured-products`);
-    if (!res.ok) return;
-    const data = await res.json();
-    if (!data.success || !data.value || !data.value.length) return;
-    featuredProducts = data.value.map(id => PRODUCTS.find(p => p.id === id)).filter(Boolean);
-    if (featuredProducts.length < 2) return;
+    // isFeatured flag se products load karo
+    featuredProducts = PRODUCTS.filter(p => p.isFeatured);
+    
+    // Agar isFeatured products nahi hain toh settings se try karo
+    if (!featuredProducts.length) {
+      const res = await fetch(`${API_URL}/settings/featured-products`);
+      if (res.ok) {
+        const data = await res.json();
+        if (data.success && data.value && data.value.length) {
+          featuredProducts = data.value.map(id => PRODUCTS.find(p => p.id === id)).filter(Boolean);
+        }
+      }
+    }
+    if (featuredProducts.length < 1) return;
     buildFeaturedSlider();
     document.getElementById('featuredSliderSection').style.display = '';
     clearInterval(featuredTimer);
