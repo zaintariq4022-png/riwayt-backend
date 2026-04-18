@@ -2528,10 +2528,6 @@
     <li><a href="#" onclick="filterCategory('kids');toggleMobileNav();return false;">Kids</a></li>
     <li><a href="#" onclick="filterCategory('sale');toggleMobileNav();return false;" style="color:var(--terracotta)">Sale</a></li>
     <li><a href="#" onclick="filterCategory('new');toggleMobileNav();return false;" style="color:var(--sage)">New Arrivals</a></li>
-    <li><a href="#" onclick="filterCategory('stitching');toggleMobileNav();return false;">Stitching Details</a></li>
-    <li><a href="#" onclick="filterCategory('fancy');toggleMobileNav();return false;">Fancy</a></li>
-    <li><a href="#" onclick="filterCategory('bridal');toggleMobileNav();return false;">Bridal</a></li>
-    <li><a href="#" onclick="filterCategory('accessories');toggleMobileNav();return false;">Accessories</a></li>
   </ul>
 </div>
 
@@ -3541,12 +3537,11 @@
 
     <div class="footer-col">
       <h4>Shop</h4>
-      <ul>
+      <ul id="footerCategoryList">
         <li><a href="#" onclick="filterCategory('women');return false;">Women</a></li>
         <li><a href="#" onclick="filterCategory('kids');return false;">Kids</a></li>
         <li><a href="#" onclick="filterCategory('sale');return false;">Sale</a></li>
         <li><a href="#" onclick="filterCategory('new');return false;">New Arrivals</a></li>
-        <li><a href="#">FANCY</a></li>
       </ul>
     </div>
 
@@ -5783,16 +5778,24 @@ async function loadCategories() {
 
     const cats = data.categories.filter(c => c.active);
 
-    // Update header nav pills (category-bar)
+    // 1. Header category bar update
     const catBar = document.querySelector('.category-bar');
     if (catBar) {
-      catBar.innerHTML = `<button class="cat-pill active" onclick="catPillClick(this,'all')">All</button>` +
-        cats.map(c => `<button class="cat-pill${c.id==='sale'?' sale-pill':c.id==='new'?' new-pill':''}" onclick="catPillClick(this,'${c.id}')">${c.label}</button>`).join('');
+      catBar.innerHTML = '<button class="cat-pill active" onclick="catPillClick(this,'all')">All</button>' +
+        cats.map(c => '<button class="cat-pill' + (c.id==='sale'?' sale-pill':c.id==='new'?' new-pill':'') + '" onclick="catPillClick(this,'' + c.id + '')">' + c.label + '</button>').join('');
     }
-    const catPillsContainer = document.querySelector('.cat-pills');
-    if (catPillsContainer) {
-      catPillsContainer.innerHTML = `<button class="cat-pill active" onclick="catPillClick(this,'all')">All</button>` +
-        cats.map(c => `<button class="cat-pill${c.id==='sale'?' sale-pill':''}" onclick="catPillClick(this,'${c.id}')">${c.label}</button>`).join('');
+
+    // 2. Mobile nav update
+    const mobileNavList = document.querySelector('.mobile-nav-list');
+    if (mobileNavList) {
+      mobileNavList.innerHTML = '<li><a href="#" onclick="filterCategory('all');toggleMobileNav();return false;">All Products</a></li>' +
+        cats.map(c => '<li><a href="#" onclick="filterCategory('' + c.id + '');toggleMobileNav();return false;">' + c.label + '</a></li>').join('');
+    }
+
+    // 3. Footer links update
+    const footerCatList = document.getElementById('footerCategoryList');
+    if (footerCatList) {
+      footerCatList.innerHTML = cats.slice(0, 5).map(c => '<li><a href="#" onclick="filterCategory('' + c.id + '');return false;">' + c.label + '</a></li>').join('');
     }
 
     // Update filter chips in products section

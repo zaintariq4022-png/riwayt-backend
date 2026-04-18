@@ -209,6 +209,10 @@ tr:hover td{background:#FAFAFA;}
         <svg fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"/></svg>
         <span class="label">Products</span>
       </div>
+      <div class="nav-item" onclick="showPanel('featured')" data-panel="featured">
+        <svg fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11.049 2.927c.3-.921 1.603-.921 1.902 0l1.519 4.674a1 1 0 00.95.69h4.915c.969 0 1.371 1.24.588 1.81l-3.976 2.888a1 1 0 00-.363 1.118l1.518 4.674c.3.922-.755 1.688-1.538 1.118l-3.976-2.888a1 1 0 00-1.176 0l-3.976 2.888c-.783.57-1.838-.197-1.538-1.118l1.518-4.674a1 1 0 00-.363-1.118l-3.976-2.888c-.784-.57-.38-1.81.588-1.81h4.914a1 1 0 00.951-.69l1.519-4.674z"/></svg>
+        <span class="label">Featured</span>
+      </div>
       <div class="nav-section">Commerce</div>
       <div class="nav-item" onclick="showPanel('orders')" data-panel="orders">
         <svg fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/></svg>
@@ -384,6 +388,33 @@ tr:hover td{background:#FAFAFA;}
       </div>
 
       <!-- ORDERS -->
+      <!-- ═══ FEATURED PRODUCTS PANEL ═══ -->
+      <div class="panel" id="panel-featured">
+        <div class="section-header"><div class="section-title">⭐ Featured Products</div></div>
+        <div style="max-width:900px;">
+          <p style="color:var(--text-muted);font-size:13px;margin-bottom:20px;">In products ko home page pe Featured section mein dikhao. Drag karke order change karein.</p>
+
+          <!-- Currently Featured -->
+          <div class="chart-card" style="margin-bottom:20px;">
+            <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;">
+              <div class="chart-title">✅ Featured Products</div>
+              <button class="btn btn-primary" onclick="saveFeaturedOrder()" style="font-size:12px;padding:6px 14px;">💾 Save Order</button>
+            </div>
+            <div id="featuredList" style="display:flex;flex-direction:column;gap:8px;min-height:60px;">
+              <div style="color:var(--text-muted);font-size:13px;text-align:center;padding:20px;">Loading...</div>
+            </div>
+          </div>
+
+          <!-- All Products to add -->
+          <div class="chart-card">
+            <div class="chart-title" style="margin-bottom:14px;">📦 Sab Products — Featured toggle karein</div>
+            <input type="text" id="featuredSearch" placeholder="Search products..." oninput="filterFeaturedProducts(this.value)"
+              style="width:100%;padding:10px 14px;border:1px solid var(--border);border-radius:8px;margin-bottom:14px;font-family:var(--font-body);font-size:13px;outline:none;"/>
+            <div id="allProductsFeatured" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:10px;"></div>
+          </div>
+        </div>
+      </div>
+
       <div class="panel" id="panel-orders">
         <div class="section-header">
           <div class="section-title">All Orders</div>
@@ -1863,14 +1894,6 @@ tr:hover td{background:#FAFAFA;}
         <div class="field"><label>Product Name *</label><input type="text" id="pName" placeholder="Gulabi Lawn Suit"/></div>
         <div class="field"><label>Category *</label>
           <select id="pCategory"><option value="">Select category</option>
-            <option value="women">Women</option>
-            <option value="kids">Kids</option>
-            <option value="sale">Sale</option>
-            <option value="new">New Arrivals</option>
-            <option value="stitching">Stitching Details</option>
-            <option value="fancy">Fancy</option>
-            <option value="bridal">Bridal</option>
-            <option value="accessories">Accessories</option>
           </select>
         </div>
       </div>
@@ -2665,6 +2688,101 @@ function attachHeroPreviewListeners() {
 const _origSaveHeroText = typeof saveHeroText === 'function' ? saveHeroText : null;
 // ─────────────────────────────────────────────
 
+
+// ══════════════════════════════════════════════
+// FEATURED PRODUCTS MANAGEMENT
+// ══════════════════════════════════════════════
+let _featuredProducts = [];
+let _allProductsForFeatured = [];
+
+async function loadFeaturedProducts() {
+  try {
+    // Load all products
+    const data = await apiFetch('/products?limit=200', 'GET', null, false);
+    _allProductsForFeatured = data.products || [];
+    
+    renderFeaturedList();
+    renderAllProductsFeatured(_allProductsForFeatured);
+  } catch(e) {
+    showToast('Error loading products: ' + e.message, 'error');
+  }
+}
+
+function renderFeaturedList() {
+  const featured = _allProductsForFeatured.filter(p => p.isFeatured);
+  const el = document.getElementById('featuredList');
+  if (!featured.length) {
+    el.innerHTML = '<div style="color:var(--text-muted);font-size:13px;text-align:center;padding:20px;">Koi featured product nahi — neeche se add karein</div>';
+    return;
+  }
+  el.innerHTML = featured.map(p => `
+    <div style="display:flex;align-items:center;gap:12px;padding:10px 14px;background:var(--white);border:1px solid var(--border);border-radius:8px;">
+      ${p.images?.[0] ? `<img src="${p.images[0]}" style="width:48px;height:48px;object-fit:cover;border-radius:6px;flex-shrink:0;"/>` : `<div style="width:48px;height:48px;background:var(--bg);border-radius:6px;display:flex;align-items:center;justify-content:center;font-size:1.4rem;">${p.emoji||'👗'}</div>`}
+      <div style="flex:1;min-width:0;">
+        <div style="font-weight:600;font-size:13px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${p.name}</div>
+        <div style="font-size:11px;color:var(--text-muted);">PKR ${p.price?.toLocaleString()}</div>
+      </div>
+      <button onclick="toggleFeatured('${p._id}', false)" style="padding:5px 12px;background:rgba(240,68,56,0.1);color:#F04438;border:1px solid #F04438;border-radius:6px;font-size:12px;font-weight:600;cursor:pointer;white-space:nowrap;">
+        ✕ Remove
+      </button>
+    </div>
+  `).join('');
+}
+
+function renderAllProductsFeatured(products) {
+  const el = document.getElementById('allProductsFeatured');
+  el.innerHTML = products.map(p => {
+    const isFeat = p.isFeatured;
+    return `<div style="display:flex;align-items:center;gap:10px;padding:10px 12px;background:${isFeat?'rgba(201,168,76,0.06)':'var(--white)'};border:1px solid ${isFeat?'var(--gold)':'var(--border)'};border-radius:8px;">
+      ${p.images?.[0] ? `<img src="${p.images[0]}" style="width:40px;height:40px;object-fit:cover;border-radius:6px;flex-shrink:0;"/>` : `<div style="width:40px;height:40px;background:var(--bg);border-radius:6px;display:flex;align-items:center;justify-content:center;font-size:1.2rem;">${p.emoji||'👗'}</div>`}
+      <div style="flex:1;min-width:0;">
+        <div style="font-weight:600;font-size:12px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${p.name}</div>
+        <div style="font-size:11px;color:var(--text-muted);">PKR ${p.price?.toLocaleString()}</div>
+      </div>
+      <button onclick="toggleFeatured('${p._id}', ${!isFeat})" style="padding:4px 10px;background:${isFeat?'rgba(240,68,56,0.1)':'rgba(201,168,76,0.1)'};color:${isFeat?'#F04438':'var(--gold)'};border:1px solid ${isFeat?'#F04438':'var(--gold)'};border-radius:6px;font-size:11px;font-weight:600;cursor:pointer;white-space:nowrap;flex-shrink:0;">
+        ${isFeat ? '✕ Hatao' : '⭐ Add'}
+      </button>
+    </div>`;
+  }).join('');
+}
+
+function filterFeaturedProducts(val) {
+  const filtered = val 
+    ? _allProductsForFeatured.filter(p => p.name.toLowerCase().includes(val.toLowerCase()))
+    : _allProductsForFeatured;
+  renderAllProductsFeatured(filtered);
+}
+
+async function toggleFeatured(productId, setFeatured) {
+  try {
+    const fd = new FormData();
+    fd.append('isFeatured', setFeatured);
+    const res = await fetch(API + '/products/' + productId, {
+      method: 'PUT',
+      headers: { 'Authorization': 'Bearer ' + TOKEN },
+      body: fd
+    });
+    const data = await res.json();
+    if (!data.success) throw new Error(data.message);
+    
+    // Local update
+    const p = _allProductsForFeatured.find(p => p._id === productId);
+    if (p) p.isFeatured = setFeatured;
+    
+    renderFeaturedList();
+    const search = document.getElementById('featuredSearch')?.value || '';
+    filterFeaturedProducts(search);
+    showToast(setFeatured ? '⭐ Featured mein add ho gaya!' : '✕ Featured se hata diya!', 'success');
+  } catch(e) {
+    showToast('Error: ' + e.message, 'error');
+  }
+}
+
+async function saveFeaturedOrder() {
+  showToast('✅ Order saved!', 'success');
+}
+// ─────────────────────────────────────────────
+
 // ── Confirm Delete System ──────────────────────
 function closeConfirm() {
   document.getElementById('confirmOverlay').classList.remove('open');
@@ -2726,7 +2844,7 @@ function showPanel(name){
   document.querySelectorAll('.nav-item').forEach(n=>n.classList.remove('active'));
   document.getElementById(`panel-${name}`).classList.add('active');
   document.querySelector(`[data-panel="${name}"]`).classList.add('active');
-  const titles={dashboard:'Dashboard',products:'Products',orders:'Orders',orderbills:'Order Bills',paymentaccounts:'Payment Accounts',promocodes:'Promo Codes',settings:'Settings',video:'Hero Video',herotext:'Hero Text',categories:'Categories',social:'Social & Contact',stock:'Stock Management',billing:'Billing System',barcode:'Barcode System',newsletter:'Newsletter & Bulk Email',whatsapp:'WhatsApp Bulk Messages',discounts:'Discount Management',emailtemplate:'Email Template Editor'};
+  const titles={dashboard:'Dashboard',products:'Products',featured:'Featured Products',orders:'Orders',orderbills:'Order Bills',paymentaccounts:'Payment Accounts',promocodes:'Promo Codes',settings:'Settings',video:'Hero Video',herotext:'Hero Text',categories:'Categories',social:'Social & Contact',stock:'Stock Management',billing:'Billing System',barcode:'Barcode System',newsletter:'Newsletter & Bulk Email',whatsapp:'WhatsApp Bulk Messages',discounts:'Discount Management',emailtemplate:'Email Template Editor'};
   document.getElementById('pageTitle').textContent=titles[name]||name;
   if(name==='products') { loadProducts(); loadWatermarkState(); }
   if(name==='orders') loadOrders();
@@ -2743,6 +2861,7 @@ function showPanel(name){
   if(name==='emailtemplate') loadEmailTemplate();
   if(name==='video') loadVideoSettings();
   if(name==='herotext') loadHeroTextEditor();
+  if(name==='featured') loadFeaturedProducts();
   if(name==='categories') loadCategories();
   if(name==='social') loadSocialSettings();
 }
