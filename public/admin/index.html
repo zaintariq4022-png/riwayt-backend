@@ -2819,10 +2819,35 @@ function switchAnalyticsView(view) {
 }
 
 async function loadAnalytics() {
-  if (_analyticsView === 'ga4') {
-    showGA4Embed();
-  } else {
+  if (_analyticsView === 'demo') {
     showQuickStats();
+    return;
+  }
+  // Real GA4 data load karo
+  try {
+    const res = await apiFetch('/analytics?days=' + _analyticsDays, 'GET', null, false);
+    if (res.success && res.data) {
+      const d = res.data;
+      // Show all panels
+      document.getElementById('visitorsChart').closest('.chart-card').style.gridColumn = 'span 2';
+      ['deviceChart','topPages','topProducts','trafficSources','topCities'].forEach(id => {
+        const card = document.getElementById(id)?.closest('.chart-card');
+        if (card) card.style.display = '';
+      });
+      const statsGrid = document.getElementById('an_visitors')?.closest('.stats-grid');
+      if (statsGrid) statsGrid.style.display = '';
+      renderAnalyticsStats(d);
+      renderVisitorsChart(d.daily || []);
+      renderDeviceChart(d.devices || {});
+      renderTopPages(d.topPages || []);
+      renderTopProducts(d.topProducts || []);
+      renderTrafficSources(d.sources || {});
+      renderTopCities(d.cities || []);
+    } else {
+      showGA4Embed();
+    }
+  } catch(e) {
+    showGA4Embed();
   }
 }
 
