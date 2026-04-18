@@ -5781,21 +5781,21 @@ async function loadCategories() {
     // 1. Header category bar update
     const catBar = document.querySelector('.category-bar');
     if (catBar) {
-      catBar.innerHTML = '<button class="cat-pill active" onclick="catPillClick(this,'all')">All</button>' +
-        cats.map(c => '<button class="cat-pill' + (c.id==='sale'?' sale-pill':c.id==='new'?' new-pill':'') + '" onclick="catPillClick(this,'' + c.id + '')">' + c.label + '</button>').join('');
+      catBar.innerHTML = '<button class="cat-pill active" onclick="catPillClick(this,&quot;all&quot;)">All</button>' +
+        cats.map(c => '<button class="cat-pill' + (c.id==='sale'?' sale-pill':c.id==='new'?' new-pill':'') + '" onclick="catPillClick(this,&quot;' + c.id + '&quot;)">' + c.label + '</button>').join('');
     }
 
     // 2. Mobile nav update
     const mobileNavList = document.querySelector('.mobile-nav-list');
     if (mobileNavList) {
-      mobileNavList.innerHTML = '<li><a href="#" onclick="filterCategory('all');toggleMobileNav();return false;">All Products</a></li>' +
-        cats.map(c => '<li><a href="#" onclick="filterCategory('' + c.id + '');toggleMobileNav();return false;">' + c.label + '</a></li>').join('');
+      mobileNavList.innerHTML = '<li><a href="#" onclick="filterCategory(&quot;all&quot;);toggleMobileNav();return false;">All Products</a></li>' +
+        cats.map(c => '<li><a href="#" onclick="filterCategory(&quot;' + c.id + '&quot;);toggleMobileNav();return false;">' + c.label + '</a></li>').join('');
     }
 
     // 3. Footer links update
     const footerCatList = document.getElementById('footerCategoryList');
     if (footerCatList) {
-      footerCatList.innerHTML = cats.slice(0, 5).map(c => '<li><a href="#" onclick="filterCategory('' + c.id + '');return false;">' + c.label + '</a></li>').join('');
+      footerCatList.innerHTML = cats.slice(0, 5).map(c => '<li><a href="#" onclick="filterCategory(&quot;' + c.id + '&quot;);return false;">' + c.label + '</a></li>').join('');
     }
 
     // Update filter chips in products section
