@@ -30,6 +30,7 @@ const productSchema = new mongoose.Schema(
     isFeatured: { type: Boolean, default: false },
     isNew: { type: Boolean, default: false },
     isSale: { type: Boolean, default: false },
+    isHot: { type: Boolean, default: false },
     tags: [{ type: String }],
     rating: { type: Number, default: 0 },
     numReviews: { type: Number, default: 0 },
