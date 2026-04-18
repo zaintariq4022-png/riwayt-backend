@@ -8,56 +8,136 @@
   function gtag(){dataLayer.push(arguments);}
   gtag('js', new Date());
   gtag('config', 'G-JBSWJD78LQ');
+</script>
+<!-- Facebook Pixel + DataLayer -->
+<script>
+// ── DATALAYER INIT ──
+window.dataLayer = window.dataLayer || [];
 
-  // Track product views
-  function trackProductView(product) {
+// ── FACEBOOK PIXEL ──
+!function(f,b,e,v,n,t,s){
+  if(f.fbq)return;n=f.fbq=function(){n.callMethod?
+  n.callMethod.apply(n,arguments):n.queue.push(arguments)};
+  if(!f._fbq)f._fbq=n;n.push=n;n.loaded=!0;n.version='2.0';
+  n.queue=[];t=b.createElement(e);t.async=!0;
+  t.src=v;s=b.getElementsByTagName(e)[0];
+  s.parentNode.insertBefore(t,s)}(window,document,'script',
+  'https://connect.facebook.net/en_US/fbevents.js');
+  fbq('init', '26230706496632068​8');
+  fbq('track', 'PageView');
+
+// ══════════════════════════════════════════
+// RIWAYAT TRACKING FUNCTIONS
+// ══════════════════════════════════════════
+
+// Product View
+function trackProductView(product) {
+  // GA4
+  if(typeof gtag !== 'undefined') {
     gtag('event', 'view_item', {
       currency: 'PKR',
       value: product.price,
-      items: [{
-        item_id: product.id,
-        item_name: product.name,
-        item_category: product.category,
-        price: product.price,
-      }]
+      items: [{ item_id: product.id, item_name: product.name, item_category: product.category, price: product.price }]
     });
   }
+  // Facebook Pixel
+  if(typeof fbq !== 'undefined') {
+    fbq('track', 'ViewContent', {
+      content_ids: [product.id],
+      content_name: product.name,
+      content_category: product.category,
+      content_type: 'product',
+      value: product.price,
+      currency: 'PKR'
+    });
+  }
+  // DataLayer
+  window.dataLayer.push({
+    event: 'view_item',
+    ecommerce: {
+      items: [{ item_id: product.id, item_name: product.name, item_category: product.category, price: product.price }]
+    }
+  });
+}
 
-  // Track add to cart
-  function trackAddToCart(product, qty) {
+// Add to Cart
+function trackAddToCart(product, qty) {
+  const value = product.price * qty;
+  // GA4
+  if(typeof gtag !== 'undefined') {
     gtag('event', 'add_to_cart', {
-      currency: 'PKR',
-      value: product.price * qty,
-      items: [{
-        item_id: product.id,
-        item_name: product.name,
-        item_category: product.category,
-        price: product.price,
-        quantity: qty,
-      }]
+      currency: 'PKR', value,
+      items: [{ item_id: product.id, item_name: product.name, item_category: product.category, price: product.price, quantity: qty }]
     });
   }
-
-  // Track purchase / order placed
-  function trackPurchase(orderId, total, items) {
-    gtag('event', 'purchase', {
-      transaction_id: orderId,
-      currency: 'PKR',
-      value: total,
-      items: items.map(i => ({
-        item_id: i.productId,
-        item_name: i.name,
-        price: i.price,
-        quantity: i.qty,
-      }))
+  // Facebook Pixel
+  if(typeof fbq !== 'undefined') {
+    fbq('track', 'AddToCart', {
+      content_ids: [product.id],
+      content_name: product.name,
+      content_type: 'product',
+      value, currency: 'PKR'
     });
   }
+  // DataLayer
+  window.dataLayer.push({
+    event: 'add_to_cart',
+    ecommerce: {
+      currency: 'PKR', value,
+      items: [{ item_id: product.id, item_name: product.name, price: product.price, quantity: qty }]
+    }
+  });
+}
 
-  // Track search
-  function trackSearch(term) {
-    gtag('event', 'search', { search_term: term });
+// Initiate Checkout
+function trackInitiateCheckout(cart, total) {
+  const items = cart.map(i => ({ item_id: i.id, item_name: i.name, price: i.price, quantity: i.qty }));
+  // GA4
+  if(typeof gtag !== 'undefined') {
+    gtag('event', 'begin_checkout', { currency: 'PKR', value: total, items });
   }
+  // Facebook Pixel
+  if(typeof fbq !== 'undefined') {
+    fbq('track', 'InitiateCheckout', {
+      content_ids: cart.map(i => i.id),
+      num_items: cart.reduce((s,i) => s+i.qty, 0),
+      value: total, currency: 'PKR'
+    });
+  }
+  // DataLayer
+  window.dataLayer.push({ event: 'begin_checkout', ecommerce: { currency: 'PKR', value: total, items } });
+}
+
+// Purchase
+function trackPurchase(orderId, total, items) {
+  const dlItems = items.map(i => ({ item_id: i.productId, item_name: i.name, price: i.price, quantity: i.qty }));
+  // GA4
+  if(typeof gtag !== 'undefined') {
+    gtag('event', 'purchase', { transaction_id: orderId, currency: 'PKR', value: total, items: dlItems });
+  }
+  // Facebook Pixel
+  if(typeof fbq !== 'undefined') {
+    fbq('track', 'Purchase', {
+      content_ids: items.map(i => i.productId),
+      content_type: 'product',
+      value: total, currency: 'PKR'
+    });
+  }
+  // DataLayer
+  window.dataLayer.push({
+    event: 'purchase',
+    ecommerce: { transaction_id: orderId, currency: 'PKR', value: total, items: dlItems }
+  });
+}
+
+// Search
+function trackSearch(term) {
+  if(typeof gtag !== 'undefined') gtag('event', 'search', { search_term: term });
+  if(typeof fbq !== 'undefined') fbq('track', 'Search', { search_string: term });
+  window.dataLayer.push({ event: 'search', search_term: term });
+}
 </script>
+<noscript><img height="1" width="1" style="display:none" src="https://www.facebook.com/tr?id=26230706496632068&ev=PageView&noscript=1"/></noscript>
   <meta charset="UTF-8" />
   <title>RIWAYAT — Pakistani Fashion Online | Lawn, Bridal, Kids Wear</title>
   <meta name="description" content="RIWAYAT Pakistan ka premium fashion store — Lawn suits, Bridal dresses, Kids wear, Fancy collections aur Stitching services. Free delivery on orders above PKR 10,000. Shop online at riwayat-pakistan.online"/>
