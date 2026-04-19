@@ -3936,8 +3936,9 @@ async function fetchProducts() {
     const p = PRODUCTS.find(pr => pr.id === _sharePid);
     if (p) {
       // Seedha openProduct karo — renderProducts skip
-      setTimeout(() => openProduct(p.id), 50);
-      return; // renderProducts skip karo
+      openProduct(p.id);
+      window.dispatchEvent(new Event('productsLoaded'));
+      return; // home page show mat karo
     }
   }
 
@@ -4108,10 +4109,13 @@ function filterCategory(cat) {
     }
   });
   renderProducts(cat);
-  showPage('home');
-  setTimeout(() => {
-    document.getElementById('productsSection').scrollIntoView({ behavior:'smooth' });
-  }, 100);
+  // Sirf tab home dikhao jab detail pe na hon
+  if (!document.body.classList.contains('detail-active')) {
+    showPage('home');
+    setTimeout(() => {
+      document.getElementById('productsSection')?.scrollIntoView({ behavior:'smooth' });
+    }, 100);
+  }
 }
 
 function setFilter(cat, el) {
