@@ -3906,7 +3906,6 @@ async function fetchProducts() {
         tags: [
           ...(p.isNew ? ['new'] : []),
           ...(p.isSale ? ['sale'] : []),
-          ...(p.isFeatured ? ['hot'] : []),
           ...(p.isHot ? ['hot'] : []),
         ],
         images: p.images || [],
@@ -4051,9 +4050,10 @@ startHeroTimer();
 function getFilteredProducts(filter) {
   if (filter === 'all') return PRODUCTS;
   if (filter === 'new') return PRODUCTS.filter(p => p.category === 'new' || p.tags.includes('new'));
-  if (filter === 'sale') return PRODUCTS.filter(p => p.discount >= 25);
+  if (filter === 'sale') return PRODUCTS.filter(p => p.tags.includes('sale') || p.category === 'sale' || p.discount > 0);
+  if (filter === 'hot') return PRODUCTS.filter(p => p.tags.includes('hot'));
   if (filter === 'stitching') return PRODUCTS.filter(p => p.category === 'stitching');
-  return PRODUCTS.filter(p => p.category === filter);
+  return PRODUCTS.filter(p => p.category === filter || p.tags.includes(filter));
 }
 
 function renderProducts(filter) {
